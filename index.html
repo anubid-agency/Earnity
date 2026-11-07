@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -37,6 +37,10 @@ header{position:sticky;top:0;z-index:20;background:#fff;padding:10px 0 8px}
 .switch{display:flex;border:1.5px solid var(--green);border-radius:999px;overflow:hidden;font-size:13px}
 .switch button{padding:7px 14px;color:var(--green)}
 .switch button[aria-pressed="true"]{background:var(--green);color:#fff}
+.hright{display:flex;align-items:center;gap:10px}
+.acctbtn{display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;background:var(--orange);color:#fff;font-weight:700;font-size:13.5px;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acctbtn.in{background:var(--soft-green);color:var(--green)}
+body.seller .badge{display:none}
 
 .hero{position:relative;width:100%;min-height:80vh;min-height:80svh;display:flex;align-items:center;justify-content:center;
   color:#fff;background:linear-gradient(180deg,var(--green),var(--green-deep))}
@@ -213,9 +217,12 @@ body.det .detail{transform:none;visibility:visible}
       <div class="logo">
         <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
       </div>
-      <div class="switch" id="switch" role="group" aria-label="Preview as">
-        <button id="bBuyer" aria-pressed="true">Buyer</button>
-        <button id="bRef" aria-pressed="false">Referee</button>
+      <div class="hright">
+        <div class="switch" id="switch" role="group" aria-label="Preview as">
+          <button id="bBuyer" aria-pressed="true">B</button>
+          <button id="bRef" aria-pressed="false">R</button>
+        </div>
+        <a class="acctbtn" id="acctBtn" href="account.html">Signin</a>
       </div>
     </div>
   </div>
@@ -229,7 +236,7 @@ body.det .detail{transform:none;visibility:visible}
     <div class="sw">
       <label class="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" id="q" placeholder="Search...." aria-label="Search" autocomplete="off" enterkeyhint="search" maxlength="60">
+        <input type="search" id="q" placeholder="Search verified deals, top brands &amp; trending items..." aria-label="Search" autocomplete="off" enterkeyhint="search" maxlength="60">
         <button class="clr" id="qclr" type="button" aria-label="Clear search" hidden><i class="fa-solid fa-xmark"></i></button>
       </label>
       <div class="sug" id="sug" hidden></div>
@@ -266,6 +273,7 @@ const CFG = {
   FEED: "https://earnity-feed.anubisdigital114-9df.workers.dev",
   CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
   REFERRALS: "https://earnity-referrals.anubisdigital114-9df.workers.dev",
+  API: "https://earnity-api.anubisdigital114-9df.workers.dev",
   CLOUD_NAME: "",   /* <- your Cloudinary cloud name */
   FIREBASE: {
     apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
@@ -305,7 +313,7 @@ function toast(msg) {
 
 /* ================= STATE ================= */
 const S = {
-  role: "buyer", fb: null, auth: null, fbMod: null, user: null, registered: true,
+  role: "buyer", auth: null, fbMod: null, user: null, acct: null,
   cat: "all", mode: "feed", q: "", store: "",
   cursor: null, done: false, loading: false, gen: 0,
   list: [], items: new Map(), cur: null, chips: []
@@ -346,7 +354,7 @@ async function api(base, path, opt = {}) {
   let tok = null;
   if (opt.auth !== false && S.user) { try { tok = await S.user.getIdToken(); } catch {} }
   let r = await req(base, path, opt, tok);
-  if (tok && !r.ok && (r.status === 401 || (r.status === 404 && r.data.error === "not_registered"))) {
+  if (tok && !opt.strict && !r.ok && (r.status === 401 || (r.status === 404 && r.data.error === "not_registered"))) {
     r = await req(base, path, opt, null);   /* fall back to anonymous */
   }
   return r;
@@ -636,14 +644,14 @@ function toggleSave(id) {
 function openProductSheet(id) {
   const x = S.items.get(id); if (!x) return;
   S.cur = id; track("three_dot_open", { product_id: id });
-  const ref = S.role === "referee"; const l = lvl(x.biz);
+  const ref = S.role === "referee", sel = S.role === "seller"; const l = lvl(x.biz);
   const first = ref
     ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn<small>${x.slots > 0 ? "Your link earns UGX " + fmt(x.earn) + " per sale" : "All referee slots are taken"}</small></span></span>${arrow}</button>`
-    : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`;
+    : sel ? "" : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`;
   const rows = [
     ref ? ["buy", "fa-bag-shopping", "Buy"] : null,
     ["see", "fa-circle-info", "See more"],
-    ["request", "fa-tag", "Request Discounted"],
+    sel ? null : ["request", "fa-tag", "Request Discounted"],
     ["share", "fa-share-nodes", "Share"],
     ["save", "fa-bookmark", saved().includes(id) ? "Saved" : "Save"],
     ["store", "fa-store", "View store"],
@@ -655,7 +663,6 @@ function openProductSheet(id) {
     <h2>${esc(x.name)}</h2><div class="sp">UGX ${fmt(x.eff)}</div>${first}${rows}`);
 }
 function soon() {
-  if (!S.user) { openSignIn("Sign in to continue"); return; }
   closeSheet(); toast("This action is connected in the next step.");
 }
 
@@ -683,7 +690,7 @@ async function openDetail(id) {
   const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(id), { auth: false });
   if (!document.body.classList.contains("det") || S.cur !== id) return;
   if (!r.ok) { detail.innerHTML = dHead("Product", `<div class="msg">${r.status === 404 ? "This product is no longer available." : "Couldn't load this product. Check your connection."}</div>`); return; }
-  const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee";
+  const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee", sel = S.role === "seller";
   const eff = Number(d.effective_price_ugx), bps = Number(d.commission_bps);
   const ids = (Array.isArray(d.images) ? d.images : []).filter(x => imgUrl(x, 1)).slice(0, 6);
   const n = ids.length || 1;
@@ -700,7 +707,7 @@ async function openDetail(id) {
     <div class="dprice">UGX ${fmt(eff)}${d.offer_active ? `<s>${fmt(d.price_ugx)}</s>` : ""}</div>
     <div class="dtitle">${esc(d.name)}</div>
     ${ref ? `<div class="earnrow"><i class="fa-solid fa-coins"></i>Earn UGX ${fmt(earnOf(eff, bps))} per sale (${pct(bps)}%)</div>`
-          : `<div class="earnrow"><i class="fa-solid fa-tag"></i>Up to ${pct(bps)}% off</div>`}
+          : sel ? "" : `<div class="earnrow"><i class="fa-solid fa-tag"></i>Up to ${pct(bps)}% off</div>`}
     ${offerEnd ? `<div class="offer">Offer ends ${esc(offerEnd)}</div>` : ""}
     <button class="seller" data-store="${esc(b.subdomain)}">${lg ? `<img class="lg" src="${esc(lg)}" alt="">` : ""}
       <div><div class="nm">${esc(b.name)}</div><div class="lv">${esc(lvlName(l))} · tap to view store</div></div>${lvlBadge(l)}</button>
@@ -708,14 +715,14 @@ async function openDetail(id) {
       ${fact("fa-truck", "Delivery", d.delivery_text || "Arranged with seller")}
       ${fact("fa-clock", "Delivery time", Number(d.delivery_days) + " day" + (Number(d.delivery_days) === 1 ? "" : "s"))}
       ${fact("fa-circle-check", "Delivered sales", fmt(b.delivered_sales))}
-      ${ref ? fact("fa-user-group", "Referee slots open", String(Number(d.slots_free))) : fact("fa-shield-halved", "Deposit", "Pay a deposit now, the rest at delivery")}
+      ${ref ? fact("fa-user-group", "Referee slots open", String(Number(d.slots_free))) : sel ? "" : fact("fa-shield-halved", "Deposit", "Pay a deposit now, the rest at delivery")}
     </div>
     ${d.description ? `<div class="dh">About this item</div><div class="desc">${esc(d.description)}</div>` : ""}`;
   const isSaved = saved().includes(id);
   const bar = `<div class="dact"><button class="sec" data-act="save" aria-label="Save"><i class="${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark"></i></button>
     <button class="sec" data-act="share" aria-label="Share"><i class="fa-solid fa-share-nodes"></i></button>` +
     (ref ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn</span></span>${arrow}</button>`
-         : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`) + `</div>`;
+         : sel ? "" : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`) + `</div>`;
   detail.innerHTML = dHead(d.name, body, bar);
   const sl = $("slides"), cnt = $("cnt"), th = $("thumbs");
   sl.addEventListener("scroll", () => {
@@ -740,7 +747,14 @@ function doAct(act) {
   const id = S.cur;
   switch (act) {
     case "see": closeSheet(); openDetail(id); break;
-    case "buy": case "refer": case "request": case "report": case "sell": case "earn": soon(); break;
+    case "buy": case "refer": if (!needAccount(true)) return; soon(); break;
+    case "request": case "report": if (!needAccount(false)) return; soon(); break;
+    case "sell":
+      if (S.acct && S.acct.account_type === "seller") location.href = "business.html"; else goAccount(false);
+      break;
+    case "earn":
+      if (S.acct && S.acct.account_type === "referee") location.href = "referee.html"; else goAccount(false);
+      break;
     case "share": shareProduct(id); break;
     case "save": {
       const on = toggleSave(id);
@@ -757,8 +771,6 @@ function doAct(act) {
     }
     case "retry": setStatus(""); loadMore(); break;
     case "exit": startFeed(); break;
-    case "google": signIn(); break;
-    case "signout": signOut(); break;
     case "pick-skip": pickDone(); closeSheet(); break;
     case "pick-go": {
       const ids = [...document.querySelectorAll("#pk [aria-pressed='true']")].map(b => b.dataset.pick);
@@ -793,36 +805,65 @@ document.addEventListener("keydown", e => {
 });
 $("nHome").addEventListener("click", () => { if (S.mode !== "feed" || S.cat !== "all") { S.cat = "all"; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.chip === "all")); startFeed(); } scrollTo({ top: 0, behavior: "smooth" }); });
 $("nSearch").addEventListener("click", () => { scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => qEl.focus({ preventScroll: true }), 350); });
-$("nProfile").addEventListener("click", () => { if (S.user) openProfile(); else openSignIn(); });
+$("nProfile").addEventListener("click", () => { if (S.user) location.href = "account.html"; else goAccount(); });
 
-/* ================= ROLE ================= */
+/* ================= ROLE + ACCOUNT ================= */
+/* All sign-in and sign-up happens on account.html. This page only reads the login state. */
+function nextHref() { return "account.html?next=" + encodeURIComponent(location.pathname + location.search); }
+function goAccount(keepNext) { location.href = keepNext === false ? "account.html" : nextHref(); }
+function needAccount(needPhone) {
+  if (!S.user || !S.acct) { goAccount(); return false; }
+  if (needPhone && !S.acct.phone_verified) { goAccount(); return false; }
+  return true;
+}
 function setRole(r) {
-  S.role = r; document.body.classList.toggle("referee", r === "referee");
-  $("bBuyer").setAttribute("aria-pressed", r !== "referee");
+  S.role = r;
+  document.body.classList.toggle("referee", r === "referee");
+  document.body.classList.toggle("seller", r === "seller");
+  $("bBuyer").setAttribute("aria-pressed", r === "buyer");
   $("bRef").setAttribute("aria-pressed", r === "referee");
   renderAll();
 }
 $("bBuyer").onclick = () => setRole("buyer");
 $("bRef").onclick = () => setRole("referee");
-async function detectRole() {
-  /* the referrals worker answers 200 for referees and 403 wrong_account_type for everyone else */
-  const r = await api(CFG.REFERRALS, "/links/mine");
-  if (r.status === 404 && r.data.error === "not_registered") { S.registered = false; $("switch").hidden = false; return; }
-  S.registered = true; $("switch").hidden = true;
-  setRole(r.ok ? "referee" : "buyer");
-}
 
-/* ================= SIGN IN (Firebase, Google) ================= */
-function openSignIn(msg) {
-  openSheet(`<div class="grab"></div><h2 style="font-size:19px;font-weight:800">Sign in to Earnity</h2>
-    <p class="lead">${esc(msg || "Buy, refer and earn with your Google account.")}</p>
-    <button class="act google" data-act="google"><span class="l"><i class="fa-brands fa-google" style="color:#ea4335"></i><span>Continue with Google</span></span></button>`);
+function updateAcctBtn() {
+  const b = $("acctBtn");
+  if (S.acct) {
+    const t = S.acct.account_type;
+    b.textContent = String(S.acct.display_name || "Account").split(" ")[0];
+    b.classList.add("in");
+    b.href = t === "referee" ? "referee.html" : t === "seller" ? "business.html" : "index.html";
+  } else {
+    b.textContent = "Sign in"; b.classList.remove("in"); b.href = "account.html";
+  }
 }
-function openProfile() {
-  const u = S.user;
-  openSheet(`<div class="grab"></div><h2 style="font-size:19px;font-weight:800">${esc(u.displayName || "Your account")}</h2>
-    <p class="lead">${esc(u.email || "")}${S.registered ? "" : "<br>Your Earnity account isn't set up yet."}</p>
-    <button class="act" data-act="signout"><span class="l"><i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span></span></button>`);
+$("acctBtn").addEventListener("click", e => { if (!S.acct) { e.preventDefault(); goAccount(); } });
+
+/* returns false only when the user was sent to account.html */
+async function loadMe() {
+  const r = await api(CFG.API, "/me", { strict: true });
+  if (r.ok && r.data.user) {
+    S.acct = r.data.user;
+    $("switch").hidden = true;
+    const t = S.acct.account_type;
+    setRole(t === "referee" ? "referee" : t === "seller" ? "seller" : "buyer");
+    updateAcctBtn();
+    return true;
+  }
+  S.acct = null;
+  if (r.status === 404 && r.data.error === "not_registered") { goAccount(); return false; }
+  if (r.status === 403 && r.data.error === "account_blocked") toast("This account has been blocked.");
+  $("switch").hidden = false; setRole("buyer"); updateAcctBtn();
+  return true;
+}
+function linkVisitor() {
+  /* ties this browser's anonymous browsing to the account once per session, so the feed can personalise */
+  try {
+    if (!vid() || sessionStorage.getItem("eu_linked")) return;
+    sessionStorage.setItem("eu_linked", "1");
+    api(CFG.FEED, "/events/link", { method: "POST", body: {} });
+  } catch {}
 }
 async function initAuth() {
   try {
@@ -835,30 +876,14 @@ async function initAuth() {
     authMod.onAuthStateChanged(S.auth, async u => {
       const was = !!S.user; S.user = u || null;
       if (u && !was) {
-        closeSheet();
-        const v = vid();
-        if (v) api(CFG.FEED, "/events/link", { method: "POST", body: {} });
-        await detectRole();
+        if (!(await loadMe())) return;
+        linkVisitor();
         startFeed();
       } else if (!u && was) {
-        S.registered = true; $("switch").hidden = false; setRole("buyer"); startFeed();
+        S.acct = null; $("switch").hidden = false; setRole("buyer"); updateAcctBtn(); startFeed();
       }
     });
   } catch { /* the site keeps working signed out */ }
-}
-async function signIn() {
-  if (!S.auth || !S.fbMod) { toast("Sign-in isn't available right now."); return; }
-  const m = S.fbMod;
-  try { await m.signInWithPopup(S.auth, new m.GoogleAuthProvider()); }
-  catch (e) {
-    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) {
-      try { await m.signInWithRedirect(S.auth, new m.GoogleAuthProvider()); } catch {}
-    } else if (!e || e.code !== "auth/popup-closed-by-user") toast("Sign-in failed. Try again.");
-  }
-}
-async function signOut() {
-  try { await S.fbMod.signOut(S.auth); } catch {}
-  closeSheet(); toast("Signed out");
 }
 
 /* ================= START ================= */
