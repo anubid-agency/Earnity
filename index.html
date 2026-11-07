@@ -1,0 +1,880 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Earnity: refer, earn, save. Discover products in Uganda and earn when you share.">
+<title>Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!--
+  Earnity home page, connected to the workers.
+  Serve this file from earnityug.com (the workers only accept that origin).
+  Files expected next to this page:
+    earnity.png (logo), back1.jpg to back8.jpg (hero), 1.png to 10.png (level badges),
+    beauty.png car.png child.png clothes.png food.png phone.png furniture.png other.jpg (category tiles)
+  Set CLOUD_NAME below to your Cloudinary cloud name or product photos will show placeholders.
+-->
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#fff;
+  line-height:1.4;padding-top:env(safe-area-inset-top,0px)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px}
+
+header{position:sticky;top:0;z-index:20;background:#fff;padding:10px 0 8px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo img{height:50px;width:auto;display:block}
+.switch{display:flex;border:1.5px solid var(--green);border-radius:999px;overflow:hidden;font-size:13px}
+.switch button{padding:7px 14px;color:var(--green)}
+.switch button[aria-pressed="true"]{background:var(--green);color:#fff}
+
+.hero{position:relative;width:100%;min-height:80vh;min-height:80svh;display:flex;align-items:center;justify-content:center;
+  color:#fff;background:linear-gradient(180deg,var(--green),var(--green-deep))}
+.hero .bg{position:absolute;inset:0;overflow:hidden}
+.hero .bg i{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease}
+.hero .bg i.on{opacity:1}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,48,26,.30) 0%,rgba(5,48,26,.12) 45%,rgba(5,48,26,.50) 100%)}
+.hero-in{position:relative;z-index:1;width:100%;max-width:1100px;padding:48px 14px;text-shadow:0 2px 14px rgba(0,0,0,.4)}
+.hero h1{font-size:clamp(32px,6.5vw,60px);line-height:1.06;font-weight:800;letter-spacing:-.5px}
+.hero p{margin-top:12px;font-size:clamp(16px,2.5vw,22px);opacity:.95;max-width:680px;line-height:1.35}
+.sw{position:relative;margin-top:24px;max-width:640px;z-index:3}
+.search{display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:0 10px 0 18px;height:52px;color:var(--ink);text-shadow:none}
+.search input{flex:1;border:0;background:none;font:inherit;font-size:16px;outline:0;min-width:0;color:var(--ink)}
+.search:focus-within{box-shadow:0 0 0 3px var(--orange)}
+.clr{width:36px;height:36px;border-radius:50%;color:var(--muted);font-size:16px}
+.sug{position:absolute;left:0;right:0;top:58px;background:#fff;color:var(--ink);border-radius:18px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);text-shadow:none}
+.sug button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:0 18px;text-align:left;font-size:15.5px;border-bottom:1px solid var(--line)}
+.sug button:last-child{border-bottom:0}
+.sug button:hover{background:var(--mist)}
+.sug i{color:var(--green);width:16px;text-align:center}
+.hero .btns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn{padding:12px 24px;border-radius:999px;font-weight:700;font-size:15px;text-shadow:none;display:inline-flex;align-items:center;gap:8px}
+.btn.solid{background:var(--orange);color:#fff}
+.btn.line{border:1.5px solid #fff;color:#fff;background:rgba(255,255,255,.1)}
+
+.chips{display:flex;gap:14px;overflow-x:auto;margin:16px 0 18px;padding:4px 2px;scrollbar-width:none;min-height:130px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;width:92px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.chip .pic{width:92px;height:92px;border-radius:22px;background:var(--mist);display:grid;place-items:center;overflow:hidden;
+  border:2.5px solid transparent;transition:border-color .15s,transform .15s;color:var(--green);font-size:30px}
+.chip .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.chip .nm{font-size:13.5px;line-height:1.2;color:var(--muted);font-weight:500}
+.chip:hover .pic{transform:translateY(-2px)}
+.chip[aria-pressed="true"] .pic{border-color:var(--orange)}
+.chip[aria-pressed="true"] .nm{color:var(--green);font-weight:700}
+@media(min-width:700px){.chip{width:112px}.chip .pic{width:112px;height:112px}.chip .nm{font-size:14.5px}}
+
+.fh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 14px;font-size:16px}
+.fh button{padding:8px 16px;border:1.5px solid var(--green);border-radius:999px;color:var(--green);font-size:14px;font-weight:600}
+.shead{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px}
+.shead .nm{font-weight:800;font-size:18px}
+.shead .ds{font-size:14px;color:var(--muted);margin-top:2px}
+.shead img.lg{width:56px;height:56px;border-radius:14px;object-fit:cover}
+.shead img.bd{width:50px;margin-left:auto;object-fit:contain}
+.stores{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;scrollbar-width:none}
+.stores::-webkit-scrollbar{display:none}
+.stores button{flex:none;padding:10px 16px;border:1px solid var(--line);border-radius:999px;font-size:14px;display:flex;align-items:center;gap:8px}
+.stores button i{color:var(--green)}
+
+.feed{column-count:2;column-gap:12px}
+@media(min-width:700px){.feed{column-count:3;column-gap:16px}}
+@media(min-width:1000px){.feed{column-count:4}}
+.card{break-inside:avoid;margin-bottom:16px}
+.img{position:relative;display:block;width:100%;aspect-ratio:4/5;border-radius:var(--radius);overflow:hidden}
+.img.ld{aspect-ratio:auto}
+.img img{display:block;width:100%;height:auto;opacity:0;transition:opacity .25s}
+.img.ld img{opacity:1}
+.img .ph{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--green);opacity:.55;text-align:center;padding:8px}
+.img.ld .ph{display:none}
+.badge{position:absolute;left:8px;top:8px;display:inline-flex;align-items:center;gap:5px;padding:6px 10px;
+  border-radius:999px;font-size:12.5px;font-weight:700;background:var(--soft-green);color:var(--green)}
+body.referee .badge{background:var(--orange);color:#fff;box-shadow:0 2px 8px rgba(242,107,33,.35)}
+.badge.full{background:#e9ecea!important;color:var(--muted)!important;box-shadow:none!important}
+.meta{display:flex;align-items:flex-start;justify-content:space-between;gap:4px;padding:8px 2px 0 4px}
+.info{min-width:0;flex:1;display:block}
+.price{font-weight:800;font-size:16px}
+.price s{font-weight:500;font-size:12.5px;color:var(--muted);margin-left:6px}
+.ttl{display:block;font-size:13.5px;color:var(--ink);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bz{display:block;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dots{flex:none;width:44px;height:44px;margin:-8px -6px 0 0;display:grid;place-items:center;border-radius:50%}
+.dots:hover{background:var(--mist)}
+.sk{height:260px;border-radius:var(--radius);margin-bottom:16px;break-inside:avoid;
+  background:linear-gradient(90deg,var(--mist),#e8ece9,var(--mist));background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.status{text-align:center;color:var(--muted);padding:18px 0 130px;font-size:15px}
+.status button{margin-top:10px;padding:10px 22px;border-radius:999px;background:var(--green);color:#fff;font-weight:700}
+
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:10px;
+  padding:0 0 calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:30}
+nav button{pointer-events:auto;width:60px;height:56px;border-radius:20px;background:var(--green);color:#fff;font-size:22px;
+  display:grid;place-items:center;box-shadow:0 6px 18px rgba(5,48,26,.35)}
+nav button[aria-current="page"]{background:var(--orange)}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-radius:24px 24px 0 0;max-height:90vh;overflow-y:auto;
+  max-width:560px;margin:0 auto;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);transition:transform .25s ease;visibility:hidden}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .sheet{transform:none;visibility:visible}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.biz{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.biz .name{font-weight:700;font-size:16px}
+.biz .lvl{font-size:13px;color:var(--muted)}
+.biz img{width:50px;height:auto;margin-left:auto;object-fit:contain}
+.sheet h2{font-size:15px;font-weight:600;margin:12px 0 2px}
+.sheet .sp{font-weight:800;font-size:18px;margin-bottom:8px}
+.sheet .lead{font-size:15px;color:var(--muted);margin:6px 0 14px}
+.act{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:0 4px;
+  border-bottom:1px solid var(--line);font-size:16px;text-align:left}
+.act .l{display:flex;align-items:center;gap:14px}
+.act .l i{width:20px;text-align:center;color:var(--green)}
+.act small{display:block;font-size:12.5px;color:var(--muted)}
+.act.main{margin:4px 0 6px;padding:0 16px;min-height:56px;border:0;border-radius:16px;background:var(--orange);color:#fff;font-weight:700}
+.act.main .l i{color:#fff}
+.act.main small{color:#fff;opacity:.9}
+.act.main.buy{background:var(--green)}
+.act.google{justify-content:center;border:1.5px solid var(--line);border-radius:16px;margin-top:6px;font-weight:700}
+.pk{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.pk button{padding:10px 16px;border:1.5px solid var(--line);border-radius:999px;font-size:15px}
+.pk button[aria-pressed="true"]{border-color:var(--orange);background:var(--orange-soft);color:var(--orange);font-weight:700}
+.row2{display:flex;gap:10px}
+.row2 .act{justify-content:center;border:1.5px solid var(--green);border-radius:16px;font-weight:700}
+.row2 .act.main{border:0}
+
+.detail{position:fixed;inset:0;z-index:60;background:#fff;overflow-y:auto;overscroll-behavior:contain;
+  transform:translateY(100%);transition:transform .28s ease;visibility:hidden;padding-top:env(safe-area-inset-top,0px)}
+body.det .detail{transform:none;visibility:visible}
+.dbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:6px;background:#fff;padding:8px 10px;border-bottom:1px solid var(--line)}
+.dbar button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:18px}
+.dbar button:hover{background:var(--mist)}
+.dbar b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbody{max-width:760px;margin:0 auto;padding:0 14px 120px}
+.gal{position:relative;margin-top:12px}
+.slides{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--radius)}
+.slides::-webkit-scrollbar{display:none}
+.slide{flex:none;width:100%;scroll-snap-align:center;border-radius:var(--radius);overflow:hidden;aspect-ratio:1/1;
+  display:grid;place-items:center;color:var(--green);font-size:14px}
+.slide img{width:100%;height:100%;object-fit:contain;background:var(--mist)}
+.count{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px}
+.thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.thumbs::-webkit-scrollbar{display:none}
+.thumbs button{flex:none;width:56px;height:56px;border-radius:12px;overflow:hidden;border:2px solid transparent;background:var(--mist)}
+.thumbs button[aria-current="true"]{border-color:var(--orange)}
+.thumbs img,.thumbs span{width:100%;height:100%;object-fit:cover;display:block}
+.dprice{font-weight:800;font-size:24px;margin-top:16px}
+.dprice s{font-weight:500;font-size:15px;color:var(--muted);margin-left:8px}
+.dtitle{font-size:17px;margin-top:2px}
+.earnrow{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--orange-soft);color:var(--orange);
+  font-weight:700;border-radius:999px;padding:7px 14px;font-size:14px}
+.offer{font-size:13px;color:var(--muted);margin-top:8px}
+.seller{display:flex;align-items:center;gap:12px;margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);width:100%;text-align:left}
+.seller .nm{font-weight:700}
+.seller .lv{font-size:13px;color:var(--muted)}
+.seller img.lg{width:46px;height:46px;border-radius:12px;object-fit:cover}
+.seller img.bd{width:46px;margin-left:auto;object-fit:contain}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.fact{background:var(--mist);border-radius:14px;padding:12px}
+.fact small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
+.fact b{display:block;margin-top:2px;font-size:14.5px}
+.dh{font-size:15px;font-weight:700;margin:20px 0 6px}
+.desc{font-size:15px;white-space:pre-line}
+.dact{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:center}
+.dact .act{max-width:360px;margin:0;flex:1}
+.dact .sec{width:56px;min-height:56px;border:1.5px solid var(--green);border-radius:16px;display:grid;place-items:center;color:var(--green);font-size:18px}
+.skel{height:300px;border-radius:var(--radius);background:linear-gradient(90deg,var(--mist),#e8ece9,var(--mist));
+  background-size:200% 100%;animation:sk 1.2s linear infinite;margin-top:12px}
+.msg{text-align:center;color:var(--muted);padding:60px 10px}
+
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:80;
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-size:14.5px;max-width:88vw;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.sheet,.scrim,.detail,.hero .bg i,.toast{transition:none}.skel,.sk{animation:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo">
+        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
+      </div>
+      <div class="switch" id="switch" role="group" aria-label="Preview as">
+        <button id="bBuyer" aria-pressed="true">Buyer</button>
+        <button id="bRef" aria-pressed="false">Referee</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero" aria-label="Welcome">
+  <div class="bg" id="heroBg" aria-hidden="true"></div>
+  <div class="hero-in">
+    <h1>Turn Every Recommendation into Real Earnings.</h1>
+    <p>Discover top products, unlock massive savings, and get paid instantly for sharing what you love.</p>
+    <div class="sw">
+      <label class="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="q" placeholder="Search...." aria-label="Search" autocomplete="off" enterkeyhint="search" maxlength="60">
+        <button class="clr" id="qclr" type="button" aria-label="Clear search" hidden><i class="fa-solid fa-xmark"></i></button>
+      </label>
+      <div class="sug" id="sug" hidden></div>
+    </div>
+    <div class="btns">
+      <button class="btn solid" data-act="sell">Start Selling Now</button>
+      <button class="btn line" data-act="earn">Refer &amp; Earn Cash</button>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="chips" id="chips" aria-label="Categories"></div>
+  <div id="fhead"></div>
+  <section class="feed" id="feed" aria-label="Products"></section>
+  <div class="status" id="status"></div>
+  <div id="more" style="height:1px"></div>
+</main>
+
+<nav aria-label="Main">
+  <button aria-current="page" aria-label="Home" id="nHome"><i class="fa-solid fa-house"></i></button>
+  <button aria-label="Search" id="nSearch"><i class="fa-solid fa-magnifying-glass"></i></button>
+  <button aria-label="Profile" id="nProfile"><i class="fa-regular fa-user"></i></button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Options"></div>
+<div class="detail" id="detail" role="dialog" aria-modal="true" aria-label="Product details"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  FEED: "https://earnity-feed.anubisdigital114-9df.workers.dev",
+  CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  REFERRALS: "https://earnity-referrals.anubisdigital114-9df.workers.dev",
+  CLOUD_NAME: "",   /* <- your Cloudinary cloud name */
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+const LEVELS = ["Silver","Rose","Turquoise","Emerald","Topaz","Amber","Sapphire","Amethyst","Ruby","Prism"];
+const TONES = [["#e3f1e7","#c9e3d1"],["#fce9dc","#f8d2b8"],["#e7ecf4","#cfd9ea"],["#f3ebdd","#e6d7bc"],["#eee7f3","#dccde8"]];
+const ID_RE = /^[a-zA-Z0-9_\-\/]{1,200}$/;
+const PRIVACY = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = bps => (Number(bps) / 100).toString();
+const earnOf = (price, bps) => Math.floor(Number(price) * Number(bps) / 10000);
+const arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>';
+const dotsIcon = '<i class="fa-solid fa-ellipsis" style="font-size:20px" aria-hidden="true"></i>';
+const lvl = b => Math.max(0, Number(b && b.level) || 0);
+const lvlName = l => l >= 1 ? "Level " + l + (LEVELS[l - 1] ? " " + LEVELS[l - 1] : "") : "New seller";
+const lvlBadge = l => l >= 1 && l <= 10 ? `<img class="bd" src="${l}.png" alt="" onerror="this.remove()">` : "";
+
+function imgUrl(id, w) {
+  if (!CFG.CLOUD_NAME || typeof id !== "string" || !ID_RE.test(id)) return "";
+  return `https://res.cloudinary.com/${encodeURIComponent(CFG.CLOUD_NAME)}/image/upload/f_auto,q_auto,w_${w}/${id}`;
+}
+let toastT;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2800);
+}
+
+/* ================= STATE ================= */
+const S = {
+  role: "buyer", fb: null, auth: null, fbMod: null, user: null, registered: true,
+  cat: "all", mode: "feed", q: "", store: "",
+  cursor: null, done: false, loading: false, gen: 0,
+  list: [], items: new Map(), cur: null, chips: []
+};
+
+/* ================= VISITOR ID + API ================= */
+function vid() {
+  if (PRIVACY) return null;
+  try {
+    let v = localStorage.getItem("eu_vid");
+    if (!v || !/^[A-Za-z0-9_-]{22,36}$/.test(v)) {
+      const b = crypto.getRandomValues(new Uint8Array(16));
+      v = btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      localStorage.setItem("eu_vid", v);
+    }
+    return v;
+  } catch { return null; }
+}
+async function req(base, path, opt, tok) {
+  const h = {};
+  if (opt.body !== undefined) h["Content-Type"] = "application/json";
+  /* catalog does not allow the X-Visitor-Id header in CORS, so only send it to feed and referrals */
+  if (base === CFG.FEED || base === CFG.REFERRALS) { const v = vid(); if (v) h["X-Visitor-Id"] = v; }
+  if (tok) h.Authorization = "Bearer " + tok;
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
+  try {
+    const r = await fetch(base + path, {
+      method: opt.method || "GET", headers: h,
+      body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined,
+      signal: ctl.signal, keepalive: !!opt.keepalive
+    });
+    let data = null; try { data = await r.json(); } catch {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch { return { ok: false, status: 0, data: { error: "network" } }; }
+  finally { clearTimeout(t); }
+}
+async function api(base, path, opt = {}) {
+  let tok = null;
+  if (opt.auth !== false && S.user) { try { tok = await S.user.getIdToken(); } catch {} }
+  let r = await req(base, path, opt, tok);
+  if (tok && !r.ok && (r.status === 401 || (r.status === 404 && r.data.error === "not_registered"))) {
+    r = await req(base, path, opt, null);   /* fall back to anonymous */
+  }
+  return r;
+}
+
+/* ================= TRACKING ================= */
+const Q = []; let flushT = null, winStart = Date.now(), sent = 0, pauseUntil = 0;
+function track(type, extra) {
+  if (PRIVACY) return;
+  if (!vid() && !S.user) return;
+  Q.push(Object.assign({ type }, extra || {}));
+  if (Q.length >= 20) flush(); else if (!flushT) flushT = setTimeout(flush, 4000);
+}
+async function flush(sync) {
+  clearTimeout(flushT); flushT = null;
+  if (!Q.length) return;
+  if (Date.now() - winStart > 3600000) { winStart = Date.now(); sent = 0; }
+  const batch = Q.splice(0, 20);
+  if (Date.now() < pauseUntil || sent + batch.length > 180) return;
+  sent += batch.length;
+  if (sync === true) {
+    await req(CFG.FEED, "/events", { method: "POST", body: { events: batch }, keepalive: true }, null);
+  } else {
+    const r = await api(CFG.FEED, "/events", { method: "POST", body: { events: batch } });
+    if (r.status === 429) pauseUntil = Date.now() + 600000;
+  }
+  if (Q.length) flush(sync);
+}
+addEventListener("pagehide", () => flush(true));
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(true); });
+
+const seenViews = new Set(), viewTimers = new Map();
+const viewObs = new IntersectionObserver(es => {
+  for (const e of es) {
+    const id = e.target.dataset.id;
+    if (e.isIntersecting) {
+      if (!seenViews.has(id) && !viewTimers.has(id)) {
+        viewTimers.set(id, setTimeout(() => { seenViews.add(id); viewTimers.delete(id); track("view", { product_id: id }); }, 1000));
+      }
+    } else if (viewTimers.has(id)) { clearTimeout(viewTimers.get(id)); viewTimers.delete(id); }
+  }
+}, { threshold: 0.4 });
+
+/* ================= HERO SLIDESHOW ================= */
+(function () {
+  const bg = $("heroBg");
+  for (let i = 1; i <= 8; i++) { const d = document.createElement("i"); d.style.backgroundImage = 'url("back' + i + '.jpg")'; bg.appendChild(d); }
+  const s = bg.children; let k = 0; s[0].classList.add("on");
+  if (!matchMedia("(prefers-reduced-motion:reduce)").matches) {
+    setInterval(() => { s[k].classList.remove("on"); k = (k + 1) % s.length; s[k].classList.add("on"); }, 5000);
+  }
+})();
+
+/* ================= ITEMS ================= */
+function normFeedItem(p) {
+  return {
+    id: p.id, name: p.name, image: p.image || null,
+    price: Number(p.price_ugx), eff: Number(p.effective_price_ugx), offer: !!p.offer_active,
+    bps: Number(p.commission_bps), earn: Number(p.commission_ugx),
+    slots: Number(p.slots_free), days: Number(p.delivery_days), cat: p.category_id,
+    biz: p.business || null
+  };
+}
+function normStoreItem(p, biz) {
+  const eff = Number(p.effective_price_ugx), bps = Number(p.commission_bps);
+  return normFeedItem({
+    id: p.id, name: p.name, image: Array.isArray(p.images) ? p.images[0] : null,
+    price_ugx: p.price_ugx, effective_price_ugx: eff, offer_active: p.offer_active,
+    commission_bps: bps, commission_ugx: earnOf(eff, bps), slots_free: p.slots_free,
+    delivery_days: p.delivery_days, category_id: p.category_id, business: p.business || biz
+  });
+}
+function badgeHTML(x) {
+  if (S.role === "referee") {
+    if (x.slots <= 0) return '<span class="badge full">Slots full</span>';
+    return '<span class="badge">' + arrow + "Earn UGX " + fmt(x.earn) + "</span>";
+  }
+  return '<span class="badge">Up to ' + pct(x.bps) + "% off</span>";
+}
+function cardHTML(x, i) {
+  const tn = TONES[i % TONES.length];
+  const u = imgUrl(x.image, 600);
+  const eager = i < 6 ? "eager" : "lazy";
+  return `<article class="card" data-id="${esc(x.id)}">
+    <a class="img" href="?product=${encodeURIComponent(x.id)}" data-open="${esc(x.id)}" style="background:linear-gradient(160deg,${tn[0]},${tn[1]})">
+      <span class="ph">${u ? "" : "No photo"}</span>
+      ${u ? `<img src="${esc(u)}" alt="${esc(x.name)}" loading="${eager}" decoding="async">` : ""}
+      ${badgeHTML(x)}</a>
+    <div class="meta">
+      <a class="info" href="?product=${encodeURIComponent(x.id)}" data-open="${esc(x.id)}">
+        <span class="price">UGX ${fmt(x.eff)}${x.offer ? `<s>${fmt(x.price)}</s>` : ""}</span>
+        <span class="ttl">${esc(x.name)}</span>
+        <span class="bz">${esc(x.biz ? x.biz.name : "")}</span></a>
+      <button class="dots" data-dots="${esc(x.id)}" aria-label="More options for ${esc(x.name)}">${dotsIcon}</button>
+    </div></article>`;
+}
+const feed = $("feed");
+function addCards(items) {
+  const start = S.list.length;
+  const fresh = [];
+  for (const x of items) {
+    if (S.items.has(x.id) && S.list.some(y => y.id === x.id)) continue;
+    S.items.set(x.id, x); S.list.push(x); fresh.push(x);
+  }
+  feed.insertAdjacentHTML("beforeend", fresh.map((x, k) => cardHTML(x, start + k)).join(""));
+  feed.querySelectorAll(".card:not([data-obs])").forEach(c => { c.dataset.obs = "1"; viewObs.observe(c); });
+}
+function renderAll() {
+  feed.innerHTML = S.list.map((x, i) => cardHTML(x, i)).join("");
+  feed.querySelectorAll(".card").forEach(c => { c.dataset.obs = "1"; viewObs.observe(c); });
+}
+feed.addEventListener("load", e => { if (e.target.tagName === "IMG") e.target.closest(".img").classList.add("ld"); }, true);
+feed.addEventListener("error", e => { if (e.target.tagName === "IMG") { const ph = e.target.parentNode.querySelector(".ph"); if (ph) ph.textContent = "No photo"; e.target.remove(); } }, true);
+
+/* ================= LOADING THE LIST ================= */
+function setStatus(kind) {
+  const el = $("status");
+  if (kind === "loading") el.innerHTML = "";
+  else if (kind === "error") el.innerHTML = `Couldn't load products.<br><button data-act="retry">Try again</button>`;
+  else if (kind === "empty") el.textContent = S.mode === "search" ? "No results. Try another search." : "No products here yet.";
+  else if (kind === "end") el.textContent = S.list.length > 8 ? "You're all caught up." : "";
+  else el.innerHTML = "";
+}
+function skeletons() { feed.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="sk" style="height:${200 + (i % 3) * 50}px"></div>`).join(""); }
+function resetList(showSkel) {
+  S.gen++; S.loading = false; S.cursor = null; S.done = false; S.list = [];
+  viewTimers.forEach(t => clearTimeout(t)); viewTimers.clear();
+  feed.innerHTML = ""; setStatus("");
+  if (showSkel) skeletons();
+}
+async function loadMore() {
+  if (S.loading || S.done) return;
+  S.loading = true; const g = S.gen; const first = S.list.length === 0;
+  let r, items = [], next = null, extra = null;
+  if (S.mode === "feed") {
+    const p = new URLSearchParams({ limit: "20" });
+    if (S.cat !== "all") p.set("category", S.cat);
+    if (S.cursor) p.set("cursor", S.cursor);
+    r = await api(CFG.FEED, "/feed?" + p);
+    if (r.ok) { items = (r.data.items || []).map(normFeedItem); next = r.data.next_cursor || null; }
+  } else if (S.mode === "search") {
+    const p = new URLSearchParams({ q: S.q });
+    if (S.cat !== "all") p.set("category", S.cat);
+    if (S.cursor) p.set("cursor", S.cursor);
+    r = await api(CFG.FEED, "/search?" + p);
+    if (r.ok) { items = (r.data.products || []).map(normFeedItem); next = r.data.next_cursor || null; extra = r.data.stores || []; }
+  } else {
+    const p = new URLSearchParams(); if (S.cursor) p.set("cursor", S.cursor);
+    r = await api(CFG.CATALOG, "/store/" + encodeURIComponent(S.store) + (p.toString() ? "?" + p : ""), { auth: false });
+    if (r.ok) {
+      const b = r.data.business || {};
+      items = (r.data.products || []).map(x => normStoreItem(x, { id: b.id, name: b.name, subdomain: b.subdomain, level: b.level }));
+      next = r.data.next_cursor != null ? String(r.data.next_cursor) : null; extra = b;
+    }
+  }
+  if (g !== S.gen) return;
+  S.loading = false;
+  if (!r.ok) {
+    if (S.mode === "store" && r.status === 404) { $("fhead").innerHTML = ""; feed.innerHTML = '<div class="msg">This store was not found.</div>'; S.done = true; return; }
+    if (first) feed.innerHTML = "";
+    setStatus("error"); return;
+  }
+  if (first) {
+    feed.innerHTML = "";
+    if (S.mode === "search") renderSearchHead(extra);
+    if (S.mode === "store") renderStoreHead(extra);
+  }
+  S.cursor = next; S.done = !next;
+  addCards(items);
+  if (!S.list.length) setStatus("empty"); else if (S.done) setStatus("end"); else setStatus("");
+}
+new IntersectionObserver(es => { if (es[0].isIntersecting) loadMore(); }, { rootMargin: "700px" }).observe($("more"));
+
+/* ================= HEADS (search / store) ================= */
+function renderSearchHead(stores) {
+  const st = (stores || []).map(s => `<button data-store="${esc(s.subdomain)}"><i class="fa-solid fa-store"></i>${esc(s.name)}</button>`).join("");
+  $("fhead").innerHTML = `<div class="fh"><b>Results for “${esc(S.q)}”</b><button data-act="exit">Clear</button></div>` +
+    (st ? `<div class="stores">${st}</div>` : "");
+}
+function renderStoreHead(b) {
+  const l = lvl(b); const lg = imgUrl(b.logo_public_id, 120);
+  $("fhead").innerHTML = `<div class="fh"><button data-act="exit"><i class="fa-solid fa-arrow-left"></i> Back</button></div>
+    <div class="shead">${lg ? `<img class="lg" src="${esc(lg)}" alt="">` : ""}
+      <div><div class="nm">${esc(b.name)}</div><div class="ds">${esc(lvlName(l))} · ${fmt(b.delivered_sales)} delivered</div>
+      ${b.description ? `<div class="ds">${esc(b.description)}</div>` : ""}</div>${lvlBadge(l)}</div>`;
+}
+function startFeed() { S.mode = "feed"; S.q = ""; S.store = ""; $("q").value = ""; $("qclr").hidden = true; $("fhead").innerHTML = ""; resetList(true); loadMore(); }
+function startSearch(q) {
+  q = q.trim();
+  if (q.length < 2) { toast("Type at least 2 letters"); return; }
+  closeSug(); S.mode = "search"; S.q = q; S.store = "";
+  track("search", { query: q });
+  $("fhead").innerHTML = ""; resetList(true); loadMore();
+  scrollToFeed();
+}
+function startStore(sub) {
+  if (!sub) return;
+  closeSheet(); closeDetail(); closeSug();
+  S.mode = "store"; S.store = sub; S.q = "";
+  $("fhead").innerHTML = ""; resetList(true); loadMore(); scrollToFeed();
+}
+function scrollToFeed() { const t = $("chips").getBoundingClientRect().top + scrollY - 70; scrollTo({ top: Math.max(0, t), behavior: "smooth" }); }
+
+/* ================= SEARCH BOX ================= */
+const qEl = $("q"); let sugT = 0, sugGen = 0;
+function closeSug() { $("sug").hidden = true; }
+qEl.addEventListener("input", () => {
+  const v = qEl.value.trim(); $("qclr").hidden = !qEl.value;
+  clearTimeout(sugT);
+  if (v.length < 2) { closeSug(); return; }
+  sugT = setTimeout(async () => {
+    const g = ++sugGen;
+    const r = await api(CFG.FEED, "/search/suggest?q=" + encodeURIComponent(v), { auth: false });
+    if (g !== sugGen || !r.ok) return;
+    const list = r.data.suggestions || [];
+    if (!list.length) { closeSug(); return; }
+    $("sug").innerHTML = list.map(s => `<button data-sug="${esc(s.text)}"><i class="fa-solid ${s.type === "store" ? "fa-store" : "fa-magnifying-glass"}"></i>${esc(s.text)}</button>`).join("");
+    $("sug").hidden = false;
+  }, 250);
+});
+qEl.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); qEl.blur(); startSearch(qEl.value); } });
+$("qclr").addEventListener("click", () => { qEl.value = ""; $("qclr").hidden = true; closeSug(); if (S.mode === "search") startFeed(); qEl.focus(); });
+$("sug").addEventListener("click", e => { const b = e.target.closest("[data-sug]"); if (b) { qEl.value = b.dataset.sug; startSearch(b.dataset.sug); } });
+document.addEventListener("click", e => { if (!e.target.closest(".sw")) closeSug(); });
+
+/* ================= CATEGORIES ================= */
+function catImg(name) {
+  const n = String(name).toLowerCase();
+  if (/beauty|cosmetic|hair/.test(n)) return "beauty.png";
+  if (/vehicle|car|auto|motor/.test(n)) return "car.png";
+  if (/child|kid|baby|toy/.test(n)) return "child.png";
+  if (/fashion|cloth|shoe|wear/.test(n)) return "clothes.png";
+  if (/food|grocer|drink/.test(n)) return "food.png";
+  if (/electro|phone|laptop|gadget/.test(n)) return "phone.png";
+  if (/furnit|home|house/.test(n)) return "furniture.png";
+  return "other.jpg";
+}
+async function loadChips() {
+  const r = await api(CFG.FEED, "/chips", { auth: false });
+  S.chips = r.ok && Array.isArray(r.data.chips) ? r.data.chips : [{ id: "all", name: "All", kind: "filter" }];
+  $("chips").innerHTML = S.chips.map(c => {
+    const pic = c.id === "all" ? '<i class="fa-solid fa-table-cells-large"></i>'
+      : c.id === "popular" ? '<i class="fa-solid fa-fire"></i>'
+      : `<img src="${catImg(c.name)}" alt="" onerror="this.remove()">`;
+    return `<button class="chip" data-chip="${esc(c.id)}" aria-pressed="${c.id === S.cat}"><span class="pic">${pic}</span><span class="nm">${esc(c.name)}</span></button>`;
+  }).join("");
+  maybePicker();
+}
+$("chips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  const id = c.dataset.chip; if (id === S.cat && S.mode !== "store") return;
+  S.cat = id;
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c));
+  const meta = S.chips.find(x => x.id === id);
+  if (meta && meta.kind === "category") track("filter", { category_id: id });
+  if (S.mode === "store") { S.mode = "feed"; S.store = ""; $("fhead").innerHTML = ""; }
+  if (S.mode === "search") { $("fhead").innerHTML = ""; }
+  resetList(true); loadMore();
+});
+
+/* first-visit 3-tap picker */
+function maybePicker() {
+  if (PRIVACY || !vid()) return;
+  try { if (localStorage.getItem("eu_picker")) return; } catch { return; }
+  const cats = S.chips.filter(c => c.kind === "category");
+  if (cats.length < 2) return;
+  setTimeout(() => {
+    openSheet(`<div class="grab"></div><h2 style="font-size:19px;font-weight:800">What are you into?</h2>
+      <p class="lead">Pick up to 3 and we'll tune your feed. You can skip.</p>
+      <div class="pk" id="pk">${cats.map(c => `<button data-pick="${esc(c.id)}" aria-pressed="false">${esc(c.name)}</button>`).join("")}</div>
+      <div class="row2"><button class="act" data-act="pick-skip">Skip</button><button class="act main" data-act="pick-go">Continue</button></div>`);
+  }, 1500);
+}
+function pickDone() { try { localStorage.setItem("eu_picker", "1"); } catch {} }
+
+/* ================= SHEET ================= */
+const sheet = $("sheet");
+function openSheet(html) { sheet.innerHTML = html; document.body.classList.add("open"); }
+function closeSheet() { document.body.classList.remove("open"); }
+function saved() { try { return JSON.parse(localStorage.getItem("eu_saved") || "[]"); } catch { return []; } }
+function toggleSave(id) {
+  let a = saved(); const had = a.includes(id);
+  a = had ? a.filter(x => x !== id) : [id].concat(a).slice(0, 200);
+  try { localStorage.setItem("eu_saved", JSON.stringify(a)); } catch {}
+  toast(had ? "Removed from saved" : "Saved"); return !had;
+}
+function openProductSheet(id) {
+  const x = S.items.get(id); if (!x) return;
+  S.cur = id; track("three_dot_open", { product_id: id });
+  const ref = S.role === "referee"; const l = lvl(x.biz);
+  const first = ref
+    ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn<small>${x.slots > 0 ? "Your link earns UGX " + fmt(x.earn) + " per sale" : "All referee slots are taken"}</small></span></span>${arrow}</button>`
+    : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`;
+  const rows = [
+    ref ? ["buy", "fa-bag-shopping", "Buy"] : null,
+    ["see", "fa-circle-info", "See more"],
+    ["request", "fa-tag", "Request Discounted"],
+    ["share", "fa-share-nodes", "Share"],
+    ["save", "fa-bookmark", saved().includes(id) ? "Saved" : "Save"],
+    ["store", "fa-store", "View store"],
+    ["dismiss", "fa-eye-slash", "Not interested"],
+    ["report", "fa-flag", "Report"]
+  ].filter(Boolean).map(a => `<button class="act" data-act="${a[0]}"><span class="l"><i class="fa-solid ${a[1]}"></i><span>${a[2]}</span></span></button>`).join("");
+  openSheet(`<div class="grab"></div>
+    <div class="biz"><div><div class="name">${esc(x.biz ? x.biz.name : "")}</div><div class="lvl">${esc(lvlName(l))}</div></div>${lvlBadge(l)}</div>
+    <h2>${esc(x.name)}</h2><div class="sp">UGX ${fmt(x.eff)}</div>${first}${rows}`);
+}
+function soon() {
+  if (!S.user) { openSignIn("Sign in to continue"); return; }
+  closeSheet(); toast("This action is connected in the next step.");
+}
+
+/* ================= SHARE ================= */
+async function shareProduct(id) {
+  const x = S.items.get(id); track("share", { product_id: id });
+  const url = location.origin + location.pathname + "?product=" + encodeURIComponent(id);
+  try {
+    if (navigator.share) await navigator.share({ title: x ? x.name : "Earnity", url });
+    else { await navigator.clipboard.writeText(url); toast("Link copied"); }
+  } catch {}
+}
+
+/* ================= DETAILS ================= */
+const detail = $("detail");
+function dHead(title, body, bar) {
+  return `<div class="dbar"><button data-close aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button><b>${esc(title)}</b></div><div class="dbody">${body}</div>${bar || ""}`;
+}
+async function openDetail(id) {
+  S.cur = id; const known = S.items.get(id);
+  track("click", { product_id: id });
+  detail.innerHTML = dHead(known ? known.name : "Product", '<div class="skel"></div><div class="skel" style="height:120px"></div>');
+  document.body.classList.add("det"); detail.scrollTop = 0;
+  try { history.replaceState(null, "", "?product=" + encodeURIComponent(id)); } catch {}
+  const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(id), { auth: false });
+  if (!document.body.classList.contains("det") || S.cur !== id) return;
+  if (!r.ok) { detail.innerHTML = dHead("Product", `<div class="msg">${r.status === 404 ? "This product is no longer available." : "Couldn't load this product. Check your connection."}</div>`); return; }
+  const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee";
+  const eff = Number(d.effective_price_ugx), bps = Number(d.commission_bps);
+  const ids = (Array.isArray(d.images) ? d.images : []).filter(x => imgUrl(x, 1)).slice(0, 6);
+  const n = ids.length || 1;
+  const slides = Array.from({ length: n }, (_, k) => {
+    if (ids.length) return `<div class="slide"><img src="${esc(imgUrl(ids[k], 1000))}" alt="${esc(d.name)} photo ${k + 1}" loading="${k ? "lazy" : "eager"}"></div>`;
+    const t = TONES[0]; return `<div class="slide" style="background:linear-gradient(160deg,${t[0]},${t[1]})">No photo</div>`;
+  }).join("");
+  const thumbs = ids.length > 1 ? ids.map((x, k) => `<button data-t="${k}" aria-label="Photo ${k + 1}" aria-current="${k === 0}"><img src="${esc(imgUrl(x, 120))}" alt="" loading="lazy"></button>`).join("") : "";
+  const fact = (ic, lb, v) => `<div class="fact"><small><i class="fa-solid ${ic}"></i>${lb}</small><b>${esc(v)}</b></div>`;
+  const lg = imgUrl(b.logo_public_id, 120);
+  const offerEnd = d.offer_active && d.offer_ends_at ? new Date(Number(d.offer_ends_at) * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+  const body = `<div class="gal"><div class="slides" id="slides">${slides}</div>${ids.length > 1 ? `<span class="count" id="cnt">1 / ${n}</span>` : ""}</div>
+    ${thumbs ? `<div class="thumbs" id="thumbs">${thumbs}</div>` : ""}
+    <div class="dprice">UGX ${fmt(eff)}${d.offer_active ? `<s>${fmt(d.price_ugx)}</s>` : ""}</div>
+    <div class="dtitle">${esc(d.name)}</div>
+    ${ref ? `<div class="earnrow"><i class="fa-solid fa-coins"></i>Earn UGX ${fmt(earnOf(eff, bps))} per sale (${pct(bps)}%)</div>`
+          : `<div class="earnrow"><i class="fa-solid fa-tag"></i>Up to ${pct(bps)}% off</div>`}
+    ${offerEnd ? `<div class="offer">Offer ends ${esc(offerEnd)}</div>` : ""}
+    <button class="seller" data-store="${esc(b.subdomain)}">${lg ? `<img class="lg" src="${esc(lg)}" alt="">` : ""}
+      <div><div class="nm">${esc(b.name)}</div><div class="lv">${esc(lvlName(l))} · tap to view store</div></div>${lvlBadge(l)}</button>
+    <div class="grid">
+      ${fact("fa-truck", "Delivery", d.delivery_text || "Arranged with seller")}
+      ${fact("fa-clock", "Delivery time", Number(d.delivery_days) + " day" + (Number(d.delivery_days) === 1 ? "" : "s"))}
+      ${fact("fa-circle-check", "Delivered sales", fmt(b.delivered_sales))}
+      ${ref ? fact("fa-user-group", "Referee slots open", String(Number(d.slots_free))) : fact("fa-shield-halved", "Deposit", "Pay a deposit now, the rest at delivery")}
+    </div>
+    ${d.description ? `<div class="dh">About this item</div><div class="desc">${esc(d.description)}</div>` : ""}`;
+  const isSaved = saved().includes(id);
+  const bar = `<div class="dact"><button class="sec" data-act="save" aria-label="Save"><i class="${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark"></i></button>
+    <button class="sec" data-act="share" aria-label="Share"><i class="fa-solid fa-share-nodes"></i></button>` +
+    (ref ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn</span></span>${arrow}</button>`
+         : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`) + `</div>`;
+  detail.innerHTML = dHead(d.name, body, bar);
+  const sl = $("slides"), cnt = $("cnt"), th = $("thumbs");
+  sl.addEventListener("scroll", () => {
+    const k = Math.round(sl.scrollLeft / (sl.clientWidth + 10));
+    if (cnt) cnt.textContent = (k + 1) + " / " + n;
+    if (th) [...th.children].forEach((x, j) => x.setAttribute("aria-current", j === k));
+  }, { passive: true });
+  if (th) th.addEventListener("click", e => { const x = e.target.closest("button"); if (x) sl.scrollTo({ left: (+x.dataset.t) * (sl.clientWidth + 10), behavior: "smooth" }); });
+}
+function closeDetail() {
+  document.body.classList.remove("det");
+  try { history.replaceState(null, "", location.pathname); } catch {}
+}
+detail.addEventListener("click", e => {
+  if (e.target.closest("[data-close]")) { closeDetail(); return; }
+  const st = e.target.closest("[data-store]"); if (st) { startStore(st.dataset.store); return; }
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+});
+
+/* ================= ACTIONS ================= */
+function doAct(act) {
+  const id = S.cur;
+  switch (act) {
+    case "see": closeSheet(); openDetail(id); break;
+    case "buy": case "refer": case "request": case "report": case "sell": case "earn": soon(); break;
+    case "share": shareProduct(id); break;
+    case "save": {
+      const on = toggleSave(id);
+      const ic = detail.querySelector('.dact [data-act="save"] i');
+      if (ic) ic.className = (on ? "fa-solid" : "fa-regular") + " fa-bookmark";
+      closeSheet(); break;
+    }
+    case "store": { const x = S.items.get(id); if (x && x.biz) startStore(x.biz.subdomain); break; }
+    case "dismiss": {
+      closeSheet(); track("not_interested", { product_id: id }); flush();
+      S.list = S.list.filter(y => y.id !== id);
+      const el = feed.querySelector(`.card[data-id="${CSS.escape(id)}"]`); if (el) el.remove();
+      toast("We'll show fewer like this"); break;
+    }
+    case "retry": setStatus(""); loadMore(); break;
+    case "exit": startFeed(); break;
+    case "google": signIn(); break;
+    case "signout": signOut(); break;
+    case "pick-skip": pickDone(); closeSheet(); break;
+    case "pick-go": {
+      const ids = [...document.querySelectorAll("#pk [aria-pressed='true']")].map(b => b.dataset.pick);
+      pickDone(); closeSheet();
+      if (ids.length) api(CFG.FEED, "/interests/picker", { method: "POST", body: { category_ids: ids } }).then(() => { startFeed(); });
+      break;
+    }
+  }
+}
+sheet.addEventListener("click", e => {
+  const pk = e.target.closest("[data-pick]");
+  if (pk) {
+    const on = pk.getAttribute("aria-pressed") === "true";
+    if (!on && document.querySelectorAll("#pk [aria-pressed='true']").length >= 3) { toast("Pick up to 3"); return; }
+    pk.setAttribute("aria-pressed", !on); return;
+  }
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+});
+feed.addEventListener("click", e => {
+  const d = e.target.closest("[data-dots]"); if (d) { openProductSheet(d.dataset.dots); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { e.preventDefault(); openDetail(o.dataset.open); }
+});
+$("fhead").addEventListener("click", e => {
+  const s = e.target.closest("[data-store]"); if (s) { startStore(s.dataset.store); return; }
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+});
+document.querySelectorAll(".hero [data-act]").forEach(b => b.addEventListener("click", () => doAct(b.dataset.act)));
+$("scrim").addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if (document.body.classList.contains("det") && !document.body.classList.contains("open")) closeDetail(); else closeSheet(); }
+});
+$("nHome").addEventListener("click", () => { if (S.mode !== "feed" || S.cat !== "all") { S.cat = "all"; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.chip === "all")); startFeed(); } scrollTo({ top: 0, behavior: "smooth" }); });
+$("nSearch").addEventListener("click", () => { scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => qEl.focus({ preventScroll: true }), 350); });
+$("nProfile").addEventListener("click", () => { if (S.user) openProfile(); else openSignIn(); });
+
+/* ================= ROLE ================= */
+function setRole(r) {
+  S.role = r; document.body.classList.toggle("referee", r === "referee");
+  $("bBuyer").setAttribute("aria-pressed", r !== "referee");
+  $("bRef").setAttribute("aria-pressed", r === "referee");
+  renderAll();
+}
+$("bBuyer").onclick = () => setRole("buyer");
+$("bRef").onclick = () => setRole("referee");
+async function detectRole() {
+  /* the referrals worker answers 200 for referees and 403 wrong_account_type for everyone else */
+  const r = await api(CFG.REFERRALS, "/links/mine");
+  if (r.status === 404 && r.data.error === "not_registered") { S.registered = false; $("switch").hidden = false; return; }
+  S.registered = true; $("switch").hidden = true;
+  setRole(r.ok ? "referee" : "buyer");
+}
+
+/* ================= SIGN IN (Firebase, Google) ================= */
+function openSignIn(msg) {
+  openSheet(`<div class="grab"></div><h2 style="font-size:19px;font-weight:800">Sign in to Earnity</h2>
+    <p class="lead">${esc(msg || "Buy, refer and earn with your Google account.")}</p>
+    <button class="act google" data-act="google"><span class="l"><i class="fa-brands fa-google" style="color:#ea4335"></i><span>Continue with Google</span></span></button>`);
+}
+function openProfile() {
+  const u = S.user;
+  openSheet(`<div class="grab"></div><h2 style="font-size:19px;font-weight:800">${esc(u.displayName || "Your account")}</h2>
+    <p class="lead">${esc(u.email || "")}${S.registered ? "" : "<br>Your Earnity account isn't set up yet."}</p>
+    <button class="act" data-act="signout"><span class="l"><i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span></span></button>`);
+}
+async function initAuth() {
+  try {
+    const V = "10.14.1";
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    S.fbMod = authMod;
+    const app = appMod.initializeApp(CFG.FIREBASE);
+    S.auth = authMod.getAuth(app);
+    authMod.onAuthStateChanged(S.auth, async u => {
+      const was = !!S.user; S.user = u || null;
+      if (u && !was) {
+        closeSheet();
+        const v = vid();
+        if (v) api(CFG.FEED, "/events/link", { method: "POST", body: {} });
+        await detectRole();
+        startFeed();
+      } else if (!u && was) {
+        S.registered = true; $("switch").hidden = false; setRole("buyer"); startFeed();
+      }
+    });
+  } catch { /* the site keeps working signed out */ }
+}
+async function signIn() {
+  if (!S.auth || !S.fbMod) { toast("Sign-in isn't available right now."); return; }
+  const m = S.fbMod;
+  try { await m.signInWithPopup(S.auth, new m.GoogleAuthProvider()); }
+  catch (e) {
+    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) {
+      try { await m.signInWithRedirect(S.auth, new m.GoogleAuthProvider()); } catch {}
+    } else if (!e || e.code !== "auth/popup-closed-by-user") toast("Sign-in failed. Try again.");
+  }
+}
+async function signOut() {
+  try { await S.fbMod.signOut(S.auth); } catch {}
+  closeSheet(); toast("Signed out");
+}
+
+/* ================= START ================= */
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const pid = params.get("product"), refName = params.get("ref");
+  if (pid && refName) {
+    /* referral link: record the visit (the worker ignores it when Do-Not-Track is on) */
+    api(CFG.REFERRALS, "/links/resolve", { method: "POST", body: { product_id: pid, ref: refName } });
+  }
+  skeletons();
+  loadChips();
+  loadMore();
+  initAuth();
+  if (pid && pid.length < 128) openDetail(pid);
+})();
+</script>
+</body>
+</html>
