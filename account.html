@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Sign in or create your Earnity account.">
+<title>Account · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!--
+  Earnity account page: Google sign-in, sign-up (role + name + terms + Turnstile), referee username.
+  Talks to the earnity-api worker: GET /me, POST /signup, POST /referee/username.
+  Serve from earnityug.com (the worker only accepts that origin).
+  Optional ?next=/page.html returns the user there once their account is ready.
+  Set CFG.API below if your api worker URL differs.
+-->
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7; --red:#b3261e;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--mist);
+  line-height:1.4;min-height:100vh;padding-top:env(safe-area-inset-top,0px)}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:var(--green);text-decoration:underline}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line)}
+.bar{max-width:560px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.bar img{height:44px;width:auto;display:block}
+.bar a.back{text-decoration:none;color:var(--green);font-weight:600;font-size:14px}
+
+main{max-width:560px;margin:0 auto;padding:22px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px;margin-bottom:16px}
+h1{font-size:26px;line-height:1.15;color:var(--green-deep);letter-spacing:-.3px}
+h2{font-size:18px;color:var(--green-deep)}
+.sub{color:var(--muted);margin-top:8px;font-size:15px}
+.lbl{display:block;font-weight:700;font-size:14px;margin:18px 0 8px}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;border-radius:999px;
+  font-weight:700;font-size:15.5px;padding:0 22px;text-decoration:none}
+.btn.google{background:#fff;border:1.5px solid var(--line);color:var(--ink);margin-top:22px}
+.btn.google:hover{border-color:var(--green)}
+.btn.solid{background:var(--orange);color:#fff;margin-top:22px}
+.btn.line{border:1.5px solid var(--green);color:var(--green);margin-top:12px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn.small{width:auto;min-height:40px;font-size:14px;padding:0 18px;margin-top:0}
+
+.types{display:grid;gap:10px}
+.type{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;padding:14px;border:1.5px solid var(--line);
+  border-radius:14px;background:#fff}
+.type[aria-pressed="true"]{border-color:var(--green);background:var(--soft-green)}
+.type .ic{width:40px;height:40px;border-radius:50%;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;flex:none;font-size:17px}
+.type b{display:block;font-size:15.5px}
+.type span.d{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+
+input[type=text],input[type=tel]{width:100%;height:50px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;font-size:16px;background:#fff}
+input[type=text]:focus,input[type=tel]:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px var(--soft-green)}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.chk{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:14.5px;cursor:pointer}
+.chk input{width:22px;height:22px;margin-top:1px;accent-color:var(--green);flex:none}
+#ts{margin-top:18px;min-height:65px}
+
+.err{margin-top:14px;padding:11px 14px;border-radius:12px;background:#fdecea;color:var(--red);font-size:14.5px}
+.ok{margin-top:14px;padding:11px 14px;border-radius:12px;background:var(--soft-green);color:var(--green-deep);font-size:14.5px}
+
+.me{display:flex;gap:14px;align-items:center}
+.av{width:54px;height:54px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;flex:none;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.me .nm{font-weight:800;font-size:18px}
+.me .em{color:var(--muted);font-size:14px;word-break:break-all}
+.tag{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:999px;background:var(--orange-soft);color:var(--orange);font-weight:700;font-size:12.5px;text-transform:capitalize}
+.rows{margin-top:16px;border-top:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
+.row .v{font-weight:700}
+.v.good{color:var(--green)} .v.todo{color:var(--orange)}
+.next{display:grid;gap:10px;margin-top:18px}
+.next .btn{margin-top:0}
+.linkbtn{display:block;margin:6px auto 0;color:var(--muted);font-size:14px;text-decoration:underline;padding:10px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.mini{border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--green)}
+.row .tag{margin:0 0 0 6px;font-size:11.5px;padding:2px 8px}
+.phform{margin-top:6px}
+#phCode{letter-spacing:8px;text-align:center;font-size:22px;font-weight:700}
+.spin{display:flex;justify-content:center;padding:60px 0;color:var(--green);font-size:28px}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a href="/"><img src="earnity.png" alt="Earnity"></a>
+    <a class="back" href="/">Back to shop</a>
+  </div>
+</header>
+
+<main>
+  <div class="spin" id="loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+
+  <!-- 1. signed out -->
+  <section class="card" id="vOut" hidden>
+    <h1>Welcome to Earnity</h1>
+    <p class="sub">Refer, earn, save. Sign in with Google to start. New here? You'll set up your account in the next step.</p>
+    <button class="btn google" id="gBtn"><i class="fa-brands fa-google"></i> Continue with Google</button>
+    <div class="err" id="outErr" hidden></div>
+  </section>
+
+  <!-- 2. signed in, no account yet -->
+  <section class="card" id="vNew" hidden>
+    <h1>Create your account</h1>
+    <p class="sub" id="newWho"></p>
+
+    <span class="lbl">I want to</span>
+    <div class="types" id="types">
+      <button type="button" class="type" data-t="buyer" aria-pressed="false">
+        <span class="ic"><i class="fa-solid fa-bag-shopping"></i></span>
+        <span><b>Buy</b><span class="d">Shop products and use discounts from referrals.</span></span>
+      </button>
+      <button type="button" class="type" data-t="referee" aria-pressed="false">
+        <span class="ic"><i class="fa-solid fa-share-nodes"></i></span>
+        <span><b>Refer and earn</b><span class="d">Share products with your link and earn cash when people buy.</span></span>
+      </button>
+      <button type="button" class="type" data-t="seller" aria-pressed="false">
+        <span class="ic"><i class="fa-solid fa-store"></i></span>
+        <span><b>Sell</b><span class="d">List your products and let referees bring you customers.</span></span>
+      </button>
+    </div>
+
+    <label class="lbl" for="dn">Your name</label>
+    <input type="text" id="dn" maxlength="80" autocomplete="name" placeholder="Full name or business name">
+
+    <label class="chk"><input type="checkbox" id="tAcc">
+      <span>I accept the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+    <label class="chk" id="sTermsRow" hidden><input type="checkbox" id="sAcc">
+      <span>I accept the <a href="seller-terms.html" target="_blank" rel="noopener">Seller Terms</a>.</span></label>
+
+    <div id="ts"></div>
+    <div class="err" id="newErr" hidden></div>
+    <button class="btn solid" id="createBtn">Create account</button>
+    <button class="linkbtn" id="out1">Use a different Google account</button>
+  </section>
+
+  <!-- 3. has account -->
+  <section hidden id="vIn">
+    <div class="card">
+      <div class="me">
+        <div class="av" id="av"></div>
+        <div><div class="nm" id="meName"></div><div class="em" id="meEmail"></div><span class="tag" id="meType"></span></div>
+      </div>
+      <div class="rows">
+        <div class="row"><span>Email</span><span class="v" id="rEmail"></span></div>
+        <div class="row"><span>Phone</span><span class="v" id="rPhone"></span></div>
+        <div class="row" id="rUserRow" hidden><span>Referral username</span><span class="v" id="rUser"></span></div>
+      </div>
+    </div>
+
+    <!-- phone verification (earnity-verify worker) -->
+    <div class="card" id="phoneCard" hidden>
+      <h2>Phone number</h2>
+      <p class="sub" id="phIntro">Verify your mobile number to buy, and to get paid.</p>
+      <div class="rows" id="phList"></div>
+      <div class="ok" id="phOk" hidden></div>
+      <div class="ok" id="phHold" hidden></div>
+
+      <div class="phform" id="phForm" hidden>
+        <div id="phStep1">
+          <label class="lbl" for="ph" id="phLbl">Mobile number</label>
+          <input type="tel" id="ph" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0772 123456">
+          <p class="hint" id="phHint">Ugandan number, like 0772 123456. We'll text you a 6-digit code.</p>
+          <div id="ts2"></div>
+          <div class="err" id="phErr" hidden></div>
+          <button class="btn line small" id="phReauth" hidden style="margin-top:12px">Confirm it's you (sign in again)</button>
+          <button class="btn solid" id="phSend">Send code</button>
+          <button class="linkbtn" id="phCancel" hidden>Cancel</button>
+        </div>
+        <div id="phStep2" hidden>
+          <p class="sub" style="margin-top:14px">Enter the code we sent to <b id="phTo"></b>. It expires in 5 minutes.</p>
+          <label class="lbl" for="phCode">6-digit code</label>
+          <input type="text" id="phCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······">
+          <div class="err" id="phErr2" hidden></div>
+          <button class="btn solid" id="phVerify">Verify</button>
+          <button class="linkbtn" id="phBack">Didn't get it? Resend or change number</button>
+        </div>
+      </div>
+      <button class="btn line" id="phAdd" hidden>Add a backup number</button>
+    </div>
+
+    <!-- referee needs a username before links work -->
+    <div class="card" id="userCard" hidden>
+      <h2>Choose your referral username</h2>
+      <p class="sub">It goes in every link you share, so people know the referral is yours. You can't change it later.</p>
+      <label class="lbl" for="un">Username</label>
+      <input type="text" id="un" maxlength="20" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="e.g. sarah_k">
+      <p class="hint">3 to 20 characters: lowercase letters, numbers and underscore.</p>
+      <div class="err" id="unErr" hidden></div>
+      <button class="btn solid" id="unBtn">Save username</button>
+    </div>
+
+    <div class="card">
+      <h2>Next</h2>
+      <div class="next" id="next"></div>
+      <button class="linkbtn" id="out2">Sign out</button>
+    </div>
+  </section>
+</main>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script type="module">
+const CFG = {
+  API: "https://earnity-api.anubisdigital114-9df.workers.dev",
+  VERIFY: "https://earnity-verify.anubisdigital114-9df.workers.dev",
+  TURNSTILE_SITE_KEY: "0x4AAAAAAFlGYjr9AKXZ7F2F",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+const $ = id => document.getElementById(id);
+const V = "10.14.1";
+
+/* where to go once the account is ready: same-site relative paths only */
+const NEXT = (() => {
+  const n = new URLSearchParams(location.search).get("next") || "";
+  return /^\/?[A-Za-z0-9_\-./?=&%#]*$/.test(n) && !n.startsWith("//") && !n.includes("..") ? n : "";
+})();
+
+const ERR = {
+  missing_token: "Please sign in first.",
+  invalid_token: "Your sign-in expired. Please sign in again.",
+  not_registered: "No account yet. Please finish creating it.",
+  account_blocked: "This account has been blocked. Contact support if you think this is a mistake.",
+  invalid_account_type: "Please choose what you want to do.",
+  invalid_display_name: "Enter your name (up to 80 characters).",
+  terms_required: "You need to accept the Terms to continue.",
+  seller_terms_required: "Sellers must also accept the Seller Terms.",
+  invalid_email: "Your Google account has no usable email address.",
+  too_many_signups: "Too many sign-ups from this network. Try again in an hour.",
+  captcha_required: "Please complete the security check.",
+  captcha_failed: "The security check failed. Please try again.",
+  captcha_unavailable: "Security check is unavailable right now. Try again shortly.",
+  email_in_use: "That email is already linked to another Earnity account.",
+  referees_only: "Only referee accounts have a username.",
+  username_already_set: "Your username is already set.",
+  invalid_username: "Use 3 to 20 lowercase letters, numbers or underscores.",
+  username_reserved: "That username is reserved. Pick another.",
+  username_taken: "That username is taken. Pick another.",
+  origin_not_allowed: "Open this page from earnityug.com.",
+  too_large: "Something went wrong. Please try again.",
+  server_error: "Something went wrong on our side. Please try again.",
+  invalid_phone: "Enter a valid Ugandan mobile number, like 0772 123456.",
+  invalid_turnstile: "Please complete the security check.",
+  turnstile_failed: "The security check failed. Please try again.",
+  recent_login_required: "For your security, please sign in again, then retry.",
+  already_verified: "You already have a verified number.",
+  primary_number_required: "Verify your main number first.",
+  phone_limit_reached: "You can have at most 2 numbers.",
+  phone_already_verified: "That number is already verified on your account.",
+  sms_failed: "We couldn't send the SMS. Please try again in a moment.",
+  invalid_code: "Enter the 6-digit code.",
+  invalid_or_expired_code: "That code is wrong or has expired.",
+  too_many_attempts: "Too many wrong attempts. Request a new code.",
+  phone_unavailable: "That number can't be used. Try another one.",
+  phone_not_found: "That number isn't on your account.",
+  already_primary: "That number is already your primary.",
+  cannot_remove_only_number: "You can't remove your only number.",
+  unsupported_media_type: "Something went wrong. Please refresh and try again."
+};
+const msg = code => ERR[code] || "Something went wrong. Please try again.";
+const show = (el, text) => { el.textContent = text; el.hidden = false; };
+const hide = el => { el.hidden = true; };
+
+let fb = null;       // { auth, mod }
+let user = null;     // firebase user
+let acct = null;     // /me user
+let type = "";
+let tsId = null, tsToken = "";
+/* true right after the person signs in or creates an account on this page: then we send them on.
+   (Someone who just opens this page while already signed in stays here to manage their account.) */
+let fresh = false;
+try { fresh = sessionStorage.getItem("eu_fresh") === "1"; sessionStorage.removeItem("eu_fresh"); } catch (e) {}
+const ROLE_HOME = { buyer: "index.html", referee: "referee.html", seller: "business.html" };
+
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (user) headers.Authorization = "Bearer " + await user.getIdToken();
+  try {
+    const r = await fetch((opts.base || CFG.API) + path, { method: opts.method || "GET", headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+    let data = null; try { data = await r.json(); } catch (e) {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch (e) {
+    return { ok: false, status: 0, data: { error: "network" } };
+  }
+}
+const errText = r => r.status === 0 ? "Can't reach Earnity. Check your connection and try again." : msg(r.data.error);
+
+/* ---------- views ---------- */
+function view(name) {
+  for (const id of ["loading", "vOut", "vNew", "vIn"]) $(id).hidden = id !== name;
+}
+
+function renderNew() {
+  $("newWho").textContent = "Signed in as " + (user.email || "your Google account") + ".";
+  if (!$("dn").value) $("dn").value = user.displayName || "";
+  view("vNew");
+  mountTurnstile();
+}
+
+function mountTurnstile() {
+  if (tsId !== null) return;
+  const go = () => {
+    if (!window.turnstile) return setTimeout(go, 200);
+    tsId = window.turnstile.render("#ts", {
+      sitekey: CFG.TURNSTILE_SITE_KEY,
+      callback: t => { tsToken = t; },
+      "expired-callback": () => { tsToken = ""; },
+      "error-callback": () => { tsToken = ""; }
+    });
+  };
+  go();
+}
+function resetTurnstile() { tsToken = ""; if (window.turnstile && tsId !== null) window.turnstile.reset(tsId); }
+
+function renderAccount() {
+  const a = acct;
+  const initial = (a.display_name || a.email || "?").trim().charAt(0).toUpperCase();
+  $("av").innerHTML = user.photoURL ? `<img src="${user.photoURL.replace(/"/g, "")}" alt="" referrerpolicy="no-referrer">` : "";
+  if (!user.photoURL) $("av").textContent = initial;
+  $("meName").textContent = a.display_name;
+  $("meEmail").textContent = a.email;
+  $("meType").textContent = a.account_type === "seller" ? "Seller" : a.account_type;
+  $("rEmail").textContent = a.email_verified ? "Verified" : "Not verified";
+  $("rEmail").className = "v " + (a.email_verified ? "good" : "todo");
+  $("rPhone").textContent = a.phone_verified ? "Verified" : "Not verified";
+  $("rPhone").className = "v " + (a.phone_verified ? "good" : "todo");
+
+  const isRef = a.account_type === "referee";
+  $("userCard").hidden = !(isRef && !a.username);
+  $("rUserRow").hidden = !(isRef && a.username);
+  if (a.username) $("rUser").textContent = "@" + a.username;
+
+  const nx = [];
+  const ready = !(isRef && !a.username);
+  if (fresh && ready) {
+    fresh = false;
+    location.replace(NEXT || ROLE_HOME[a.account_type] || "index.html");
+    return;
+  }
+  if (NEXT && ready) nx.push(`<a class="btn solid" href="${NEXT}">Continue</a>`);
+  if (ready) {
+    nx.push(`<a class="btn ${NEXT ? "line" : "solid"}" href="/">Start browsing</a>`);
+  }
+  $("next").innerHTML = nx.join("") || `<p class="sub" style="margin-top:0">Choose a username above to finish setting up.</p>`;
+  view("vIn");
+  loadPhones();
+}
+
+/* ---------- account lookup ---------- */
+async function loadAccount() {
+  view("loading");
+  const r = await api("/me");
+  if (r.ok) { acct = r.data.user; return renderAccount(); }
+  if (r.status === 404 && r.data.error === "not_registered") return renderNew();
+  if (r.status === 401) { await signOut(true); return; }
+  view("vOut");
+  show($("outErr"), r.data.error === "account_blocked" ? msg("account_blocked") : errText(r));
+  if (r.data.error === "account_blocked") await signOut(true, true);
+}
+
+/* ---------- sign up ---------- */
+$("types").addEventListener("click", e => {
+  const b = e.target.closest(".type"); if (!b) return;
+  type = b.dataset.t;
+  document.querySelectorAll(".type").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  $("sTermsRow").hidden = type !== "seller";
+  hide($("newErr"));
+});
+
+$("createBtn").addEventListener("click", async () => {
+  const err = $("newErr"); hide(err);
+  const name = $("dn").value.replace(/[\u0000-\u001f\u007f]/g, "").trim();
+  if (!type) return show(err, msg("invalid_account_type"));
+  if (!name || name.length > 80) return show(err, msg("invalid_display_name"));
+  if (!$("tAcc").checked) return show(err, msg("terms_required"));
+  if (type === "seller" && !$("sAcc").checked) return show(err, msg("seller_terms_required"));
+  if (!tsToken) return show(err, msg("captcha_required"));
+
+  const btn = $("createBtn"); btn.disabled = true; btn.textContent = "Creating…";
+  const r = await api("/signup", { method: "POST", body: {
+    account_type: type, display_name: name, accept_terms: true,
+    accept_seller_terms: type === "seller" ? $("sAcc").checked : undefined,
+    turnstile_token: tsToken
+  }});
+  btn.disabled = false; btn.textContent = "Create account";
+  if (r.ok) { acct = r.data.user; fresh = true; return renderAccount(); }
+  resetTurnstile();
+  show(err, errText(r));
+});
+
+/* ---------- referee username ---------- */
+$("unBtn").addEventListener("click", async () => {
+  const err = $("unErr"); hide(err);
+  const u = $("un").value.trim().toLowerCase();
+  if (!/^[a-z0-9_]{3,20}$/.test(u)) return show(err, msg("invalid_username"));
+  const btn = $("unBtn"); btn.disabled = true; btn.textContent = "Saving…";
+  const r = await api("/referee/username", { method: "POST", body: { username: u } });
+  btn.disabled = false; btn.textContent = "Save username";
+  if (r.ok) { acct.username = r.data.username; return renderAccount(); }
+  if (r.data.error === "username_already_set") return loadAccount();
+  show(err, errText(r));
+});
+
+/* ---------- phone verification ---------- */
+const MAX_PHONES = 2;
+let ph = { phones: [], hold: null };
+let phPurpose = "verify_phone", phNum = "", phManage = null, phTs = null, phTok = "";
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function normPhone(input) {            // same rules as the verify worker
+  let s = String(input || "").trim().replace(/[\s\-().]/g, "");
+  if (s.startsWith("00")) s = "+" + s.slice(2);
+  if (/^07\d{8}$/.test(s)) return "+256" + s.slice(1);
+  if (/^2567\d{8}$/.test(s)) return "+" + s;
+  if (/^\+2567\d{8}$/.test(s)) return s;
+  return null;
+}
+const maskPhone = p => p.slice(0, 5) + "****" + p.slice(-4);
+function waitText(sec) {
+  const m = Math.max(1, Math.ceil(Number(sec) / 60));
+  return m >= 120 ? Math.ceil(m / 60) + " hours" : m + (m === 1 ? " minute" : " minutes");
+}
+function phMsg(r) {
+  const e = r.data.error;
+  if (e === "rate_limited") return "Too many attempts. Try again in " + waitText(r.data.retry_after) + ".";
+  if (e === "invalid_or_expired_code" && typeof r.data.attempts_left === "number") {
+    const n = r.data.attempts_left;
+    return msg(e) + " " + n + (n === 1 ? " attempt" : " attempts") + " left.";
+  }
+  return errText(r);
+}
+const VB = { base: CFG.VERIFY };
+
+function mountTs2() {
+  const go = () => {
+    if (!window.turnstile) return setTimeout(go, 200);
+    if (phTs === null) {
+      phTs = window.turnstile.render("#ts2", {
+        sitekey: CFG.TURNSTILE_SITE_KEY,
+        callback: t => { phTok = t; },
+        "expired-callback": () => { phTok = ""; },
+        "error-callback": () => { phTok = ""; }
+      });
+    } else { window.turnstile.reset(phTs); phTok = ""; }
+  };
+  go();
+}
+
+function showStep(n) { $("phStep1").hidden = n !== 1; $("phStep2").hidden = n !== 2; }
+
+function openPhoneForm(purpose, manage) {
+  phPurpose = purpose; phManage = manage || null;
+  $("phOk").hidden = true; hide($("phErr")); hide($("phErr2")); $("phReauth").hidden = true;
+  $("ph").value = ""; $("phCode").value = "";
+  const hasPhones = ph.phones.length > 0;
+  if (manage) {
+    $("phLbl").textContent = "Confirm the full number";
+    $("phHint").textContent = (manage.act === "primary" ? "Make this number your primary" : "Remove this number") +
+      ": enter the full number ending " + manage.masked.slice(-4) + ". Payouts pause for 24 hours after this change.";
+    $("phSend").textContent = manage.act === "primary" ? "Make primary" : "Remove number";
+    $("ts2").hidden = true;
+  } else {
+    $("phLbl").textContent = purpose === "add_phone" ? "Backup number" : "Mobile number";
+    $("phHint").textContent = "Ugandan number, like 0772 123456. We'll text you a 6-digit code." +
+      (purpose === "add_phone" ? " Payouts pause for 24 hours after adding a number." : "");
+    $("phSend").textContent = "Send code";
+    $("ts2").hidden = false; mountTs2();
+  }
+  $("phCancel").hidden = !hasPhones;
+  $("phAdd").hidden = true;
+  showStep(1);
+  $("phForm").hidden = false;
+}
+function closePhoneForm() { $("phForm").hidden = true; renderPhones(); }
+
+function renderPhones() {
+  const list = ph.phones, verified = list.length > 0;
+  $("phoneCard").hidden = false;
+  $("rPhone").textContent = verified ? "Verified" : "Not verified";
+  $("rPhone").className = "v " + (verified ? "good" : "todo");
+  if (verified && acct) acct.phone_verified = true;
+  $("phIntro").textContent = verified ? "Your verified numbers." : "Verify your mobile number to buy, and to get paid.";
+  $("phList").innerHTML = list.map((p, i) =>
+    `<div class="row"><span>${esc(p.phone)}<span class="tag">${esc(p.role)}</span></span><span class="acts">` +
+    (p.role === "backup" ? `<button class="mini" data-act="primary" data-i="${i}">Make primary</button>` : "") +
+    (list.length > 1 ? `<button class="mini" data-act="remove" data-i="${i}">Remove</button>` : "") +
+    `</span></div>`).join("");
+  $("phList").hidden = !verified;
+  if (ph.hold) {
+    $("phHold").textContent = "Payouts are on hold until " + new Date(ph.hold * 1000).toLocaleString() + " because your phone numbers changed.";
+    $("phHold").hidden = false;
+  } else $("phHold").hidden = true;
+  if (!verified) { if ($("phForm").hidden) openPhoneForm("verify_phone"); }
+  else $("phAdd").hidden = !$("phForm").hidden || list.length >= MAX_PHONES;
+}
+
+async function loadPhones() {
+  const r = await api("/phone", VB);
+  if (!r.ok) {
+    $("phoneCard").hidden = false;
+    $("phIntro").textContent = errText(r);
+    return;
+  }
+  ph = { phones: r.data.phones || [], hold: r.data.payout_hold_active ? r.data.payout_hold_until : null };
+  renderPhones();
+}
+
+$("phList").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const p = ph.phones[Number(b.dataset.i)]; if (!p) return;
+  openPhoneForm("manage", { act: b.dataset.act, masked: p.phone });
+});
+$("phAdd").addEventListener("click", () => openPhoneForm("add_phone"));
+$("phCancel").addEventListener("click", closePhoneForm);
+$("phBack").addEventListener("click", () => { showStep(1); mountTs2(); $("ts2").hidden = false; });
+
+$("phSend").addEventListener("click", async () => {
+  const err = $("phErr"); hide(err); $("phReauth").hidden = true;
+  const num = normPhone($("ph").value);
+  if (!num) return show(err, msg("invalid_phone"));
+  const btn = $("phSend"), label = btn.textContent;
+
+  if (phManage) {
+    if (maskPhone(num) !== phManage.masked) return show(err, "That doesn't match the number on your account.");
+    btn.disabled = true; btn.textContent = "Working…";
+    const r = await api(phManage.act === "primary" ? "/phone/make-primary" : "/phone/remove", { ...VB, method: "POST", body: { phone: num } });
+    btn.disabled = false; btn.textContent = label;
+    if (r.ok) { phManage = null; $("phForm").hidden = true; await loadPhones(); show($("phOk"), "Done. Payouts are paused for 24 hours as a safety step."); return; }
+    show(err, phMsg(r));
+    if (r.data.error === "recent_login_required") $("phReauth").hidden = false;
+    return;
+  }
+
+  if (!phTok) return show(err, msg("captcha_required"));
+  btn.disabled = true; btn.textContent = "Sending…";
+  const r = await api("/phone/request-code", { ...VB, method: "POST", body: { purpose: phPurpose, phone: num, turnstile_token: phTok } });
+  btn.disabled = false; btn.textContent = label;
+  if (window.turnstile && phTs !== null) window.turnstile.reset(phTs);
+  phTok = "";
+  if (r.ok) {
+    phNum = num; $("phTo").textContent = maskPhone(num);
+    hide($("phErr2")); $("phCode").value = ""; showStep(2); $("phCode").focus();
+    return;
+  }
+  if (r.data.error === "already_verified" || r.data.error === "phone_already_verified") { $("phForm").hidden = true; return loadPhones(); }
+  show(err, phMsg(r));
+  if (r.data.error === "recent_login_required") $("phReauth").hidden = false;
+});
+
+$("phReauth").addEventListener("click", async () => {
+  try {
+    const provider = new fb.mod.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const res = await fb.mod.signInWithPopup(fb.auth, provider);
+    user = res.user; await user.getIdToken(true);
+    $("phReauth").hidden = true;
+    show($("phErr"), "Thanks, you're confirmed. Please tap the button again.");
+  } catch (e) { show($("phErr"), "Couldn't confirm. Please try again."); }
+});
+
+$("phVerify").addEventListener("click", async () => {
+  const err = $("phErr2"); hide(err);
+  const code = $("phCode").value.trim();
+  if (!/^\d{6}$/.test(code)) return show(err, msg("invalid_code"));
+  const btn = $("phVerify"); btn.disabled = true; btn.textContent = "Verifying…";
+  const r = await api("/phone/verify", { ...VB, method: "POST", body: { purpose: phPurpose, phone: phNum, code } });
+  btn.disabled = false; btn.textContent = "Verify";
+  if (r.ok) {
+    $("phForm").hidden = true; phNum = "";
+    await loadPhones();
+    show($("phOk"), r.data.is_primary ? "Phone verified." : "Backup number added. Payouts are paused for 24 hours as a safety step.");
+    return;
+  }
+  show(err, phMsg(r));
+  if (r.data.error === "too_many_attempts") showStep(1);
+});
+$("phCode").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); });
+
+/* ---------- Firebase ---------- */
+async function initFirebase() {
+  const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+  const app = appMod.initializeApp(CFG.FIREBASE);
+  fb = { auth: authMod.getAuth(app), mod: authMod };
+  try { await authMod.getRedirectResult(fb.auth); } catch (e) { /* surfaced via onAuthStateChanged */ }
+  authMod.onAuthStateChanged(fb.auth, u => {
+    user = u;
+    if (!u) { acct = null; view("vOut"); return; }
+    loadAccount();
+  });
+}
+
+async function signIn() {
+  hide($("outErr"));
+  fresh = true;
+  const { GoogleAuthProvider, signInWithPopup, signInWithRedirect } = fb.mod;
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try {
+    await signInWithPopup(fb.auth, provider);
+  } catch (e) {
+    const c = e && e.code;
+    fresh = false;
+    if (c === "auth/popup-blocked" || c === "auth/operation-not-supported-in-this-environment") {
+      try { try { sessionStorage.setItem("eu_fresh", "1"); } catch (x) {} await signInWithRedirect(fb.auth, provider); } catch (e2) { show($("outErr"), "Couldn't start Google sign-in. Please try again."); }
+    } else if (c === "auth/unauthorized-domain") {
+      show($("outErr"), "This domain isn't authorised for sign-in yet. Open the site from earnityug.com.");
+    } else if (c !== "auth/popup-closed-by-user" && c !== "auth/cancelled-popup-request") {
+      show($("outErr"), "Google sign-in failed. Please try again.");
+    }
+  }
+}
+
+async function signOut(silent, keepMsg) {
+  try { await fb.mod.signOut(fb.auth); } catch (e) {}
+  user = null; acct = null; tsToken = ""; fresh = false;
+  if (!keepMsg) hide($("outErr"));
+  view("vOut");
+}
+
+$("gBtn").addEventListener("click", () => { if (fb) signIn(); });
+$("out1").addEventListener("click", () => signOut());
+$("out2").addEventListener("click", () => signOut());
+
+initFirebase().catch(() => { view("vOut"); show($("outErr"), "Couldn't load sign-in. Check your connection and refresh."); });
+</script>
+</body>
+</html>
