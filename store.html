@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Shop on Earnity.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://earnityug.com/og-image.jpg">
+<meta name="twitter:image" content="https://earnityug.com/og-image.jpg">.
+<meta property="og:site_name " content="Earnity">
+<meta property="og:title" content="Store · Earnity">
+<meta property="og:description" content="Shop on Earnity.">
+<meta property="og:url" content="">
+<meta name="twitter:card" content="summary_large_image">
+<title>Store · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
+  --radius:18px;
+  --bg:#ffffff; --card:#ffffff;
+  --btn:#b8480c; --btn-ink:#ffffff;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f;
+  --bg:#0a100c; --card:#101713;
+  --btn:#ff9a5c; --btn-ink:#1d1108;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.4;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+img{max-width:100%;display:block}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px}
+
+/* ---------- header (index.html style) ---------- */
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
+.logo{display:flex;align-items:center;text-decoration:none;flex:none}
+.logo img{height:36px;width:auto;max-width:120px}
+.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark span{color:var(--orange)}
+.hright{display:flex;align-items:center;gap:4px}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px}
+.iconbtn:hover{background:var(--mist)}
+.signin{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;
+  background:var(--btn);color:var(--btn-ink);font-weight:700;font-size:13.5px;white-space:nowrap;
+  transition:opacity .15s}
+.signin:hover{opacity:.92}
+.signin i{font-size:12px}
+
+/* ---------- hero ---------- */
+main{padding:16px 0 40px}
+.hero{position:relative;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,var(--green),var(--green-deep));
+  color:#fff;margin-bottom:16px;box-shadow:0 10px 30px -18px rgba(5,48,26,.5)}
+.hero .banner{position:relative;width:100%;aspect-ratio:16/8;background:linear-gradient(135deg,var(--soft-green),var(--mist));
+  overflow:hidden}
+html.dark .hero .banner{background:linear-gradient(135deg,var(--soft-green),var(--green-deep))}
+.hero .banner img{width:100%;height:100%;object-fit:cover;display:block}
+.hero .banner .bph{position:absolute;inset:0;display:grid;place-items:center;color:var(--green);opacity:.4;font-size:42px}
+.hero .body{padding:16px 16px 18px;position:relative}
+.hero .logo{position:relative;width:74px;height:74px;border-radius:50%;overflow:hidden;flex:none;
+  background:var(--soft-green);border:3px solid #fff;display:grid;place-items:center;
+  font-family:Georgia,serif;font-size:32px;font-weight:700;color:var(--green);margin-top:-46px;
+  box-shadow:0 6px 18px rgba(0,0,0,.18)}
+html.dark .hero .logo{border-color:var(--card)}
+.hero .logo img{width:100%;height:100%;object-fit:cover}
+.hero h1{font-size:clamp(20px,5vw,26px);font-weight:800;line-height:1.15;margin-top:10px;letter-spacing:-.3px;color:#fff}
+.hero .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:13.5px;color:rgba(255,255,255,.85)}
+.hero .meta .bd{width:26px;height:26px;object-fit:contain}
+.hero .deliv{margin-top:8px;font-size:13.5px;color:rgba(255,255,255,.9)}
+.hero .deliv i{opacity:.85;margin-right:6px}
+.hero .desc{margin-top:10px;font-size:14px;line-height:1.5;color:rgba(255,255,255,.9)}
+.hero .desc.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero .desc.clamped.expanded{display:block;-webkit-line-clamp:unset}
+.hero .read-more{margin-top:6px;color:#ffd9bf;font-weight:700;font-size:13px;padding:6px 0;min-height:44px}
+.hero .read-more:hover{color:#fff}
+
+/* ---------- search ---------- */
+.searchwrap{position:relative;margin-bottom:14px}
+.search{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);
+  border-radius:999px;padding:0 10px 0 18px;height:52px}
+.search input{flex:1;border:0;background:none;font:inherit;font-size:16px;outline:0;min-width:0;color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.search:focus-within{border-color:var(--green);box-shadow:0 0 0 3px var(--soft-green)}
+.search i{color:var(--muted)}
+
+/* ---------- product grid ---------- */
+.feed{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:700px){.feed{grid-template-columns:repeat(3,1fr);gap:16px}}
+@media(min-width:1000px){.feed{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;text-align:left;
+  transition:transform .12s ease;display:flex;flex-direction:column;border:1px solid var(--line)}
+.card:hover{transform:translateY(-2px)}
+.card:active{transform:translateY(0)}
+.card .img{position:relative;display:block;width:100%;aspect-ratio:4/5;overflow:hidden;
+  background:linear-gradient(160deg,var(--soft-green),var(--mist))}
+html.dark .card .img{background:linear-gradient(160deg,var(--soft-green),var(--green-deep))}
+.card .img img{width:100%;height:100%;object-fit:cover;display:block}
+.card .img .ph{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--green);
+  opacity:.5;text-align:center;padding:8px}
+.card .img .ph i{font-size:28px}
+.card .meta{padding:10px 10px 12px}
+.card .price{display:block;font-weight:800;font-size:15px;color:var(--ink);line-height:1.2}
+.card .price s{font-weight:500;font-size:12.5px;color:var(--muted);margin-left:6px}
+.card .ttl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  font-size:13.5px;color:var(--ink);margin-top:4px;line-height:1.35}
+.card .offer-end{display:block;font-size:11.5px;color:var(--orange);margin-top:4px;font-weight:600}
+.card .offer-end i{margin-right:4px}
+
+/* ---------- skeletons ---------- */
+.sk{background:linear-gradient(90deg,var(--mist),var(--line),var(--mist));background-size:200% 100%;
+  animation:sk 1.2s linear infinite;border-radius:var(--radius)}
+@keyframes sk{to{background-position:-200% 0}}
+.sk.card-sk{aspect-ratio:4/5}
+.sk.hero-sk{aspect-ratio:16/8;border-radius:24px;margin-bottom:16px}
+
+/* ---------- empty / error states ---------- */
+.empty{text-align:center;color:var(--muted);padding:36px 10px;font-size:15px}
+.empty i{display:block;font-size:34px;color:var(--line);margin-bottom:12px}
+.statecard{max-width:480px;margin:24px auto;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 18px;text-align:center}
+.statecard .ic{width:56px;height:56px;border-radius:16px;background:var(--soft-green);color:var(--green);
+  display:grid;place-items:center;font-size:24px;margin:0 auto 12px}
+.statecard h2{font-size:18px;color:var(--green-deep);font-weight:800}
+.statecard p{font-size:14.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.statecard .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;
+  min-height:46px;padding:0 22px;border-radius:999px;background:var(--btn);color:var(--btn-ink);
+  font-weight:700;font-size:15px;text-decoration:none}
+.statecard .btn.line{background:transparent;color:var(--green);border:1.5px solid var(--green)}
+
+/* ---------- load more / end ---------- */
+#moreWrap{text-align:center;padding:20px 0}
+#moreBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;
+  padding:0 24px;border-radius:999px;border:1.5px solid var(--green);color:var(--green);
+  background:var(--card);font-weight:700;font-size:15px}
+#moreBtn[disabled]{opacity:.6;cursor:default}
+#endMsg{text-align:center;color:var(--muted);font-size:13.5px;padding:16px 0}
+
+/* ---------- footer ---------- */
+footer{margin-top:36px;padding:22px 0 24px;border-top:1px solid var(--line);text-align:center;
+  color:var(--muted);font-size:13px;line-height:1.6}
+footer a{color:var(--green);text-decoration:underline}
+footer p+p{margin-top:6px}
+footer .dot{margin:0 6px}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);opacity:0;pointer-events:none;
+  transition:opacity .2s;z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-radius:24px 24px 0 0;
+  max-height:90vh;overflow-y:auto;max-width:560px;margin:0 auto;
+  padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);transition:transform .25s ease;visibility:hidden;
+  box-shadow:0 -8px 30px rgba(5,48,26,.25)}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .sheet{transform:none;visibility:visible}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sheet h2{font-size:19px;font-weight:800;color:var(--green-deep);line-height:1.25}
+.sheet .price{font-weight:800;font-size:22px;color:var(--ink);margin-top:8px}
+.sheet .price s{font-weight:500;font-size:14px;color:var(--muted);margin-left:8px}
+.sheet .offer-end{font-size:13px;color:var(--orange);margin-top:4px;font-weight:600}
+.sheet .desc{margin-top:12px;font-size:14.5px;line-height:1.55;white-space:pre-line;color:var(--ink)}
+.sheet .deliv{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--mist);font-size:13.5px;line-height:1.5}
+.sheet .deliv b{color:var(--ink)}
+.sheet .slotchip{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:5px 12px;border-radius:999px;
+  background:var(--soft-green);color:var(--green);font-size:13px;font-weight:700}
+.sheet .btnrow{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.sheet .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;
+  border-radius:16px;font-weight:700;font-size:15px;text-align:center}
+.sheet .btn.solid{background:var(--green);color:#fff}
+.sheet .btn.line{border:1.5px solid var(--green);color:var(--green);background:transparent}
+
+/* carousel */
+.gal{position:relative;margin-top:8px}
+.slides{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:14px}
+.slides::-webkit-scrollbar{display:none}
+.slide{flex:none;width:100%;scroll-snap-align:center;border-radius:14px;overflow:hidden;aspect-ratio:1;
+  background:var(--mist);display:grid;place-items:center;color:var(--green);font-size:13px;text-align:center;padding:12px}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.dots{display:flex;justify-content:center;gap:2px;margin-top:6px}
+.dot{width:32px;height:32px;border-radius:50%;background:transparent;display:grid;place-items:center;padding:0}
+.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--line);transition:transform .15s}
+.dot.on::before{background:var(--green);transform:scale(1.2)}
+.dot:focus-visible{outline:2px solid var(--orange)}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
+  z-index:80;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14px;
+  max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(prefers-reduced-motion:reduce){
+  .toast,.sheet,.scrim,.card{transition:none}
+  .sk{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" id="logoLink" href="https://earnityug.com" aria-label="Earnity home">
+        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
+      </a>
+      <div class="hright">
+        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        </button>
+        <a class="signin" id="signinLink" href="https://earnityug.com/account.html">
+          Sign in <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="hero" aria-label="Store"></section>
+
+    <div class="searchwrap" id="searchWrap" hidden>
+      <label class="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="q" placeholder="Search products…" aria-label="Search products" autocomplete="off" enterkeyhint="search" maxlength="60">
+      </label>
+    </div>
+
+    <section class="feed" id="feed" aria-label="Products"></section>
+    <div id="empty" class="empty" hidden></div>
+    <div id="moreWrap" hidden>
+      <button id="moreBtn" type="button">Load more</button>
+    </div>
+    <div id="endMsg" hidden>That's all the products.</div>
+
+    <footer>
+      <p>Sold through <a id="footMain" href="https://earnityug.com">Earnity</a> · Refer, Earn, Save</p>
+      <p>
+        <a id="footTerms" href="https://earnityug.com/terms.html">Terms</a>
+        <span class="dot">·</span>
+        <a id="footPrivacy" href="https://earnityug.com/privacy.html">Privacy</a>
+        <span class="dot">·</span>
+        <a id="footContact" href="https://earnityug.com/contact.html">Contact</a>
+      </p>
+    </footer>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Product"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  MAIN: "https://earnityug.com",
+  CLOUD_NAME: ""   /* <- your Cloudinary cloud name */
+};
+
+/* point all CFG.MAIN links at the configured host, once */
+document.getElementById("logoLink").href = CFG.MAIN;
+document.getElementById("signinLink").href = CFG.MAIN + "/account.html";
+document.getElementById("footMain").href = CFG.MAIN;
+document.getElementById("footTerms").href = CFG.MAIN + "/terms.html";
+document.getElementById("footPrivacy").href = CFG.MAIN + "/privacy.html";
+document.getElementById("footContact").href = CFG.MAIN + "/contact.html";
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const num = v => { if (v === null || v === undefined || v === "") return null; const n = typeof v === "number" ? v : Number(String(v).replace(/[^0-9.\-]/g, "")); return Number.isFinite(n) ? n : null; };
+const ugx = v => { const n = num(v); return n === null ? "—" : "UGX " + Math.round(n).toLocaleString("en-US"); };
+const KLA = "Africa/Kampala";
+function fmtDate(ts) {
+  const n = num(ts); if (n === null) return "";
+  const d = new Date(n * 1000);
+  if (isNaN(d)) return "";
+  try { return new Intl.DateTimeFormat("en-GB", { timeZone: KLA, day: "numeric", month: "short", year: "numeric" }).format(d); }
+  catch { return ""; }
+}
+
+function isValidSubdomain(s) {
+  return /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/.test(s);
+}
+function getSubdomain() {
+  const host = location.hostname;
+  const suffix = ".earnityug.com";
+  if (host.endsWith(suffix)) {
+    const label = host.slice(0, -suffix.length).toLowerCase();
+    if (label && label !== "www" && !label.includes(".") && isValidSubdomain(label)) return label;
+  }
+  const s = (new URLSearchParams(location.search).get("s") || "").trim().toLowerCase();
+  if (s && isValidSubdomain(s)) return s;
+  return null;
+}
+
+function imgUrl(publicId, w) {
+  if (!CFG.CLOUD_NAME || !publicId) return "";
+  return `https://res.cloudinary.com/${encodeURIComponent(CFG.CLOUD_NAME)}/image/upload/f_auto,q_auto,w_${w}/${publicId}`;
+}
+
+const LEVELS = ["Silver","Rose","Turquoise","Emerald","Topaz","Amber","Sapphire","Amethyst","Ruby","Prism"];
+function levelBadgeHTML(l) {
+  const n = Math.max(0, Number(l) || 0);
+  if (n < 1 || n > 10) return "";
+  return `<img class="bd" src="${esc(CFG.MAIN + "/" + n + ".png")}" alt="Level ${n}" onerror="this.remove()">`;
+}
+function levelName(l) {
+  const n = Math.max(0, Number(l) || 0);
+  return n >= 1 ? "Level " + n + (LEVELS[n - 1] ? " " + LEVELS[n - 1] : "") : "";
+}
+
+/* ================= STATE ================= */
+const S = {
+  sub: null,
+  biz: null,
+  products: [],
+  cursor: null,
+  done: false,
+  loading: false,
+  initialLoaded: false,
+  search: ""
+};
+
+/* ================= API ================= */
+async function api(path) {
+  try {
+    const r = await fetch(CFG.CATALOG + path, { cache: "no-store" });
+    let data = null;
+    try { data = await r.json(); } catch {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch {
+    return { ok: false, status: 0, data: { error: "network" } };
+  }
+}
+
+/* ================= TOAST ================= */
+let toastT = null;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("on"), 3000);
+}
+
+/* ================= THEME ================= */
+function setTheme(dark) {
+  document.documentElement.classList.toggle("dark", dark);
+  const b = $("themeBtn");
+  if (b) {
+    b.innerHTML = `<i class="fa-solid ${dark ? "fa-sun" : "fa-moon"}" aria-hidden="true"></i>`;
+    b.setAttribute("aria-pressed", dark ? "true" : "false");
+    b.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  try { localStorage.setItem("eu_theme", dark ? "dark" : "light"); } catch {}
+}
+
+/* ================= NORMALIZE PRODUCT ================= */
+function normProduct(p) {
+  const price = num(p.price_ugx);
+  const eff = num(p.effective_price_ugx);
+  return {
+    id: String(p.id || ""),
+    name: String(p.name || ""),
+    description: String(p.description || ""),
+    price: price !== null ? price : 0,
+    eff: eff !== null ? eff : (price !== null ? price : 0),
+    offerActive: !!p.offer_active,
+    offerEndsAt: num(p.offer_ends_at),
+    images: Array.isArray(p.images) ? p.images.filter(x => typeof x === "string" && x) : [],
+    deliveryText: String(p.delivery_text || ""),
+    deliveryDays: num(p.delivery_days) || 0,
+    slotsFree: num(p.slots_free) || 0,
+    business: p.business || null
+  };
+}
+
+/* ================= HERO ================= */
+function renderHero(b) {
+  const banner = imgUrl(b.banner_public_id, 1400);
+  const logo = imgUrl(b.logo_public_id, 200);
+  const initial = (b.name || "?").trim().charAt(0).toUpperCase();
+  const lvl = Number(b.level) || 0;
+  const delivered = Number(b.delivered_sales) || 0;
+  const days = Number(b.default_delivery_days) || 0;
+  const desc = String(b.description || "").trim();
+  const delivParts = [];
+  if (b.delivery_text) delivParts.push(esc(b.delivery_text));
+  if (days > 0) delivParts.push(`usually ${days} day${days === 1 ? "" : "s"}`);
+  const delivLine = delivParts.length ? `<div class="deliv"><i class="fa-solid fa-truck" aria-hidden="true"></i>Delivery: ${delivParts.join(" · ")}</div>` : "";
+
+  const heroEl = $("hero");
+  heroEl.innerHTML = `
+    <div class="hero">
+      <div class="banner">
+        ${banner ? `<img src="${esc(banner)}" alt="" loading="eager">` : `<div class="bph"><i class="fa-solid fa-store" aria-hidden="true"></i></div>`}
+      </div>
+      <div class="body">
+        <div class="logo">${logo ? `<img src="${esc(logo)}" alt="">` : esc(initial)}</div>
+        <h1>${esc(b.name || "Store")}</h1>
+        <div class="meta">
+          ${lvl >= 1 ? levelBadgeHTML(lvl) : ""}
+          ${delivered > 0 ? `<span>${fmt(delivered)} delivered sale${delivered === 1 ? "" : "s"}</span>` : `<span>New on Earnity</span>`}
+        </div>
+        ${delivLine}
+        ${desc ? `<p class="desc" id="heroDesc"></p><button class="read-more" id="readMore" type="button" hidden>Read more</button>` : ""}
+      </div>
+    </div>`;
+
+  if (desc) {
+    const descEl = $("heroDesc");
+    const rm = $("readMore");
+    descEl.textContent = desc;
+    if (desc.length > 180) {
+      descEl.classList.add("clamped");
+      rm.hidden = false;
+      rm.addEventListener("click", () => {
+        const expanded = descEl.classList.toggle("expanded");
+        rm.textContent = expanded ? "Read less" : "Read more";
+      });
+    }
+  }
+}
+function heroSkeleton() {
+  $("hero").innerHTML = `<div class="sk hero-sk"></div>`;
+}
+
+/* ================= CARDS ================= */
+function cardHTML(p) {
+  const img = imgUrl(p.images[0], 600);
+  const priceHTML = p.offerActive && p.price > p.eff
+    ? `<span class="price">${esc(ugx(p.eff))}<s>${esc(ugx(p.price))}</s></span>`
+    : `<span class="price">${esc(ugx(p.offerActive ? p.eff : p.price))}</span>`;
+  const endDate = p.offerActive && p.offerEndsAt ? fmtDate(p.offerEndsAt) : "";
+  return `<button class="card" type="button" data-id="${esc(p.id)}" data-name="${esc(p.name)}" aria-label="${esc(p.name)}, ${esc(ugx(p.offerActive ? p.eff : p.price))}">
+    <span class="img">
+      ${img ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy" decoding="async">`
+            : `<span class="ph"><i class="fa-solid fa-image" aria-hidden="true"></i></span>`}
+    </span>
+    <span class="meta">
+      ${priceHTML}
+      <span class="ttl">${esc(p.name)}</span>
+      ${endDate ? `<span class="offer-end"><i class="fa-solid fa-tag" aria-hidden="true"></i>Offer ends ${esc(endDate)}</span>` : ""}
+    </span>
+  </button>`;
+}
+function appendProducts(items) {
+  const feed = $("feed");
+  feed.insertAdjacentHTML("beforeend", items.map(cardHTML).join(""));
+}
+function renderGridSkeleton() {
+  const feed = $("feed");
+  feed.innerHTML = Array.from({ length: 6 }, () => `<div class="sk card-sk"></div>`).join("");
+}
+
+function applySearch() {
+  const v = S.search.trim().toLowerCase();
+  const cards = $("feed").querySelectorAll(".card");
+  cards.forEach(c => {
+    const name = (c.dataset.name || "").toLowerCase();
+    c.hidden = !!v && !name.includes(v);
+  });
+  updateEmptyState();
+}
+function updateEmptyState() {
+  const emptyEl = $("empty");
+  if (!S.initialLoaded) { emptyEl.hidden = true; return; }
+  const cards = $("feed").querySelectorAll(".card");
+  const total = cards.length;
+  const visible = Array.from(cards).filter(c => !c.hidden).length;
+  if (total === 0) {
+    emptyEl.innerHTML = `<i class="fa-solid fa-box-open" aria-hidden="true"></i>No products yet. Check back soon.`;
+    emptyEl.hidden = false;
+  } else if (visible === 0) {
+    emptyEl.innerHTML = `<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>No products match your search.`;
+    emptyEl.hidden = false;
+  } else {
+    emptyEl.hidden = true;
+  }
+}
+
+/* ================= SHEET ================= */
+const sheet = $("sheet");
+let lastFocus = null;
+
+function openSheet(p) {
+  lastFocus = document.activeElement;
+  const imgs = p.images;
+  const slides = imgs.length
+    ? imgs.map((pid, i) => `<div class="slide"><img src="${esc(imgUrl(pid, 1000))}" alt="${esc(p.name)} photo ${i + 1}" loading="${i === 0 ? "eager" : "lazy"}"></div>`).join("")
+    : `<div class="slide">No photo</div>`;
+  const dots = imgs.length > 1
+    ? `<div class="dots" id="dots">${imgs.map((_, i) => `<button class="dot${i === 0 ? " on" : ""}" type="button" data-i="${i}" aria-label="Image ${i + 1}"></button>`).join("")}</div>`
+    : "";
+
+  const priceHTML = p.offerActive && p.price > p.eff
+    ? `<div class="price">${esc(ugx(p.eff))}<s>${esc(ugx(p.price))}</s></div>`
+    : `<div class="price">${esc(ugx(p.offerActive ? p.eff : p.price))}</div>`;
+  const endDate = p.offerActive && p.offerEndsAt ? fmtDate(p.offerEndsAt) : "";
+  const endHTML = endDate ? `<div class="offer-end"><i class="fa-solid fa-tag" aria-hidden="true"></i>Offer ends ${esc(endDate)}</div>` : "";
+
+  const delivParts = [];
+  if (p.deliveryText) delivParts.push(esc(p.deliveryText));
+  if (p.deliveryDays > 0) delivParts.push(`usually ${p.deliveryDays} day${p.deliveryDays === 1 ? "" : "s"}`);
+  const delivHTML = delivParts.length
+    ? `<div class="deliv"><i class="fa-solid fa-truck" aria-hidden="true"></i> <b>Delivery:</b> ${delivParts.join(" · ")}</div>`
+    : "";
+
+  const slotChip = p.slotsFree > 0
+    ? `<div class="slotchip"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Referee slots free: ${fmt(p.slotsFree)}</div>`
+    : "";
+
+  const descHTML = p.description ? `<div class="desc">${esc(p.description)}</div>` : "";
+
+  sheet.innerHTML = `
+    <div class="grab"></div>
+    ${imgs.length > 1 ? `<div class="gal"><div class="slides" id="slides">${slides}</div></div>${dots}` : `<div class="gal"><div class="slides">${slides}</div></div>`}
+    <h2 style="margin-top:14px">${esc(p.name)}</h2>
+    ${priceHTML}
+    ${endHTML}
+    ${descHTML}
+    ${delivHTML}
+    ${slotChip}
+    <div class="btnrow">
+      <a class="btn solid" id="buyBtn" href="#">Buy now</a>
+      <a class="btn line" id="moreOptBtn" href="#">More options</a>
+      <button class="btn line" id="shareBtn" type="button"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
+    </div>`;
+
+  $("buyBtn").href = CFG.MAIN + "/checkout.html?product=" + encodeURIComponent(p.id);
+  $("moreOptBtn").href = CFG.MAIN + "/?product=" + encodeURIComponent(p.id);
+  $("shareBtn").addEventListener("click", () => shareProduct(p));
+
+  if (imgs.length > 1) {
+    const sl = $("slides");
+    const dotEls = sheet.querySelectorAll("#dots .dot");
+    sl.addEventListener("scroll", () => {
+      const idx = Math.round(sl.scrollLeft / sl.clientWidth);
+      dotEls.forEach((d, i) => d.classList.toggle("on", i === idx));
+    }, { passive: true });
+    dotEls.forEach(d => d.addEventListener("click", () => {
+      const i = Number(d.dataset.i) || 0;
+      sl.scrollTo({ left: i * sl.clientWidth, behavior: "smooth" });
+    }));
+  }
+
+  document.body.classList.add("open");
+  setTimeout(() => { try { sheet.querySelector("[data-close], button, a")?.focus({ preventScroll: true }); } catch {} }, 80);
+}
+
+function closeSheet() {
+  document.body.classList.remove("open");
+  if (lastFocus && document.contains(lastFocus) && lastFocus.focus) { try { lastFocus.focus(); } catch {} }
+  lastFocus = null;
+}
+
+async function shareProduct(p) {
+  const url = CFG.MAIN + "/?product=" + encodeURIComponent(p.id);
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: p.name || "Earnity", text: p.name || "", url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+    toast("Link copied");
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    try { await navigator.clipboard.writeText(url); toast("Link copied"); }
+    catch { toast("Couldn't copy. Long-press the link to copy."); }
+  }
+}
+
+/* scrim / escape / focus trap */
+$("scrim").addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => {
+  if (!document.body.classList.contains("open")) return;
+  if (e.key === "Escape") { e.preventDefault(); closeSheet(); return; }
+  if (e.key !== "Tab") return;
+  const f = Array.from(sheet.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+/* ================= META ================= */
+function updateMeta(b) {
+  const name = b && b.name ? String(b.name) : "Store";
+  const desc = b && b.description ? String(b.description) : "";
+  const title = `${name} · Earnity`;
+  document.title = title;
+  const md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute("content", desc || `Shop ${name} on Earnity.`);
+  const ogT = document.querySelector('meta[property="og:title"]');
+  if (ogT) ogT.setAttribute("content", title);
+  const ogD = document.querySelector('meta[property="og:description"]');
+  if (ogD) ogD.setAttribute("content", desc || `Shop ${name} on Earnity.`);
+  const ogU = document.querySelector('meta[property="og:url"]');
+  if (ogU) ogU.setAttribute("content", location.href);
+  const ogI = document.querySelector('meta[property="og:image"]');
+  const candidate = b ? (imgUrl(b.banner_public_id, 1200) || imgUrl(b.logo_public_id, 600)) : "";
+  if (candidate) {
+    if (ogI) ogI.setAttribute("content", candidate);
+    else {
+      const m = document.createElement("meta");
+      m.setAttribute("property", "og:image");
+      m.setAttribute("content", candidate);
+      document.head.appendChild(m);
+    }
+  }
+}
+
+/* ================= STATES ================= */
+function showNotSelected() {
+  $("hero").innerHTML = "";
+  $("searchWrap").hidden = true;
+  $("feed").innerHTML = "";
+  $("empty").hidden = true;
+  $("moreWrap").hidden = true;
+  $("endMsg").hidden = true;
+  $("hero").innerHTML = `
+    <div class="statecard">
+      <div class="ic"><i class="fa-solid fa-store" aria-hidden="true"></i></div>
+      <h2>No store selected</h2>
+      <p>Open a store link to see its products, or browse Earnity instead.</p>
+      <a class="btn" href="${esc(CFG.MAIN)}">Browse Earnity</a>
+    </div>`;
+}
+function showNotFound() {
+  $("hero").innerHTML = `
+    <div class="statecard">
+      <div class="ic"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></div>
+      <h2>This store isn't available</h2>
+      <p>It may not exist yet or is waiting for approval.</p>
+      <a class="btn" href="${esc(CFG.MAIN)}">Browse Earnity</a>
+    </div>`;
+  $("searchWrap").hidden = true;
+  $("feed").innerHTML = "";
+  $("empty").hidden = true;
+  $("moreWrap").hidden = true;
+  $("endMsg").hidden = true;
+}
+function showLoadError() {
+  $("hero").innerHTML = "";
+  $("searchWrap").hidden = true;
+  $("feed").innerHTML = "";
+  $("empty").hidden = true;
+  $("moreWrap").hidden = true;
+  $("endMsg").hidden = true;
+  $("hero").innerHTML = `
+    <div class="statecard">
+      <div class="ic"><i class="fa-solid fa-wifi" aria-hidden="true"></i></div>
+      <h2>Couldn't load this store</h2>
+      <p>Check your connection and try again.</p>
+      <button class="btn" id="retryBtn" type="button">Try again</button>
+    </div>`;
+  const rb = $("retryBtn");
+  if (rb) rb.addEventListener("click", () => boot());
+}
+
+/* ================= LOAD ================= */
+async function loadInitial() {
+  S.loading = true;
+  S.initialLoaded = false;
+  S.products = [];
+  S.cursor = null;
+  S.done = false;
+  $("feed").innerHTML = "";
+  $("empty").hidden = true;
+  $("moreWrap").hidden = true;
+  $("endMsg").hidden = true;
+  $("searchWrap").hidden = true;
+  heroSkeleton();
+  renderGridSkeleton();
+
+  const r = await api(`/store/${encodeURIComponent(S.sub)}`);
+  S.loading = false;
+
+  if (!r.ok) {
+    if (r.status === 404) {
+      const code = r.data && r.data.error;
+      if (code === "store_not_found" || r.status === 404) { showNotFound(); return; }
+    }
+    if (r.status === 400) { showNotFound(); return; }
+    showLoadError();
+    return;
+  }
+
+  const biz = r.data.business || {};
+  S.biz = biz;
+  renderHero(biz);
+  updateMeta(biz);
+
+  const items = Array.isArray(r.data.products) ? r.data.products.map(normProduct) : [];
+  S.products = items;
+  S.cursor = r.data.next_cursor != null ? String(r.data.next_cursor) : null;
+  S.done = S.cursor === null;
+  S.initialLoaded = true;
+
+  $("feed").innerHTML = "";
+  if (items.length) {
+    appendProducts(items);
+    $("searchWrap").hidden = false;
+  }
+  applySearch();
+  $("moreWrap").hidden = S.done || !S.cursor;
+  $("endMsg").hidden = !S.done || items.length === 0;
+  if (!S.done && S.cursor) $("endMsg").hidden = true;
+}
+
+async function loadMore() {
+  if (S.loading || S.done || !S.cursor) return;
+  S.loading = true;
+  const btn = $("moreBtn");
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = "Loading…";
+
+  const r = await api(`/store/${encodeURIComponent(S.sub)}?cursor=${encodeURIComponent(S.cursor)}`);
+  S.loading = false;
+  btn.disabled = false;
+  btn.textContent = orig;
+
+  if (!r.ok) {
+    toast(r.status === 0 ? "Check your connection and try again." : "Couldn't load more. Try again.");
+    return;
+  }
+  const items = Array.isArray(r.data.products) ? r.data.products.map(normProduct) : [];
+  S.products = S.products.concat(items);
+  S.cursor = r.data.next_cursor != null ? String(r.data.next_cursor) : null;
+  S.done = S.cursor === null;
+  appendProducts(items);
+  applySearch();
+  $("moreWrap").hidden = S.done;
+  $("endMsg").hidden = !S.done || S.products.length === 0;
+}
+
+/* ================= EVENTS ================= */
+$("feed").addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const id = card.dataset.id;
+  const p = S.products.find(x => x.id === id);
+  if (p) openSheet(p);
+});
+
+$("moreBtn").addEventListener("click", loadMore);
+
+const qEl = $("q");
+qEl.addEventListener("input", () => {
+  S.search = qEl.value;
+  applySearch();
+});
+
+/* theme */
+setTheme(document.documentElement.classList.contains("dark"));
+$("themeBtn").addEventListener("click", () => {
+  setTheme(!document.documentElement.classList.contains("dark"));
+});
+
+/* ================= BOOT ================= */
+async function boot() {
+  S.sub = getSubdomain();
+  if (!S.sub) { showNotSelected(); return; }
+  await loadInitial();
+}
+
+boot().catch(err => {
+  console.error("boot_failed", { name: err && err.name });
+  showLoadError();
+});
+</script>
+</body>
+</html>
