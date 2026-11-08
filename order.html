@@ -318,6 +318,7 @@ const CFG = {
   ORDERS:   "https://earnity-orders.anubisdigital114-9df.workers.dev",
   PAYMENTS: "https://earnity-payments.anubisdigital114-9df.workers.dev",
   CATALOG:  "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  API:      "https://earnity-api.anubisdigital114-9df.workers.dev",
   FIREBASE: {
     apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
     authDomain: "earnityug.firebaseapp.com",
@@ -329,16 +330,13 @@ const CFG = {
 };
 
 /* ------------------------------------------------------------
-   Dispute reason codes.
-   The orders worker file was not supplied, so these are the
-   codes assumed from the brief. They live in ONE place:
-   change the `code` values here if the worker uses different
-   ones and everything else follows.
+   Dispute reason codes (the exact strings the orders worker
+   accepts for POST /orders/:id/dispute).
    ------------------------------------------------------------ */
 const REASONS = [
   { code: "not_delivered",   label: "Not delivered" },
-  { code: "not_as_described",label: "Item not as described" },
-  { code: "not_received",    label: "Seller says delivered but I didn't receive it" },
+  { code: "item_not_as_described", label: "Item not as described" },
+  { code: "seller_marked_delivered_but_not_received", label: "Seller says delivered but I didn't receive it" },
   { code: "harassment",      label: "Harassment" },
   { code: "other",           label: "Other" }
 ];
@@ -474,7 +472,7 @@ function initAuth() {
 }
 
 async function loadMe() {
-  const r = await api(CFG.ORDERS, "/me");
+  const r = await api(CFG.API, "/me");
   if (r.ok && r.data && r.data.user) { S.acct = r.data.user; return true; }
   if (r.status === 404 && r.data && r.data.error === "not_registered") { goAccount(); return false; }
   return true; /* network hiccup or missing route: carry on */
@@ -598,24 +596,34 @@ function errText(r) {
   }
   const map = {
     not_found: "We couldn't find that order.",
+    order_not_found: "We couldn't find that order, or it can't be cancelled any more.",
+    order_not_found_or_not_cancellable: "We couldn't find that order, or it can't be cancelled any more.",
     forbidden: "You don't have access to this order.",
     rate_limited: "Too many attempts. Wait a minute, then try again.",
     code_locked: "The delivery code is locked right now. Try again later.",
+    code_unavailable: "We couldn't load your code. Try again in a moment.",
     invalid_state: "That action isn't available for this order any more.",
+    invalid_order_status: "That action isn't available for this order any more.",
     already_disputed: "You've already reported a problem with this order.",
+    dispute_already_open: "You've already reported a problem with this order.",
     dispute_not_allowed: "You can't report a problem at this stage.",
     not_disputable: "You can't report a problem at this stage.",
     limit_reached: "You've reached the limit for that action.",
+    max_resends_exceeded: "You've used all 3 code resends for this order.",
     resend_limit_reached: "You've used all 3 code resends for this order.",
     code_resend_limit: "You've used all 3 code resends for this order.",
     invalid_reason: "Pick a reason from the list.",
     payment_failed: "We couldn't start the payment. Try again.",
+    order_not_payable: "This order can't be paid any more. It may have expired.",
+    message_too_long: "Your message is too long. Keep it under 500 characters.",
     not_registered: "Please sign in again."
   };
+  /* Specific codes win over status-based fallbacks (e.g. max_resends_exceeded is a 429) */
+  if (e && map[e]) return map[e];
   if (r.status === 429) return map.rate_limited;
   if (r.status === 401) return "Your session expired. Sign in again.";
   if (r.status === 403 && !e) return map.forbidden;
-  return map[e] || "Something went wrong. Please try again.";
+  return "Something went wrong. Please try again.";
 }
 
 /* ============================================================
@@ -1100,7 +1108,7 @@ async function resendCode(btn) {
 
   if (!r.ok) {
     const e = String((r.data && r.data.error) || "");
-    if (e === "limit_reached" || e === "code_resend_limit" || e === "resend_limit_reached") {
+    if (e === "limit_reached" || e === "code_resend_limit" || e === "resend_limit_reached" || e === "max_resends_exceeded") {
       RESENDS[ORDER.id] = 3;
       renderActions(ORDER);
     }
