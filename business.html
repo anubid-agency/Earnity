@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Earnity seller dashboard: products, orders, earnings and your public store.">
+<title>Business · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7; --red:#b3261e; --amber:#8a5a00;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--mist);line-height:1.4;
+  min-height:100vh;padding-top:env(safe-area-inset-top,0px)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+img{max-width:100%;display:block}
+
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.bar{max-width:760px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bar img{height:44px;width:auto;display:block}
+.bar .r{display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13.5px;text-decoration:none;
+  background:var(--soft-green);color:var(--green);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px}
+.icon:hover{background:var(--mist)}
+
+.tabs{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:19}
+.tabs .in{max-width:760px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6px}
+.tabs .in::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;padding:13px 12px;font-weight:700;font-size:14px;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--green);border-color:var(--orange)}
+
+main{max-width:760px;margin:0 auto;padding:16px 14px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+h1{font-size:22px;color:var(--green-deep)}
+h2{font-size:17px;color:var(--green-deep)}
+.sub{color:var(--muted);font-size:14.5px;margin-top:4px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hd .b{font-size:14px;font-weight:700;color:var(--green)}
+.hd h2{display:flex;align-items:center;gap:8px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none}
+.btn.solid{background:var(--orange);color:#fff}
+.btn.line{border:1.5px solid var(--green);color:var(--green);background:#fff}
+.btn.full{width:100%}
+.btn.sm{min-height:38px;padding:0 16px;font-size:13.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{color:var(--green);font-weight:600;font-size:14px;text-decoration:underline;padding:8px 2px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat small{display:block;color:var(--muted);font-size:12.5px}
+.stat b{display:block;font-size:24px;margin-top:2px;color:var(--green-deep)}
+.stat.hi{background:var(--green);border-color:var(--green)}
+.stat.hi small{color:#cfe6d6}
+.stat.hi b{color:#fff}
+
+.banner{padding:12px 14px;border-radius:14px;font-size:14.5px;margin-bottom:14px;background:var(--orange-soft);color:#7a3200}
+.banner.err{background:#fdecea;color:var(--red)}
+.banner.ok{background:var(--soft-green);color:var(--green-deep)}
+
+.item{padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0;padding-bottom:0}
+.item:first-child{padding-top:0}
+.item .t{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item .m{color:var(--muted);font-size:13.5px;margin-top:3px}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--mist);color:var(--muted)}
+.chip.good{background:var(--soft-green);color:var(--green)}
+.chip.warn{background:var(--orange-soft);color:var(--orange)}
+.chip.bad{background:#fdecea;color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.earn{color:var(--green);font-weight:800}
+.msg{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--mist);font-size:14px;font-style:italic}
+
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:15px}
+.empty i{display:block;font-size:30px;color:var(--line);margin-bottom:10px}
+.center{display:flex;justify-content:center;padding:60px 0;color:var(--green);font-size:28px}
+
+.sk{background:linear-gradient(90deg,var(--mist),var(--line),var(--mist));background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:16px;margin-bottom:10px}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* forms */
+.field{margin-bottom:14px}
+.field label,.flabel{display:block;font-weight:700;font-size:14px;margin-bottom:6px;color:var(--ink)}
+.field .hint{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4}
+.field input[type=text],.field input[type=email],.field input[type=url],.field input[type=number],.field textarea,.field select{
+  width:100%;height:48px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;font-size:16px;background:#fff;color:var(--ink)}
+.field textarea{height:auto;min-height:88px;padding:12px 14px;resize:vertical;line-height:1.4}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px var(--soft-green)}
+.field input:disabled{background:var(--mist);color:var(--muted);cursor:not-allowed}
+.inerr{font-size:13px;color:var(--red);margin-top:6px}
+.counter{text-align:right;font-size:12px;color:var(--muted);margin-top:4px}
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0}
+.checkbox-row input[type=checkbox]{width:22px;height:22px;margin-top:1px;flex:none;accent-color:var(--green)}
+.checkbox-row label{font-weight:500;font-size:14px;line-height:1.4}
+.preview{font-size:13.5px;color:var(--muted);margin-top:5px}
+.preview b{color:var(--green)}
+
+/* scrim + sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-radius:24px 24px 0 0;max-width:560px;margin:0 auto;
+  max-height:90vh;overflow-y:auto;padding:12px 18px calc(20px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);transition:transform .25s ease;visibility:hidden}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .sheet{transform:none;visibility:visible}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet h2{font-size:19px;font-weight:800;color:var(--green-deep)}
+.sheet .sub{margin-top:4px}
+.sheet .code{letter-spacing:8px;text-align:center;font-size:24px;font-weight:700}
+
+/* radios */
+.opts{border:0;margin-top:12px}
+.opts legend{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.opt{display:flex;gap:12px;align-items:center;min-height:52px;padding:11px 12px;border:1.5px solid var(--line);
+  border-radius:14px;margin-bottom:8px;cursor:pointer;font-size:14.5px;line-height:1.35}
+.opt:last-child{margin-bottom:0}
+.opt.on{border-color:var(--orange);background:var(--orange-soft)}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none;position:relative}
+.opt.on .radio{border-color:var(--orange)}
+.opt.on .radio:after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--orange)}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;
+  background:var(--green-deep);color:#fff;padding:12px 16px;border-radius:14px;font-size:14.5px;z-index:60;max-width:92vw;text-align:center;
+  transition:.2s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.photo{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--mist);border:1px solid var(--line)}
+.photo img{width:100%;height:100%;object-fit:cover}
+.photo .rm{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;display:grid;place-items:center}
+.photo .ld{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.8);color:var(--green)}
+.photo-add{aspect-ratio:1;border-radius:12px;background:var(--mist);border:1.5px dashed var(--line);color:var(--muted);display:grid;place-items:center;font-size:22px}
+.photo-add:hover{border-color:var(--green);color:var(--green)}
+
+.store-link{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--mist);border-radius:14px;font-size:14px;word-break:break-all;margin-top:10px}
+.store-link i{color:var(--green);flex:none}
+
+.filters{display:flex;gap:8px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none;margin:0 -14px;padding-left:14px;padding-right:14px}
+.filters::-webkit-scrollbar{display:none}
+.filter{flex:none;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:600;white-space:nowrap}
+.filter[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+
+.tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+@media(prefers-reduced-motion:reduce){.sk{animation:none}.toast,.sheet,.scrim{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="index.html" aria-label="Earnity home"><img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<b style=\'font-size:22px;color:#0b4a1a\'>Earnity</b>'"></a>
+    <div class="r">
+      <button class="icon" id="refresh" aria-label="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      <a class="pill" id="who" href="account.html">Account</a>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabsWrap" aria-label="Sections" hidden>
+  <div class="in" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="products" aria-selected="false">Products</button>
+    <button class="tab" role="tab" data-tab="orders" aria-selected="false">Orders</button>
+    <button class="tab" role="tab" data-tab="earnings" aria-selected="false">Earnings</button>
+    <button class="tab" role="tab" data-tab="store" aria-selected="false">Store</button>
+  </div>
+</nav>
+
+<main>
+  <div class="center" id="loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+  <div id="gate" hidden></div>
+  <section id="p-overview" hidden></section>
+  <section id="p-products" hidden></section>
+  <section id="p-orders" hidden></section>
+  <section id="p-earnings" hidden></section>
+  <section id="p-store" hidden></section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  API:     "https://earnity-api.anubisdigital114-9df.workers.dev",
+  CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  ORDERS:  "https://earnity-orders.anubisdigital114-9df.workers.dev",
+  MEDIA:   "https://earnity-media.anubisdigital114-9df.workers.dev",
+  LEDGER:  "https://earnity-ledger.anubisdigital114-9df.workers.dev",
+  PAYOUTS: "https://earnity-payouts.anubisdigital114-9df.workers.dev",
+  VERIFY:  "https://earnity-verify.anubisdigital114-9df.workers.dev",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+const THIS = "business.html";
+const RESERVED = new Set(["www","api","admin","mail","support","help","earnity","root","system","staff","verify","catalog","site","orders","payments","payouts","notify","cron","ledger"]);
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const num = v => { if (v === null || v === undefined || v === "") return null; const n = typeof v === "number" ? v : Number(String(v).replace(/[^0-9.\-]/g, "")); return Number.isFinite(n) ? n : null; };
+const ugx = v => { const n = num(v); return n === null ? "—" : "UGX " + Math.round(n).toLocaleString("en-US"); };
+const pct = bps => (Number(bps) / 100).toString();
+const nowS = () => Math.floor(Date.now() / 1000);
+const toUnix = dtLocal => { if (!dtLocal) return null; const d = new Date(dtLocal); return isNaN(d) ? null : Math.floor(d.getTime() / 1000); };
+const KLA = "Africa/Kampala";
+function toDate(v) {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "number") { const d = new Date(v < 1e12 ? v * 1000 : v); return isNaN(d) ? null : d; }
+  const s = String(v).trim();
+  if (/^\d+$/.test(s)) { const n = Number(s); const d = new Date(n < 1e12 ? n * 1000 : n); return isNaN(d) ? null : d; }
+  const d = new Date(s); return isNaN(d) ? null : d;
+}
+const dt = v => { const d = toDate(v); if (!d) return ""; try { return new Intl.DateTimeFormat("en-GB", { timeZone: KLA, day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(d); } catch { return ""; } };
+const dOnly = v => { const d = toDate(v); if (!d) return ""; try { return new Intl.DateTimeFormat("en-GB", { timeZone: KLA, day: "numeric", month: "short", year: "numeric" }).format(d); } catch { return ""; } };
+const dtLocalInput = v => { const d = toDate(v); if (!d) return ""; const pad = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+const ERR = {
+  network: "Can't reach Earnity. Check your connection and try again.",
+  unauthorized: "Please sign in again.", invalid_token: "Your sign-in expired. Please sign in again.",
+  account_blocked: "This account has been blocked.", wrong_account_type: "This page is only for seller accounts.",
+  rate_limit_exceeded: "Too many tries. Please wait a bit and try again.",
+  rate_limited: "Too many tries. Please wait a bit and try again.",
+  forbidden: "You don't have access to this.",
+  server_error: "Something went wrong on our side. Please try again.",
+  business_not_found: "You don't have a business yet.",
+  subdomain_taken: "That subdomain is already taken.",
+  business_exists: "You already have a business.",
+  terms_not_accepted: "You must accept the seller terms.",
+  referrer_not_found: "No referee has that username.",
+  referrer_is_owner: "You can't refer yourself.",
+  invalid_category: "Pick a valid category.",
+  invalid_delivery_days: "Delivery days must be between 1 and 14.",
+  product_limit_reached: "You've reached the product limit.",
+  invalid_product: "There's something wrong with the product details.",
+  invalid_price: "Enter a valid price.",
+  price_above_limit: "Maximum price is UGX 1,000,000 for now.",
+  deposit_cap_exceeded: "That rate is too high for your deposit.",
+  referrer_bps_not_raised: "The new rate must be higher than the current one.",
+  referee_max_below_used_slots: "The max referees is below how many are already on this product.",
+  offer_price_not_lower: "The offer price must be lower than the current price.",
+  invalid_offer_range: "Offer dates must be valid and in the right order.",
+  offer_too_long: "Offers can run for at most 30 days.",
+  invalid_order_status: "This order can't be marked delivered right now.",
+  wrong_code: "That code isn't right.",
+  code_locked: "Too many wrong tries. This order is locked, contact Earnity support.",
+  dispute_already_open: "A problem report is already open on this order.",
+  already_disputed: "A problem report is already open on this order.",
+  not_disputable: "You can't report a problem at this stage.",
+  invalid_reason: "Pick a reason from the list.",
+  message_too_long: "Your message is too long. Keep it under 500 characters.",
+  /* withdrawals */
+  invalid_amount: "Enter a valid amount.", payouts_disabled: "Withdrawals are paused right now. Please try again later.",
+  below_minimum: "That's below the minimum withdrawal.", amount_too_small_for_fee: "That amount is too small to cover the fee.",
+  payout_hold_active: "Withdrawals are on hold after a phone change.", phone_not_verified: "Verify your phone number first.",
+  phone_recently_changed: "Your phone was changed recently. Try again after the 24-hour safety wait.",
+  request_already_open: "You already have a withdrawal in progress. Finish or wait for it first.",
+  daily_limit: "That goes over your daily withdrawal limit.", system_limit: "Withdrawals are busy right now. Try again later.",
+  insufficient_funds: "You don't have enough available balance.",
+  invalid_code: "That code isn't right.", code_invalid_or_expired: "That code has expired. Your request will be released shortly, then you can start again.",
+  max_attempts_exceeded: "Too many wrong codes. Your request will be released shortly, then you can start again.",
+  email_not_confirmed: "First open the confirmation link in your email, then enter the code here.",
+  sms_failed: "We couldn't send the SMS. Please try again.", email_failed: "We couldn't send the email. Please try again.",
+  upstream_unavailable: "A service is busy. Please try again in a moment."
+};
+function errMsg(r) {
+  if (!r) return "Something went wrong.";
+  if (r.status === 0) return ERR.network;
+  const e = r.data && r.data.error;
+  if (e === "payout_hold_active" && r.data.payout_hold_until) return "Withdrawals are on hold until " + dt(r.data.payout_hold_until) + " after a phone change.";
+  if (e && ERR[e]) return ERR[e];
+  if (r.status === 401) return ERR.unauthorized;
+  if (r.status === 429) return ERR.rate_limit_exceeded;
+  return "Something went wrong. Please try again.";
+}
+
+/* ================= TOAST ================= */
+let toastT = null;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 3200);
+}
+
+/* ================= SHEET ================= */
+const sheet = $("sheet");
+let lastFocus = null;
+function openSheet(html) {
+  lastFocus = document.activeElement;
+  sheet.innerHTML = `<div class="grab"></div>` + html;
+  sheet.hidden = false;
+  document.body.classList.add("open");
+  setTimeout(() => {
+    const f = sheet.querySelector("[data-autofocus]") || sheet.querySelector("input, textarea, select, button, a[href]");
+    if (f && f.focus) try { f.focus(); } catch {}
+  }, 60);
+}
+function closeSheet() {
+  document.body.classList.remove("open");
+  setTimeout(() => { if (!document.body.classList.contains("open")) { sheet.hidden = true; sheet.innerHTML = ""; } }, 300);
+  if (lastFocus && document.contains(lastFocus) && lastFocus.focus) { try { lastFocus.focus(); } catch {} }
+  lastFocus = null;
+}
+$("scrim").addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => {
+  if (!document.body.classList.contains("open")) return;
+  if (e.key === "Escape") { e.preventDefault(); closeSheet(); return; }
+  if (e.key !== "Tab") return;
+  const f = Array.from(sheet.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select,[tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+sheet.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeSheet(); });
+
+/* ================= STATE + API ================= */
+const S = {
+  user: null, me: null, tab: "overview", cloudName: null, cats: null,
+  overview: { loading: false, loaded: false, error: null, data: null },
+  products: { loading: false, loaded: false, error: null, data: null },
+  orders: { loading: false, loaded: false, error: null, data: null, filter: "", cursor: null, done: false, loadingMore: false },
+  earn: { loading: false, loaded: false, error: null, wallet: null, entries: [], next: null, payouts: null, settings: null, hold: null, phoneCount: null, loadingMore: false },
+  store: { loading: false, loaded: false, error: null, data: null }
+};
+
+async function api(base, path, opt = {}) {
+  const h = {};
+  if (opt.body !== undefined) h["Content-Type"] = "application/json";
+  try {
+    if (S.user) h.Authorization = "Bearer " + await S.user.getIdToken();
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 15000);
+    const r = await fetch(base + path, {
+      method: opt.method || "GET",
+      headers: h,
+      body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined,
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    let data = null; try { data = await r.json(); } catch {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch {
+    return { ok: false, status: 0, data: { error: "network" } };
+  }
+}
+
+/* ================= SHELL ================= */
+function showOnly(id) {
+  ["loading","gate","p-overview","p-products","p-orders","p-earnings","p-store"].forEach(x => {
+    const el = $(x); if (el) el.hidden = x !== id;
+  });
+}
+function gate(html) { $("tabsWrap").hidden = true; $("gate").innerHTML = html; showOnly("gate"); }
+function setTab(t) {
+  S.tab = t;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  showOnly("p-" + t);
+  scrollTo({ top: 0 });
+  if (t === "overview" && !S.overview.loaded) loadOverview();
+  else if (t === "products" && !S.products.loaded) loadProducts();
+  else if (t === "orders" && !S.orders.loaded) loadOrders();
+  else if (t === "earnings" && !S.earn.loaded) loadEarnings();
+  else if (t === "store" && !S.store.loaded) loadStore();
+}
+$("tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) setTab(b.dataset.tab); });
+$("refresh").addEventListener("click", () => {
+  const t = S.tab;
+  if (t === "overview") loadOverview(true);
+  else if (t === "products") loadProducts(true);
+  else if (t === "orders") loadOrders(true);
+  else if (t === "earnings") loadEarnings(true);
+  else if (t === "store") loadStore(true);
+});
+
+function skel(n = 3, h = 80) {
+  return Array.from({ length: n }, () => `<div class="sk" style="height:${h}px"></div>`).join("");
+}
+function tabError(tab, r) {
+  return `<div class="card">
+    <h2>Couldn't load this section</h2>
+    <p class="sub">${esc(errMsg(r))} <span style="color:var(--muted);font-size:12px">(${r.status})</span></p>
+    <div class="row"><button class="btn solid" data-retry="${tab}">Try again</button></div>
+  </div>`;
+}
+
+/* ================= AUTH + INIT ================= */
+async function boot() {
+  let u = null;
+  try {
+    const V = "10.14.1";
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = appMod.getApps && appMod.getApps().length ? appMod.getApps()[0] : appMod.initializeApp(CFG.FIREBASE);
+    const auth = authMod.getAuth(app);
+    u = await new Promise(resolve => {
+      const off = authMod.onAuthStateChanged(auth, usr => { off(); resolve(usr || null); });
+      setTimeout(() => resolve(null), 10000);
+    });
+  } catch {}
+  if (!u) { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+  S.user = u;
+  const r = await api(CFG.API, "/me");
+  if (!r.ok) {
+    if (r.status === 401) { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+    return gate(`<div class="card"><h2>Couldn't load your account</h2>
+      <p class="sub">${esc(errMsg(r))}</p>
+      <div class="row"><button class="btn solid" onclick="location.reload()">Try again</button></div></div>`);
+  }
+  if (r.data.error === "not_registered") { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+  S.me = r.data.user;
+  $("who").textContent = String(S.me.display_name || "Account").split(" ")[0];
+  if (S.me.account_type !== "seller") {
+    return gate(`<div class="card"><h2>This page is for seller accounts</h2>
+      <p class="sub">You're signed in as a ${esc(S.me.account_type)}. Seller tools are only available on seller accounts.</p>
+      <div class="row"><a class="btn solid" href="index.html">Go to home</a><a class="btn line" href="account.html">My account</a></div></div>`);
+  }
+  $("loading").hidden = true;
+  $("tabsWrap").hidden = false;
+  setTab("overview");
+}
+
+/* ================= OVERVIEW ================= */
+async function loadOverview(force) {
+  if (S.overview.loading) return;
+  if (S.overview.loaded && !force) return;
+  S.overview.loading = true; S.overview.error = null;
+  renderOverview();
+  const r = await api(CFG.CATALOG, "/business/me");
+  S.overview.loading = false;
+  if (r.status === 404 && r.data.error === "business_not_found") {
+    S.overview.data = null; S.overview.loaded = true;
+  } else if (!r.ok) {
+    S.overview.error = r;
+  } else {
+    S.overview.data = r.data.business || r.data;
+    S.overview.loaded = true;
+  }
+  renderOverview();
+}
+
+function chipClassForApproval(s) {
+  return s === "approved" ? "good" : s === "rejected" ? "bad" : "warn";
+}
+
+async function renderOverview() {
+  const el = $("p-overview");
+  if (S.overview.loading && !S.overview.data) {
+    el.innerHTML = skel(2, 120);
+    return;
+  }
+  if (S.overview.error) { el.innerHTML = tabError("overview", S.overview.error); return; }
+  if (!S.overview.data) { await renderSetupForm(); return; }
+  const b = S.overview.data;
+  const approval = b.approval_status || "pending";
+  const notice = approval !== "approved"
+    ? (approval === "rejected" && b.approval_note
+        ? `<div class="banner err"><b>Approval was rejected.</b> ${esc(b.approval_note)}</div>`
+        : `<div class="banner">Your business is waiting for approval. Products are saved but not visible to buyers yet.</div>`)
+    : "";
+  const hasRef = b.has_referrer && b.referrer_bps;
+  el.innerHTML = `
+    ${notice}
+    <div class="card">
+      <div class="hd">
+        <h2>${esc(b.name || "Your business")} <span class="chip ${chipClassForApproval(approval)}">${esc(approval)}</span></h2>
+        <button class="b" id="editBiz">Edit</button>
+      </div>
+      <p class="sub">Store: <a href="https://${esc(b.subdomain)}.earnityug.com" target="_blank" rel="noopener">${esc(b.subdomain)}.earnityug.com</a></p>
+      ${b.description ? `<p class="sub" style="margin-top:8px">${esc(b.description)}</p>` : ""}
+    </div>
+    <div class="grid" style="margin-bottom:14px">
+      <div class="stat hi"><small>Active products</small><b>${fmt(b.active_product_count || 0)}</b></div>
+      <div class="stat"><small>Total products</small><b>${fmt(b.product_count || 0)}</b></div>
+      <div class="stat"><small>Delivered sales</small><b>${fmt(b.delivered_sales || 0)}</b></div>
+    </div>
+    ${hasRef ? `
+      <div class="card">
+        <div class="hd">
+          <h2>Business referrer</h2>
+          <button class="b" id="raiseRef">Raise rate</button>
+        </div>
+        <p class="sub">Business referrer earns ${pct(b.referrer_bps)}%.</p>
+      </div>` : ""}
+  `;
+  $("editBiz").onclick = openEditBusiness;
+  if (hasRef) $("raiseRef").onclick = openRaiseReferrer;
+}
+
+/* ---- setup form ---- */
+async function renderSetupForm() {
+  const el = $("p-overview");
+  el.innerHTML = skel(2, 120);
+  const cats = await ensureCats();
+  const catOpts = (cats || []).map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  el.innerHTML = `
+    <div class="card">
+      <h2>Set up your business</h2>
+      <p class="sub">Create your storefront on Earnity. You can edit most details later.</p>
+      <form id="setupForm" style="margin-top:14px" novalidate>
+        <div class="field">
+          <label for="fName">Business name</label>
+          <input type="text" id="fName" maxlength="120" required>
+          <div class="inerr" id="eName" hidden></div>
+        </div>
+        <div class="field">
+          <label for="fSub">Store link</label>
+          <input type="text" id="fSub" maxlength="30" required autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="my-store">
+          <div class="preview" id="fSubPrev">.earnityug.com</div>
+          <div class="inerr" id="eSub" hidden></div>
+          <div class="hint">3–30 lowercase letters, digits, hyphens. Must start and end with a letter or digit.</div>
+        </div>
+        <div class="field">
+          <label for="fDesc">Description</label>
+          <textarea id="fDesc" maxlength="1000" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label for="fCat">Category</label>
+          <select id="fCat">${catOpts || `<option value="">No categories</option>`}</select>
+        </div>
+        <div class="field">
+          <label for="fDelivText">Delivery info</label>
+          <textarea id="fDelivText" maxlength="300" rows="2" placeholder="How do you deliver?"></textarea>
+        </div>
+        <div class="field">
+          <label for="fDelivDays">Default delivery days</label>
+          <input type="number" id="fDelivDays" min="1" max="14" value="3">
+        </div>
+        <div class="field">
+          <label for="fAddr">Address</label>
+          <textarea id="fAddr" maxlength="500" rows="2"></textarea>
+        </div>
+        <div class="field">
+          <label for="fUrl">Online presence (optional)</label>
+          <input type="url" id="fUrl" placeholder="https://instagram.com/yourbusiness">
+        </div>
+        <div class="field">
+          <label for="fRef">Who referred you to Earnity? (optional)</label>
+          <input type="text" id="fRef" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="referee-username">
+          <div class="hint">This cannot be changed later.</div>
+          <div class="inerr" id="eRef" hidden></div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="fTerms">
+          <label for="fTerms">I agree to the <a href="seller-terms.html" target="_blank" rel="noopener">seller terms</a>.</label>
+        </div>
+        <div class="inerr" id="eForm" hidden></div>
+        <div class="row" style="margin-top:8px">
+          <button type="submit" class="btn solid full" id="fGo">Create business</button>
+        </div>
+      </form>
+    </div>
+  `;
+  const sub = $("fSub"), prev = $("fSubPrev");
+  sub.addEventListener("input", () => {
+    const v = sub.value.trim().toLowerCase();
+    prev.innerHTML = (v ? `<b>${esc(v)}</b>` : "") + ".earnityug.com";
+  });
+  $("setupForm").addEventListener("submit", submitSetup);
+}
+
+function fieldErr(id, msg) { const el = $(id); if (el) { el.textContent = msg || ""; el.hidden = !msg; } }
+
+async function submitSetup(e) {
+  e.preventDefault();
+  ["eName","eSub","eRef","eForm"].forEach(id => fieldErr(id, ""));
+  const name = $("fName").value.trim();
+  const sub = $("fSub").value.trim().toLowerCase();
+  const desc = $("fDesc").value.trim();
+  const cat = $("fCat").value;
+  const dtxt = $("fDelivText").value.trim();
+  const ddays = Number($("fDelivDays").value);
+  const addr = $("fAddr").value.trim();
+  const url = $("fUrl").value.trim();
+  const ref = $("fRef").value.trim();
+  const terms = $("fTerms").checked;
+
+  if (name.length < 2 || name.length > 120) { fieldErr("eName", "Between 2 and 120 characters."); return; }
+  const subErr = validateSubdomain(sub);
+  if (subErr) { fieldErr("eSub", subErr); return; }
+  if (!terms) { fieldErr("eForm", ERR.terms_not_accepted); return; }
+  if (!cat) { fieldErr("eForm", "Pick a category."); return; }
+  if (!Number.isFinite(ddays) || ddays < 1 || ddays > 14) { fieldErr("eForm", ERR.invalid_delivery_days); return; }
+  if (url && !/^https?:\/\//i.test(url)) { fieldErr("eForm", "Online link must start with http:// or https://"); return; }
+
+  const body = {
+    name, subdomain: sub,
+    description: desc || undefined,
+    category_id: cat,
+    delivery_text: dtxt || undefined,
+    default_delivery_days: ddays,
+    address_text: addr || undefined,
+    online_presence_url: url || undefined,
+    referrer_username: ref || undefined,
+    accept_seller_terms: true
+  };
+  const btn = $("fGo"); btn.disabled = true; btn.textContent = "Creating…";
+  const r = await api(CFG.CATALOG, "/business", { method: "POST", body });
+  btn.disabled = false; btn.textContent = "Create business";
+  if (r.ok) {
+    toast("Business created");
+    S.overview.loaded = false; S.products.loaded = false; S.orders.loaded = false; S.earn.loaded = false; S.store.loaded = false;
+    await loadOverview(true);
+    return;
+  }
+  const er = String(r.data && r.data.error);
+  if (er === "subdomain_taken") { fieldErr("eSub", ERR.subdomain_taken); return; }
+  if (er === "business_exists") { fieldErr("eForm", ERR.business_exists); return; }
+  if (er === "terms_not_accepted") { fieldErr("eForm", ERR.terms_not_accepted); return; }
+  if (er === "referrer_not_found") { fieldErr("eRef", ERR.referrer_not_found); return; }
+  if (er === "referrer_is_owner") { fieldErr("eRef", ERR.referrer_is_owner); return; }
+  if (er === "invalid_category") { fieldErr("eForm", ERR.invalid_category); return; }
+  if (er === "invalid_delivery_days") { fieldErr("eForm", ERR.invalid_delivery_days); return; }
+  fieldErr("eForm", errMsg(r));
+}
+
+function validateSubdomain(v) {
+  if (!v) return "Required.";
+  if (v.length < 3) return "At least 3 characters.";
+  if (v.length > 30) return "At most 30 characters.";
+  if (!/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/.test(v)) return "Only lowercase letters, digits and hyphens; must start and end with a letter or digit.";
+  if (RESERVED.has(v)) return "This subdomain is reserved.";
+  return null;
+}
+
+async function ensureCats() {
+  if (S.cats) return S.cats;
+  const r = await api(CFG.CATALOG, "/categories");
+  if (r.ok) S.cats = r.data.categories || r.data.items || [];
+  return S.cats || [];
+}
+
+/* ---- edit business sheet ---- */
+async function openEditBusiness() {
+  const b = S.overview.data; if (!b) return;
+  const cats = await ensureCats();
+  const catOpts = (cats || []).map(c => `<option value="${esc(c.id)}"${String(c.id) === String(b.category_id) ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+  openSheet(`
+    <h2>Edit business</h2>
+    <form id="editForm" style="margin-top:14px" novalidate>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" value="${esc(b.name)}" disabled>
+        <div class="hint">Name can't be changed.</div>
+      </div>
+      <div class="field">
+        <label>Store link</label>
+        <input type="text" value="${esc(b.subdomain)}.earnityug.com" disabled>
+        <div class="hint">Subdomain can't be changed.</div>
+      </div>
+      <div class="field">
+        <label for="eDesc">Description</label>
+        <textarea id="eDesc" maxlength="1000" rows="3">${esc(b.description || "")}</textarea>
+      </div>
+      <div class="field">
+        <label for="eCat">Category</label>
+        <select id="eCat">${catOpts || `<option value="">No categories</option>`}</select>
+      </div>
+      <div class="field">
+        <label for="eDeliv">Delivery info</label>
+        <textarea id="eDeliv" maxlength="300" rows="2">${esc(b.delivery_text || "")}</textarea>
+      </div>
+      <div class="field">
+        <label for="eDays">Default delivery days</label>
+        <input type="number" id="eDays" min="1" max="14" value="${Number(b.default_delivery_days) || 3}">
+      </div>
+      <div class="field">
+        <label for="eAddr">Address</label>
+        <textarea id="eAddr" maxlength="500" rows="2">${esc(b.address_text || "")}</textarea>
+      </div>
+      <div class="field">
+        <label for="eUrl">Online presence</label>
+        <input type="url" id="eUrl" value="${esc(b.online_presence_url || "")}">
+      </div>
+      <div class="field">
+        <label>Logo</label>
+        <div id="logoWrap">
+          ${b.logo_public_id ? `<div class="store-link"><i class="fa-solid fa-image"></i><span class="mono">${esc(b.logo_public_id)}</span></div>` : ""}
+          <button type="button" class="btn line sm" id="logoPick" style="margin-top:6px">${b.logo_public_id ? "Change logo" : "Upload logo"}</button>
+          <input type="file" id="logoFile" accept="image/*" hidden>
+        </div>
+      </div>
+      <div class="field">
+        <label>Banner</label>
+        <div id="bannerWrap">
+          ${b.banner_public_id ? `<div class="store-link"><i class="fa-solid fa-image"></i><span class="mono">${esc(b.banner_public_id)}</span></div>` : ""}
+          <button type="button" class="btn line sm" id="bannerPick" style="margin-top:6px">${b.banner_public_id ? "Change banner" : "Upload banner"}</button>
+          <input type="file" id="bannerFile" accept="image/*" hidden>
+        </div>
+      </div>
+      <div class="inerr" id="eFormErr" hidden></div>
+      <div class="row" style="margin-top:8px">
+        <button type="submit" class="btn solid full" id="eGo">Save changes</button>
+        <button type="button" class="btn line full" data-close>Cancel</button>
+      </div>
+    </form>
+  `);
+  let newLogo = null, newBanner = null;
+
+  $("logoPick").onclick = () => $("logoFile").click();
+  $("bannerPick").onclick = () => $("bannerFile").click();
+  $("logoFile").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const up = await uploadMedia(f, "logo", null);
+    if (up.ok) { newLogo = up.public_id; $("logoWrap").insertAdjacentHTML("afterbegin", `<div class="store-link"><i class="fa-solid fa-check" style="color:var(--green)"></i><span class="mono">${esc(up.public_id)}</span></div>`); toast("Logo uploaded"); }
+    else toast(errMsg(up.error));
+    e.target.value = "";
+  };
+  $("bannerFile").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const up = await uploadMedia(f, "banner", null);
+    if (up.ok) { newBanner = up.public_id; $("bannerWrap").insertAdjacentHTML("afterbegin", `<div class="store-link"><i class="fa-solid fa-check" style="color:var(--green)"></i><span class="mono">${esc(up.public_id)}</span></div>`); toast("Banner uploaded"); }
+    else toast(errMsg(up.error));
+    e.target.value = "";
+  };
+
+  $("editForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("eFormErr").hidden = true;
+    const days = Number($("eDays").value);
+    if (!Number.isFinite(days) || days < 1 || days > 14) { $("eFormErr").textContent = ERR.invalid_delivery_days; $("eFormErr").hidden = false; return; }
+    const url = $("eUrl").value.trim();
+    if (url && !/^https?:\/\//i.test(url)) { $("eFormErr").textContent = "Online link must start with http:// or https://"; $("eFormErr").hidden = false; return; }
+    const body = {
+      description: $("eDesc").value.trim(),
+      category_id: $("eCat").value,
+      delivery_text: $("eDeliv").value.trim(),
+      default_delivery_days: days,
+      address_text: $("eAddr").value.trim(),
+      online_presence_url: url || null
+    };
+    if (newLogo) body.logo_public_id = newLogo;
+    if (newBanner) body.banner_public_id = newBanner;
+    const btn = $("eGo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/business/me", { method: "PATCH", body });
+    btn.disabled = false; btn.textContent = "Save changes";
+    if (r.ok) { closeSheet(); toast("Saved"); await loadOverview(true); return; }
+    $("eFormErr").textContent = errMsg(r); $("eFormErr").hidden = false;
+  });
+}
+
+function openRaiseReferrer() {
+  const b = S.overview.data; if (!b) return;
+  const cur = Number(b.referrer_bps) / 100;
+  openSheet(`
+    <h2>Raise referrer rate</h2>
+    <p class="sub">Current rate is <b>${cur}%</b>. The new rate must be higher.</p>
+    <div class="field" style="margin-top:14px">
+      <label for="refRate">New rate (%)</label>
+      <input type="text" id="refRate" inputmode="decimal" placeholder="e.g. ${(cur + 1).toFixed(1)}">
+    </div>
+    <div class="inerr" id="rErr" hidden></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn solid full" id="rGo">Raise rate</button>
+      <button type="button" class="btn line full" data-close>Cancel</button>
+    </div>
+  `);
+  $("rGo").onclick = async () => {
+    const er = $("rErr"); er.hidden = true;
+    const p = Number(String($("refRate").value).replace(",", "."));
+    if (!Number.isFinite(p) || p <= 0) { er.textContent = "Enter a percent like 5 or 5.5"; er.hidden = false; return; }
+    const bps = Math.round(p * 100);
+    if (bps <= Number(b.referrer_bps)) { er.textContent = ERR.referrer_bps_not_raised; er.hidden = false; return; }
+    const btn = $("rGo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/business/me/referrer-rate", { method: "POST", body: { referrer_bps: bps } });
+    btn.disabled = false; btn.textContent = "Raise rate";
+    if (r.ok) { closeSheet(); toast("Rate updated"); await loadOverview(true); return; }
+    const e = String(r.data && r.data.error);
+    if (e === "referrer_bps_not_raised") { er.textContent = ERR.referrer_bps_not_raised; }
+    else if (e === "deposit_cap_exceeded" && r.data.max_referrer_bps) { er.textContent = `Highest allowed: ${pct(r.data.max_referrer_bps)}%`; }
+    else er.textContent = errMsg(r);
+    er.hidden = false;
+  };
+}
+
+/* ================= MEDIA upload ================= */
+async function uploadMedia(file, purpose, productId) {
+  if (!file) return { ok: false, error: { status: 0, data: { error: "no_file" } } };
+  if (!/^image\//.test(file.type)) return { ok: false, error: { status: 0, data: { error: "invalid_file_type" } } };
+  if (file.size > 5 * 1024 * 1024) return { ok: false, error: { status: 0, data: { error: "file_too_large" } } };
+  const signBody = { purpose };
+  if (productId) signBody.product_id = productId;
+  const sign = await api(CFG.MEDIA, "/uploads/sign", { method: "POST", body: signBody });
+  if (!sign.ok) return { ok: false, error: sign };
+  const d = sign.data;
+  if (d.cloud_name) S.cloudName = d.cloud_name;
+  if (typeof d.remaining_slots === "number" && d.remaining_slots <= 0) return { ok: false, error: { status: 400, data: { error: "no_slots" } } };
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("api_key", d.api_key);
+  fd.append("timestamp", String(d.timestamp));
+  fd.append("signature", d.signature);
+  fd.append("public_id", d.public_id);
+  fd.append("upload_preset", d.upload_preset);
+  let up, upData = null;
+  try {
+    up = await fetch(d.upload_url, { method: "POST", body: fd });
+    try { upData = await up.json(); } catch {}
+  } catch {}
+  if (!up || !up.ok || !upData || !upData.public_id) {
+    try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: d.public_id } }); } catch {}
+    return { ok: false, error: { status: up ? up.status : 0, data: (upData && upData.error) || { error: "upload_failed" } } };
+  }
+  return { ok: true, public_id: upData.public_id };
+}
+function cloudImg(publicId, w = 200) {
+  if (!S.cloudName || !publicId) return "";
+  return `https://res.cloudinary.com/${encodeURIComponent(S.cloudName)}/image/upload/f_auto,q_auto,w_${w}/${publicId}`;
+}
+
+/* ================= PRODUCTS ================= */
+async function loadProducts(force) {
+  if (S.products.loading) return;
+  if (S.products.loaded && !force) return;
+  S.products.loading = true; S.products.error = null;
+  renderProducts();
+  const r = await api(CFG.CATALOG, "/business/me/products");
+  S.products.loading = false;
+  if (!r.ok) S.products.error = r;
+  else { S.products.data = r.data.products || r.data.items || []; S.products.loaded = true; }
+  renderProducts();
+}
+
+function productChip(p) { return p.status === "active" ? `<span class="chip good">Active</span>` : `<span class="chip">Hidden</span>`; }
+function renderProducts() {
+  const el = $("p-products");
+  if (S.products.loading && !S.products.data) { el.innerHTML = skel(3, 80); return; }
+  if (S.products.error) { el.innerHTML = tabError("products", S.products.error); return; }
+  const list = S.products.data || [];
+  el.innerHTML = `
+    <div class="card">
+      <div class="hd">
+        <h2>Products</h2>
+        <button class="b" id="addProd">Add product</button>
+      </div>
+      ${list.length ? list.map(p => {
+        const price = num(p.price_ugx) || 0;
+        const offer = p.offer_active ? num(p.offer_price_ugx) : null;
+        const thumb = (p.image_ids && p.image_ids[0]) ? cloudImg(p.image_ids[0], 120) : "";
+        return `<div class="item" data-pid="${esc(p.id)}">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            ${thumb ? `<img src="${esc(thumb)}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:12px;flex:none">` : `<div style="width:56px;height:56px;border-radius:12px;background:var(--mist);display:grid;place-items:center;color:var(--muted);flex:none"><i class="fa-solid fa-image"></i></div>`}
+            <div style="min-width:0;flex:1">
+              <div class="t">${esc(p.name)} ${productChip(p)}</div>
+              <div class="m">${offer !== null ? `${ugx(offer)} <s>${ugx(price)}</s>` : ugx(price)} · ${pct(p.commission_bps)}% commission · ${fmt(p.referee_max)} referee slots</div>
+            </div>
+          </div>
+        </div>`;
+      }).join("") :
+        `<div class="empty"><i class="fa-solid fa-box"></i>No products yet.<br><a class="btn solid sm" style="margin-top:12px" href="#" id="addFirst">Add your first product</a></div>`}
+    </div>`;
+  $("addProd").onclick = openAddProduct;
+  const af = $("addFirst"); if (af) { af.onclick = (e) => { e.preventDefault(); openAddProduct(); }; }
+  el.querySelectorAll("[data-pid]").forEach(row => {
+    row.style.cursor = "pointer";
+    row.addEventListener("click", () => openProductDetail(row.dataset.pid));
+  });
+}
+
+/* ---- add product ---- */
+async function openAddProduct() {
+  const cats = await ensureCats();
+  const b = S.overview.data || {};
+  const defaultDays = Number(b.default_delivery_days) || 3;
+  const catOpts = (cats || []).map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  openSheet(`
+    <h2>Add product</h2>
+    <p class="sub">Photos can be added right after.</p>
+    <form id="pForm" style="margin-top:14px" novalidate>
+      <div class="field">
+        <label for="pName">Name</label>
+        <input type="text" id="pName" maxlength="120" required>
+      </div>
+      <div class="field">
+        <label for="pDesc">Description</label>
+        <textarea id="pDesc" maxlength="2000" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label for="pPrice">Price (UGX)</label>
+        <input type="text" id="pPrice" inputmode="numeric" required placeholder="50000">
+      </div>
+      <div class="field">
+        <label for="pCat">Category</label>
+        <select id="pCat">${catOpts || `<option value="">No categories</option>`}</select>
+      </div>
+      <div class="field">
+        <label for="pComm">Commission (%)</label>
+        <input type="text" id="pComm" inputmode="decimal" value="10" required>
+        <div class="hint">1% to 48%. This is what referees earn when their link converts.</div>
+      </div>
+      <div class="field">
+        <label for="pRef">Referee slots (1–50)</label>
+        <input type="number" id="pRef" min="1" max="50" value="5">
+        <div class="hint">How many referees can promote this.</div>
+      </div>
+      <div class="field">
+        <label for="pDelivText">Delivery info</label>
+        <textarea id="pDelivText" maxlength="300" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label for="pDays">Delivery days</label>
+        <input type="number" id="pDays" min="1" max="14" value="${defaultDays}">
+      </div>
+      <div class="inerr" id="pErr" hidden></div>
+      <div class="row" style="margin-top:8px">
+        <button type="submit" class="btn solid full" id="pGo">Save product</button>
+        <button type="button" class="btn line full" data-close>Cancel</button>
+      </div>
+    </form>
+  `);
+  $("pForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const er = $("pErr"); er.hidden = true;
+    const name = $("pName").value.trim();
+    const desc = $("pDesc").value.trim();
+    const price = parseInt($("pPrice").value.replace(/[^0-9]/g, ""), 10);
+    const cat = $("pCat").value;
+    const comm = Number(String($("pComm").value).replace(",", "."));
+    const ref = parseInt($("pRef").value, 10);
+    const dtext = $("pDelivText").value.trim();
+    const days = parseInt($("pDays").value, 10);
+    if (name.length < 2) { er.textContent = "Name is too short."; er.hidden = false; return; }
+    if (!Number.isFinite(price) || price < 1 || price > 1000000) { er.textContent = ERR.invalid_price; er.hidden = false; return; }
+    if (!cat) { er.textContent = "Pick a category."; er.hidden = false; return; }
+    if (!Number.isFinite(comm) || comm < 1 || comm > 48) { er.textContent = "Commission must be between 1% and 48%."; er.hidden = false; return; }
+    if (!Number.isFinite(ref) || ref < 1 || ref > 50) { er.textContent = "Referee slots must be 1–50."; er.hidden = false; return; }
+    if (!Number.isFinite(days) || days < 1 || days > 14) { er.textContent = ERR.invalid_delivery_days; er.hidden = false; return; }
+    const body = {
+      name, description: desc || undefined,
+      price_ugx: price, category_id: cat,
+      commission_bps: Math.round(comm * 100),
+      referee_max: ref,
+      delivery_text: dtext || undefined,
+      delivery_days: days
+    };
+    const btn = $("pGo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/products", { method: "POST", body });
+    btn.disabled = false; btn.textContent = "Save product";
+    if (r.ok) { closeSheet(); toast("Product added"); await loadProducts(true); return; }
+    const err = String(r.data && r.data.error);
+    if (err === "product_limit_reached") er.textContent = ERR.product_limit_reached;
+    else if (err === "invalid_product") er.textContent = ERR.invalid_product;
+    else if (err === "invalid_price") er.textContent = ERR.invalid_price;
+    else if (err === "price_above_limit") er.textContent = ERR.price_above_limit;
+    else if (err === "deposit_cap_exceeded" && r.data.max_commission_bps) er.textContent = `Highest commission allowed: ${pct(r.data.max_commission_bps)}%`;
+    else er.textContent = errMsg(r);
+    er.hidden = false;
+  });
+}
+
+/* ---- product detail ---- */
+async function openProductDetail(pid) {
+  const p = (S.products.data || []).find(x => x.id === pid);
+  if (!p) return;
+  const images = Array.isArray(p.image_ids) ? p.image_ids.slice() : [];
+  const price = num(p.price_ugx) || 0;
+  const offerActive = !!p.offer_active;
+  const offerPrice = num(p.offer_price_ugx);
+  const offerStart = p.offer_starts_at ? dtLocalInput(p.offer_starts_at) : "";
+  const offerEnd = p.offer_ends_at ? dtLocalInput(p.offer_ends_at) : "";
+  const cats = await ensureCats();
+  const catOpts = (cats || []).map(c => `<option value="${esc(c.id)}"${String(c.id) === String(p.category_id) ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+
+  openSheet(`
+    <div class="hd" style="margin-bottom:6px"><h2>${esc(p.name)}</h2>${productChip(p)}</div>
+    <p class="sub">${offerActive && offerPrice !== null ? `${ugx(offerPrice)} <s>${ugx(price)}</s>` : ugx(price)} · ${pct(p.commission_bps)}% commission · ${fmt(p.referee_max)} referee slots</p>
+
+    <div style="margin-top:14px"><label class="flabel">Photos</label>
+      <div class="photos" id="photosWrap"></div>
+      <input type="file" id="photoInput" accept="image/*" multiple hidden>
+    </div>
+
+    <div style="margin-top:18px"><label class="flabel">Edit details</label>
+      <form id="pEdit" novalidate>
+        <div class="field">
+          <label for="peName">Name</label>
+          <input type="text" id="peName" maxlength="120" value="${esc(p.name)}">
+        </div>
+        <div class="field">
+          <label for="peDesc">Description</label>
+          <textarea id="peDesc" maxlength="2000" rows="3">${esc(p.description || "")}</textarea>
+        </div>
+        <div class="field">
+          <label for="pePrice">Price (UGX)</label>
+          <input type="text" id="pePrice" inputmode="numeric" value="${price}">
+        </div>
+        <div class="field">
+          <label for="peCat">Category</label>
+          <select id="peCat">${catOpts}</select>
+        </div>
+        <div class="field">
+          <label for="peComm">Commission (%)</label>
+          <input type="text" id="peComm" inputmode="decimal" value="${pct(p.commission_bps)}">
+        </div>
+        <div class="field">
+          <label for="peRef">Referee slots (1–50)</label>
+          <input type="number" id="peRef" min="1" max="50" value="${fmt(p.referee_max)}">
+        </div>
+        <div class="field">
+          <label for="peDeliv">Delivery info</label>
+          <textarea id="peDeliv" maxlength="300" rows="2">${esc(p.delivery_text || "")}</textarea>
+        </div>
+        <div class="field">
+          <label for="peDays">Delivery days</label>
+          <input type="number" id="peDays" min="1" max="14" value="${Number(p.delivery_days) || 3}">
+        </div>
+        <div class="inerr" id="peErr" hidden></div>
+        <button type="submit" class="btn line full sm" id="peGo">Save changes</button>
+      </form>
+    </div>
+
+    <div style="margin-top:18px"><label class="flabel">Offer</label>
+      <form id="offForm" novalidate>
+        <div class="field">
+          <label for="ofPrice">Offer price (UGX)</label>
+          <input type="text" id="ofPrice" inputmode="numeric" value="${offerPrice !== null ? offerPrice : ""}" placeholder="Lower than ${price}">
+        </div>
+        <div class="field">
+          <label for="ofStart">Starts</label>
+          <input type="datetime-local" id="ofStart" value="${esc(offerStart)}">
+        </div>
+        <div class="field">
+          <label for="ofEnd">Ends</label>
+          <input type="datetime-local" id="ofEnd" value="${esc(offerEnd)}">
+        </div>
+        <div class="inerr" id="ofErr" hidden></div>
+        <div class="row">
+          <button type="submit" class="btn line full sm" id="ofGo">${offerActive ? "Update offer" : "Set offer"}</button>
+          ${offerActive ? `<button type="button" class="btn line full sm" id="ofClear">Clear offer</button>` : ""}
+        </div>
+      </form>
+    </div>
+
+    <div style="margin-top:18px"><label class="flabel">Visibility</label>
+      <button type="button" class="btn line full sm" id="toggleStatus">${p.status === "active" ? "Hide product" : "Show product"}</button>
+    </div>
+
+    <div style="margin-top:18px"><label class="flabel">Referees</label>
+      <div id="refList"><div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading…</div></div>
+    </div>
+  `);
+
+  /* photos */
+  let currentImages = images.slice();
+  function drawPhotos() {
+    const w = $("photosWrap"); if (!w) return;
+    w.innerHTML = currentImages.map((pid, i) =>
+      `<div class="photo" data-pid="${esc(pid)}">${cloudImg(pid, 200) ? `<img src="${esc(cloudImg(pid, 200))}" alt="">` : `<div style="display:grid;place-items:center;height:100%;color:var(--muted)"><i class="fa-solid fa-image"></i></div>`}<button type="button" class="rm" data-rm="${i}" aria-label="Remove photo"><i class="fa-solid fa-xmark"></i></button></div>`
+    ).join("") + (currentImages.length < 6 ? `<button type="button" class="photo-add" id="photoAdd" aria-label="Add photo"><i class="fa-solid fa-plus"></i></button>` : "");
+    const add = $("photoAdd"); if (add) add.onclick = () => $("photoInput").click();
+    w.querySelectorAll("[data-rm]").forEach(btn => {
+      btn.onclick = async () => {
+        const i = Number(btn.dataset.rm);
+        const removedPid = currentImages[i];
+        const next = currentImages.filter((_, j) => j !== i);
+        const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body: { image_ids: next } });
+        if (r.ok) { currentImages = next; drawPhotos(); }
+        else toast(errMsg(r));
+      };
+    });
+  }
+  drawPhotos();
+  $("photoInput").onchange = async e => {
+    const files = Array.from(e.target.files || []).slice(0, 6 - currentImages.length);
+    if (!files.length) return;
+    const uploaded = [];
+    for (const f of files) {
+      const up = await uploadMedia(f, "product_image", pid);
+      if (up.ok) uploaded.push(up.public_id);
+      else toast("One photo failed to upload");
+    }
+    if (!uploaded.length) { e.target.value = ""; return; }
+    const next = currentImages.concat(uploaded);
+    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body: { image_ids: next } });
+    if (r.ok) { currentImages = next; drawPhotos(); toast("Photos saved"); }
+    else {
+      for (const u of uploaded) { try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: u } }); } catch {} }
+      toast(errMsg(r));
+    }
+    e.target.value = "";
+  };
+
+  /* edit */
+  $("pEdit").addEventListener("submit", async e => {
+    e.preventDefault();
+    const er = $("peErr"); er.hidden = true;
+    const name = $("peName").value.trim();
+    const desc = $("peDesc").value.trim();
+    const pr = parseInt($("pePrice").value.replace(/[^0-9]/g, ""), 10);
+    const cat = $("peCat").value;
+    const comm = Number(String($("peComm").value).replace(",", "."));
+    const ref = parseInt($("peRef").value, 10);
+    const dtext = $("peDeliv").value.trim();
+    const days = parseInt($("peDays").value, 10);
+    if (!Number.isFinite(pr) || pr < 1 || pr > 1000000) { er.textContent = ERR.invalid_price; er.hidden = false; return; }
+    if (!Number.isFinite(comm) || comm < 1 || comm > 48) { er.textContent = "Commission must be 1%–48%."; er.hidden = false; return; }
+    if (!Number.isFinite(ref) || ref < 1 || ref > 50) { er.textContent = "Referee slots must be 1–50."; er.hidden = false; return; }
+    if (!Number.isFinite(days) || days < 1 || days > 14) { er.textContent = ERR.invalid_delivery_days; er.hidden = false; return; }
+    const body = {
+      name, description: desc || null, price_ugx: pr, category_id: cat,
+      commission_bps: Math.round(comm * 100), referee_max: ref,
+      delivery_text: dtext || null, delivery_days: days
+    };
+    const btn = $("peGo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body });
+    btn.disabled = false; btn.textContent = "Save changes";
+    if (r.ok) { toast("Saved"); await loadProducts(true); return; }
+    const err = String(r.data && r.data.error);
+    if (err === "referee_max_below_used_slots" && r.data.used) er.textContent = `At least ${r.data.used} referees are using this product.`;
+    else if (err === "deposit_cap_exceeded" && r.data.max_commission_bps) er.textContent = `Highest commission allowed: ${pct(r.data.max_commission_bps)}%`;
+    else er.textContent = errMsg(r);
+    er.hidden = false;
+  });
+
+  /* offer */
+  $("offForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const er = $("ofErr"); er.hidden = true;
+    const op = parseInt($("ofPrice").value.replace(/[^0-9]/g, ""), 10);
+    const s = toUnix($("ofStart").value);
+    const en = toUnix($("ofEnd").value);
+    if (!Number.isFinite(op) || op >= price) { er.textContent = ERR.offer_price_not_lower; er.hidden = false; return; }
+    if (!s || !en || s >= en) { er.textContent = ERR.invalid_offer_range; er.hidden = false; return; }
+    if (en - s > 30 * 86400) { er.textContent = ERR.offer_too_long; er.hidden = false; return; }
+    const btn = $("ofGo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid) + "/offer", { method: "POST", body: { offer_price_ugx: op, offer_starts_at: s, offer_ends_at: en } });
+    btn.disabled = false; btn.textContent = offerActive ? "Update offer" : "Set offer";
+    if (r.ok) { toast("Offer saved"); await loadProducts(true); openProductDetail(pid); return; }
+    const err = String(r.data && r.data.error);
+    if (err === "offer_price_not_lower") er.textContent = ERR.offer_price_not_lower;
+    else if (err === "invalid_offer_range") er.textContent = ERR.invalid_offer_range;
+    else if (err === "offer_too_long") er.textContent = ERR.offer_too_long;
+    else er.textContent = errMsg(r);
+    er.hidden = false;
+  });
+  const ofClear = $("ofClear"); if (ofClear) ofClear.onclick = async () => {
+    const btn = ofClear; btn.disabled = true; btn.textContent = "Clearing…";
+    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid) + "/offer", { method: "POST", body: { clear: true } });
+    btn.disabled = false; btn.textContent = "Clear offer";
+    if (r.ok) { toast("Offer cleared"); await loadProducts(true); openProductDetail(pid); }
+    else toast(errMsg(r));
+  };
+
+  /* visibility */
+  $("toggleStatus").onclick = async () => {
+    const btn = $("toggleStatus"); const target = p.status === "active" ? "hidden" : "active";
+    btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid) + "/status", { method: "POST", body: { status: target } });
+    btn.disabled = false; btn.textContent = target === "active" ? "Hide product" : "Show product";
+    if (r.ok) { toast(target === "active" ? "Product shown" : "Product hidden"); await loadProducts(true); openProductDetail(pid); }
+    else toast(errMsg(r));
+  };
+
+  /* referees */
+  const slotsR = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid) + "/slots");
+  const refList = $("refList");
+  if (slotsR.ok && Array.isArray(slotsR.data.slots) && slotsR.data.slots.length) {
+    refList.innerHTML = slotsR.data.slots.map(s => {
+      const cls = s.status === "active" ? "good" : s.status === "pending" ? "warn" : "";
+      return `<div class="item" style="padding:8px 0"><div class="t">@${esc(s.referee_username || "referee")} <span class="chip ${cls}">${esc(s.status)}</span></div>
+        <div class="m">${s.created_at ? "Claimed " + esc(dOnly(s.created_at)) : ""}${s.expires_at ? " · expires " + esc(dOnly(s.expires_at)) : ""}</div></div>`;
+    }).join("");
+  } else if (slotsR.ok) {
+    refList.innerHTML = `<div class="empty"><i class="fa-solid fa-user"></i>No referees yet.</div>`;
+  } else {
+    refList.innerHTML = `<div class="empty">Couldn't load referees. (${slotsR.status})</div>`;
+  }
+}
+
+/* ================= ORDERS ================= */
+async function loadOrders(force) {
+  if (S.orders.loading) return;
+  if (S.orders.loaded && !force) return;
+  S.orders.loading = true; S.orders.error = null;
+  S.orders.cursor = null; S.orders.done = false;
+  renderOrders();
+  const q = new URLSearchParams({ limit: "20" });
+  if (S.orders.filter) q.set("status", S.orders.filter);
+  const r = await api(CFG.ORDERS, "/seller/orders?" + q);
+  S.orders.loading = false;
+  if (!r.ok) { S.orders.error = r; renderOrders(); return; }
+  S.orders.data = r.data.orders || r.data.items || [];
+  S.orders.cursor = r.data.next_cursor || null;
+  S.orders.done = !S.orders.cursor;
+  S.orders.loaded = true;
+  renderOrders();
+}
+async function loadMoreOrders() {
+  if (S.orders.loadingMore || S.orders.done) return;
+  S.orders.loadingMore = true;
+  const q = new URLSearchParams({ limit: "20" });
+  if (S.orders.filter) q.set("status", S.orders.filter);
+  if (S.orders.cursor) q.set("cursor", S.orders.cursor);
+  const r = await api(CFG.ORDERS, "/seller/orders?" + q);
+  S.orders.loadingMore = false;
+  if (r.ok) {
+    S.orders.data = (S.orders.data || []).concat(r.data.orders || r.data.items || []);
+    S.orders.cursor = r.data.next_cursor || null;
+    S.orders.done = !S.orders.cursor;
+    renderOrders();
+  } else toast(errMsg(r));
+}
+const ORDER_CHIP = { paid: "good", delivered: "good", under_review: "warn", awaiting_payment: "warn", cancelled: "bad", expired: "bad", refunded: "good", refund_pending: "warn" };
+function orderLabel(s) { return String(s || "").replace(/_/g, " ").replace(/^./, m => m.toUpperCase()); }
+function renderOrders() {
+  const el = $("p-orders");
+  if (S.orders.loading && !S.orders.data) { el.innerHTML = skel(3, 80); return; }
+  if (S.orders.error) { el.innerHTML = tabError("orders", S.orders.error); return; }
+  const list = S.orders.data || [];
+  const filters = [["", "All"], ["paid", "Paid"], ["delivered", "Delivered"], ["under_review", "Under review"]];
+  el.innerHTML = `
+    <div class="filters">
+      ${filters.map(([v, l]) => `<button class="filter" type="button" data-filter="${esc(v)}" aria-pressed="${S.orders.filter === v ? "true" : "false"}">${esc(l)}</button>`).join("")}
+    </div>
+    <div class="card">
+      ${list.length ? list.map(o => {
+        const chip = ORDER_CHIP[o.status] || "";
+        const bal = num(o.balance_due_ugx);
+        return `<div class="item" data-oid="${esc(o.id || o.order_id)}" style="cursor:pointer">
+          <div class="t">Order ${esc(o.order_number || o.number || "")} <span class="chip ${chip}">${esc(orderLabel(o.status))}</span></div>
+          <div class="m">${esc(o.product_name || "")}${o.buyer_first_name ? " · " + esc(o.buyer_first_name) : ""}${bal !== null ? " · " + ugx(bal) + " balance" : ""}${o.created_at ? " · " + esc(dOnly(o.created_at)) : ""}</div>
+        </div>`;
+      }).join("") :
+        `<div class="empty"><i class="fa-solid fa-receipt"></i>No orders yet.</div>`}
+      ${!S.orders.done && list.length ? `<div class="row" style="justify-content:center;margin-top:14px"><button class="btn line sm" id="moreOrders">Load more</button></div>` : ""}
+    </div>`;
+  el.querySelectorAll("[data-filter]").forEach(b => {
+    b.onclick = () => {
+      const v = b.dataset.filter;
+      if (v === S.orders.filter) return;
+      S.orders.filter = v; S.orders.data = null; S.orders.loaded = false;
+      loadOrders(true);
+    };
+  });
+  el.querySelectorAll("[data-oid]").forEach(row => {
+    row.onclick = () => openOrderDetail(row.dataset.oid);
+  });
+  const mo = $("moreOrders"); if (mo) mo.onclick = loadMoreOrders;
+}
+
+async function openOrderDetail(oid) {
+  openSheet(`<h2>Loading order…</h2><div class="center" style="padding:30px 0"><i class="fa-solid fa-circle-notch fa-spin"></i></div>`);
+  const r = await api(CFG.ORDERS, "/seller/orders/" + encodeURIComponent(oid));
+  if (!r.ok) {
+    openSheet(`<h2>Couldn't load order</h2><p class="sub">${esc(errMsg(r))} (${r.status})</p>
+      <div class="row" style="margin-top:12px"><button class="btn line full" data-close>Close</button></div>`);
+    return;
+  }
+  const o = r.data.order || r.data;
+  const buyer = o.buyer || null;
+  const chip = ORDER_CHIP[o.status] || "";
+  const price = num(o.effective_price_ugx) || num(o.buyer_price_ugx) || num(o.price_ugx);
+  const dep = num(o.deposit_ugx);
+  const bal = num(o.balance_due_ugx);
+  const canDeliver = o.status === "paid" || o.status === "under_review";
+  const canDispute = o.status === "paid" || o.status === "delivered" || o.status === "under_review";
+  openSheet(`
+    <h2>Order ${esc(o.order_number || o.number || "")}</h2>
+    <p class="sub"><span class="chip ${chip}">${esc(orderLabel(o.status))}</span> ${o.created_at ? esc(dt(o.created_at)) : ""}</p>
+    <div class="card" style="margin-top:14px;margin-bottom:0">
+      <h2 style="font-size:15px">Buyer</h2>
+      ${buyer ? `
+        <p class="sub">${esc(buyer.display_name || "")}</p>
+        ${buyer.phone ? `<p class="sub"><a href="tel:${esc(buyer.phone)}"><i class="fa-solid fa-phone"></i> ${esc(buyer.phone)}</a></p>` : ""}
+        ${buyer.email ? `<p class="sub"><a href="mailto:${esc(buyer.email)}"><i class="fa-solid fa-envelope"></i> ${esc(buyer.email)}</a></p>` : ""}
+      ` : `<p class="sub">Buyer contact appears after payment.</p>`}
+    </div>
+    <div class="card" style="margin-top:12px;margin-bottom:0">
+      <h2 style="font-size:15px">Money</h2>
+      ${price !== null ? `<div class="sub">Price: <b>${ugx(price)}</b></div>` : ""}
+      ${dep !== null ? `<div class="sub">Deposit received: <b>${ugx(dep)}</b></div>` : ""}
+      ${bal !== null ? `<div class="sub">Balance due at delivery: <b>${ugx(bal)}</b></div>` : ""}
+    </div>
+    <div class="row" style="margin-top:14px">
+      ${canDeliver ? `<button class="btn solid full" id="odDeliver">Mark delivered</button>` : ""}
+      ${canDispute ? `<button class="btn line full" id="odDispute">Report a problem</button>` : ""}
+      <button class="btn line full" data-close>Close</button>
+    </div>
+  `);
+  const od = $("odDeliver"); if (od) od.onclick = () => openDeliverSheet(o);
+  const odis = $("odDispute"); if (odis) odis.onclick = () => openDisputeSheet(o);
+}
+
+function openDeliverSheet(order) {
+  openSheet(`
+    <h2>Mark delivered</h2>
+    <p class="sub">Ask the buyer for their code when they receive the item.</p>
+    <div class="field" style="margin-top:14px">
+      <label for="delCode">Delivery code</label>
+      <input type="text" id="delCode" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="······">
+    </div>
+    <div class="inerr" id="delErr" hidden></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn solid full" id="delGo">Mark delivered</button>
+      <button type="button" class="btn line full" data-close>Cancel</button>
+    </div>
+  `);
+  const code = $("delCode");
+  code.addEventListener("input", () => { code.value = code.value.replace(/\D/g, "").slice(0, 6); });
+  $("delGo").onclick = async () => {
+    const er = $("delErr"); er.hidden = true;
+    if (!/^\d{6}$/.test(code.value)) { er.textContent = "Enter the 6-digit code."; er.hidden = false; return; }
+    const btn = $("delGo"); btn.disabled = true; btn.textContent = "Sending…";
+    const r = await api(CFG.ORDERS, "/seller/orders/" + encodeURIComponent(order.id || order.order_id) + "/deliver", { method: "POST", body: { code: code.value } });
+    btn.disabled = false; btn.textContent = "Mark delivered";
+    if (r.ok) {
+      closeSheet();
+      toast("Delivered. Your earnings are on the way");
+      S.earn.loaded = false;
+      await loadOrders(true);
+      return;
+    }
+    const e = String(r.data && r.data.error);
+    if (e === "wrong_code") {
+      const left = r.data.attempts_left;
+      const locked = r.data.locked;
+      if (locked) er.textContent = "Too many wrong tries. This order is locked, contact Earnity support";
+      else er.textContent = `Wrong code. ${left} ${left === 1 ? "try" : "tries"} left`;
+    } else if (r.status === 423 || e === "code_locked") {
+      er.textContent = "Too many wrong tries. This order is locked, contact Earnity support";
+    } else if (e === "invalid_order_status") {
+      er.textContent = ERR.invalid_order_status;
+    } else {
+      er.textContent = errMsg(r);
+    }
+    er.hidden = false;
+  };
+}
+
+function openDisputeSheet(order) {
+  openSheet(`
+    <h2>Report a problem</h2>
+    <p class="sub">Tell us what went wrong with this order.</p>
+    <form id="dispForm" style="margin-top:12px" novalidate>
+      <fieldset class="opts">
+        <legend>What went wrong?</legend>
+        <label class="opt" data-reason="other"><input type="radio" name="pick" value="bnr" class="sr"><span class="radio"></span><span>Buyer not responding</span></label>
+        <label class="opt" data-reason="harassment"><input type="radio" name="pick" value="har" class="sr"><span class="radio"></span><span>Harassment</span></label>
+        <label class="opt" data-reason="other"><input type="radio" name="pick" value="oth" class="sr"><span class="radio"></span><span>Other</span></label>
+      </fieldset>
+      <div class="field" style="margin-top:14px">
+        <label for="dmsg">More details (optional)</label>
+        <textarea id="dmsg" maxlength="500" rows="4" placeholder="Anything that helps us understand."></textarea>
+        <div class="counter"><span id="dc">0</span>/500</div>
+      </div>
+      <div class="inerr" id="der" hidden></div>
+      <div class="row" style="margin-top:8px">
+        <button type="submit" class="btn solid full" id="dgo">Send report</button>
+        <button type="button" class="btn line full" data-close>Cancel</button>
+      </div>
+    </form>
+  `);
+  const form = $("dispForm");
+  form.querySelectorAll(".opt").forEach(lbl => {
+    lbl.addEventListener("click", () => {
+      form.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === lbl));
+      const r = lbl.querySelector('input[name="pick"]'); if (r) r.checked = true;
+    });
+  });
+  const msg = $("dmsg"); const cnt = $("dc");
+  msg.addEventListener("input", () => { cnt.textContent = String(msg.value.length); });
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const er = $("der"); er.hidden = true;
+    const checked = form.querySelector('input[name="pick"]:checked');
+    if (!checked) { er.textContent = "Pick a reason."; er.hidden = false; return; }
+    const reason = checked.closest(".opt").dataset.reason;
+    const text = msg.value.trim();
+    const body = { reason };
+    if (text) body.message = text;
+    const btn = $("dgo"); btn.disabled = true; btn.textContent = "Sending…";
+    const r = await api(CFG.ORDERS, "/orders/" + encodeURIComponent(order.id || order.order_id) + "/dispute", { method: "POST", body });
+    btn.disabled = false; btn.textContent = "Send report";
+    if (r.ok) { closeSheet(); toast("Report sent"); await loadOrders(true); return; }
+    const err = String(r.data && r.data.error);
+    if (err === "dispute_already_open" || err === "already_disputed") er.textContent = ERR.dispute_already_open;
+    else if (err === "not_disputable") er.textContent = ERR.not_disputable;
+    else if (err === "invalid_reason") er.textContent = ERR.invalid_reason;
+    else er.textContent = errMsg(r);
+    er.hidden = false;
+  });
+}
+
+/* ================= EARNINGS (adapted from referee.html) ================= */
+const PO = {
+  awaiting_confirmation: ["Needs your confirmation", "warn"],
+  awaiting_approval: ["Waiting for approval", "warn"],
+  ready_to_pay: ["Approved, being paid", "good"],
+  paid: ["Paid", "good"],
+  failed: ["Failed, money returned", "bad"],
+  rejected: ["Rejected, money returned", "bad"],
+  expired: ["Expired, money returned", "bad"]
+};
+function txInfo(e) {
+  const r = String(e.reason || ""), c = e.direction === "C";
+  switch (r) {
+    case "referee_commission_pending": return c ? ["Commission earned (waiting for delivery)", true] : null;
+    case "referee_cleared": return c ? ["Commission ready to withdraw", true] : null;
+    case "referrer_commission_pending": return c ? ["Business referral earned (waiting for delivery)", true] : null;
+    case "referrer_cleared": return c ? ["Business referral ready to withdraw", true] : null;
+    case "withdrawal_reserve": return !c ? ["Withdrawal requested", false] : null;
+    case "return_to_available": return c ? ["Withdrawal returned to your balance", true] : null;
+    case "settle_reserved_withdrawal": return !c ? ["Withdrawal paid out", false] : null;
+    case "release_referee": case "release_referrer": case "release_reserved_withdrawal": return null;
+    default:
+      if (r.startsWith("reverse_")) return !c ? ["Earning cancelled (order refunded)", false] : null;
+      return [r.replace(/_/g, " ").replace(/^./, m => m.toUpperCase()), c];
+  }
+}
+
+async function loadEarnings(force) {
+  if (S.earn.loading) return;
+  if (S.earn.loaded && !force) return;
+  S.earn.loading = true; S.earn.error = null;
+  renderEarnings();
+  const [wal, pay, set, phone] = await Promise.all([
+    api(CFG.LEDGER, "/wallet"),
+    api(CFG.PAYOUTS, "/my-list"),
+    api(CFG.PAYOUTS, "/settings"),
+    api(CFG.VERIFY, "/phone")
+  ]);
+  S.earn.loading = false;
+  if (!wal.ok || !set.ok) {
+    S.earn.error = !wal.ok ? wal : set;
+    renderEarnings();
+    return;
+  }
+  S.earn.wallet = wal.data.balances || { available_ugx: 0, pending_ugx: 0, reserved_ugx: 0 };
+  S.earn.entries = wal.data.entries || [];
+  S.earn.next = wal.data.next_cursor || null;
+  S.earn.settings = set.data || {};
+  S.earn.payouts = pay.ok ? (pay.data.requests || []) : [];
+  S.earn.phoneCount = phone.ok ? (phone.data.phones || []).length : null;
+  S.earn.hold = phone.ok && phone.data.payout_hold_active ? phone.data.payout_hold_until : null;
+  S.earn.loaded = true;
+  renderEarnings();
+}
+async function loadMoreEarnings() {
+  if (S.earn.loadingMore || !S.earn.next) return;
+  S.earn.loadingMore = true;
+  const r = await api(CFG.LEDGER, "/wallet?cursor=" + encodeURIComponent(S.earn.next));
+  S.earn.loadingMore = false;
+  if (r.ok) {
+    S.earn.entries = S.earn.entries.concat(r.data.entries || []);
+    S.earn.next = r.data.next_cursor || null;
+    renderEarnings();
+  } else toast(errMsg(r));
+}
+function renderEarnings() {
+  const el = $("p-earnings");
+  if (S.earn.loading && !S.earn.wallet) { el.innerHTML = skel(2, 120); return; }
+  if (S.earn.error) { el.innerHTML = tabError("earnings", S.earn.error); return; }
+  const w = S.earn.wallet || { available_ugx: 0, pending_ugx: 0, reserved_ugx: 0 }, st = S.earn.settings;
+  const min = st ? st.min_withdrawal_ugx : 30000;
+  let note = "", can = true;
+  if (!S.earn.wallet) can = false;
+  else if (st && !st.payouts_enabled) { can = false; note = "Withdrawals are paused right now."; }
+  else if (S.earn.hold) { can = false; note = "On hold until " + dt(S.earn.hold) + " after a phone change."; }
+  else if (!S.me.phone_verified && S.earn.phoneCount === 0) { can = false; note = "Verify your phone number to withdraw."; }
+  else if (w.available_ugx < min) { can = false; note = "You can withdraw once you have UGX " + fmt(min) + " available."; }
+  else if ((S.earn.payouts || []).some(p => ["awaiting_confirmation", "awaiting_approval", "ready_to_pay"].includes(p.status))) { can = false; note = "You have a withdrawal in progress."; }
+  const rows = (S.earn.entries || []).map(e => ({ e, i: txInfo(e) })).filter(x => x.i);
+
+  el.innerHTML = `
+    <div class="card">
+      <small class="sub">Available to withdraw</small>
+      <div style="font-size:32px;font-weight:800;color:var(--green-deep);letter-spacing:-.5px">UGX ${fmt(w.available_ugx)}</div>
+      <div class="grid" style="margin-top:12px">
+        <div class="stat"><small>Pending delivery</small><b style="font-size:19px">UGX ${fmt(w.pending_ugx)}</b></div>
+        <div class="stat"><small>In withdrawal</small><b style="font-size:19px">UGX ${fmt(w.reserved_ugx)}</b></div>
+      </div>
+      <p class="sub" style="margin-top:10px;font-size:13px">Money moves from pending to available once the buyer's order is delivered. Withdrawals are sent to your verified primary phone.</p>
+      ${note ? `<div class="banner" style="margin:12px 0 0">${esc(note)}${!S.me.phone_verified && S.earn.phoneCount === 0 ? ` <a href="account.html?next=${THIS}">Verify now</a>` : ""}</div>` : ""}
+      <div class="row" style="margin-top:10px"><button class="btn solid full" id="wd" ${can ? "" : "disabled"}><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</button></div>
+      ${st ? `<p class="sub" style="margin-top:8px;font-size:13px">Minimum UGX ${fmt(st.min_withdrawal_ugx)} · fee UGX ${fmt(st.fee_ugx)} · daily limit UGX ${fmt(st.per_user_daily_limit_ugx)}</p>` : ""}
+    </div>
+    ${(S.earn.payouts || []).length ? `<div class="card">
+      <div class="hd"><h2>Withdrawals</h2></div>
+      ${S.earn.payouts.map(p => {
+        const [lb, cl] = PO[p.status] || [p.status, ""];
+        return `<div class="item">
+          <div class="t">UGX ${fmt(p.amount_ugx)} <span class="chip ${cl}">${esc(lb)}</span></div>
+          <div class="m">You receive UGX ${fmt(p.net_ugx)} (fee UGX ${fmt(p.fee_ugx)}) · ${esc(dt(p.created_at))}</div>
+          ${p.status === "awaiting_confirmation" ? `<div class="row"><button class="btn solid sm" data-confirm="${esc(p.id)}" data-amt="${Number(p.amount_ugx)}">Enter SMS code</button></div>` : ""}
+        </div>`;
+      }).join("")}
+    </div>` : ""}
+    <div class="card">
+      <div class="hd"><h2>Activity</h2></div>
+      ${rows.length ? rows.map(({ e, i }) => `<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px">
+        <div><div>${esc(i[0])}</div><div style="color:var(--muted);font-size:12.5px">${esc(dt(e.created_at))}</div></div>
+        <div style="font-weight:800;white-space:nowrap;color:${i[1] ? "var(--green)" : "var(--ink)"}">${i[1] ? "+" : "−"}UGX ${fmt(e.amount)}</div>
+      </div>`).join("") :
+        `<div class="empty"><i class="fa-solid fa-coins"></i>No activity yet.</div>`}
+      ${S.earn.next ? `<div class="row" style="justify-content:center;margin-top:14px"><button class="btn line sm" id="moreEarn">Load more</button></div>` : ""}
+    </div>
+  `;
+  const wd = $("wd"); if (wd) wd.onclick = openWithdraw;
+  const me = $("moreEarn"); if (me) me.onclick = loadMoreEarnings;
+  el.querySelectorAll("[data-confirm]").forEach(b => {
+    b.onclick = () => openConfirm(b.dataset.confirm, Number(b.dataset.amt), false);
+  });
+}
+
+function openWithdraw() {
+  const st = S.earn.settings || { min_withdrawal_ugx: 30000, fee_ugx: 1800 }, w = S.earn.wallet;
+  openSheet(`
+    <h2>Withdraw money</h2>
+    <p class="sub">You have UGX ${fmt(w.available_ugx)} available. Minimum UGX ${fmt(st.min_withdrawal_ugx)}.</p>
+    <div class="field" style="margin-top:14px">
+      <label for="wAmt">Amount (UGX)</label>
+      <input type="text" id="wAmt" inputmode="numeric" autocomplete="off" placeholder="e.g. ${fmt(Math.max(st.min_withdrawal_ugx, 50000))}">
+    </div>
+    <div class="row" style="margin-top:6px"><button type="button" class="btn line sm" id="wAll">Withdraw everything</button></div>
+    <div class="store-link" style="margin-top:12px"><div><div style="font-size:13px;color:var(--muted)">Fee</div><b>UGX ${fmt(st.fee_ugx)}</b></div>
+      <div style="margin-left:auto;text-align:right"><div style="font-size:13px;color:var(--muted)">You receive</div><b id="wNet">UGX 0</b></div></div>
+    <p class="sub" style="margin-top:10px;font-size:13px">To keep your money safe we'll email you a link and text a 6-digit code to your phone. You need both.</p>
+    <div class="inerr" id="wErr" hidden></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn solid full" id="wGo">Request withdrawal</button>
+      <button type="button" class="btn line full" data-close>Cancel</button>
+    </div>
+  `);
+  const amt = $("wAmt");
+  const upd = () => { const v = Number(amt.value.replace(/\D/g, "")); $("wNet").textContent = "UGX " + fmt(Math.max(0, v - st.fee_ugx)); };
+  amt.addEventListener("input", () => { const d = amt.value.replace(/\D/g, ""); amt.value = d ? fmt(Number(d)) : ""; upd(); });
+  $("wAll").onclick = () => { amt.value = fmt(w.available_ugx); upd(); };
+  $("wGo").onclick = async () => {
+    const er = $("wErr"); er.hidden = true;
+    const v = Number(amt.value.replace(/\D/g, ""));
+    if (!v) { er.textContent = ERR.invalid_amount; er.hidden = false; return; }
+    if (v < st.min_withdrawal_ugx) { er.textContent = "The minimum is UGX " + fmt(st.min_withdrawal_ugx) + "."; er.hidden = false; return; }
+    if (v > w.available_ugx) { er.textContent = ERR.insufficient_funds; er.hidden = false; return; }
+    const b = $("wGo"); b.disabled = true; b.textContent = "Requesting…";
+    const r = await api(CFG.PAYOUTS, "/request", { method: "POST", body: { amount_ugx: v } });
+    if (r.ok) { openConfirm(r.data.payout_id, v, true); await loadEarnings(true); return; }
+    b.disabled = false; b.textContent = "Request withdrawal";
+    er.textContent = errMsg(r); er.hidden = false;
+  };
+}
+function openConfirm(payoutId, amount, fresh) {
+  openSheet(`
+    <h2>${fresh ? "Almost done" : "Confirm your withdrawal"}</h2>
+    <p class="sub">Withdrawal of UGX ${fmt(amount)}. Do both steps within 30 minutes.</p>
+    <ol style="margin:12px 0 0 20px;font-size:14.5px;display:grid;gap:6px">
+      <li>Open the confirmation link we emailed to <b>${esc(S.me.email || "")}</b>.</li>
+      <li>Enter the 6-digit code we texted to your phone (it lasts 10 minutes).</li>
+    </ol>
+    <div class="field" style="margin-top:14px">
+      <label for="wCode">SMS code</label>
+      <input type="text" id="wCode" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······">
+    </div>
+    <div class="inerr" id="wErr" hidden></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn solid full" id="wOk">Confirm withdrawal</button>
+      <button type="button" class="btn line full" data-close>Close</button>
+    </div>
+  `);
+  const code = $("wCode");
+  code.addEventListener("input", () => { code.value = code.value.replace(/\D/g, "").slice(0, 6); });
+  $("wOk").onclick = async () => {
+    const er = $("wErr"); er.hidden = true;
+    if (!/^\d{6}$/.test(code.value)) { er.textContent = "Enter the 6-digit code."; er.hidden = false; return; }
+    const b = $("wOk"); b.disabled = true; b.textContent = "Confirming…";
+    const r = await api(CFG.PAYOUTS, "/confirm-sms", { method: "POST", body: { payout_id: payoutId, code: code.value } });
+    b.disabled = false; b.textContent = "Confirm withdrawal";
+    if (r.ok) {
+      closeSheet(); await loadEarnings(true);
+      toast(r.data.status === "ready_to_pay" ? "Confirmed. Your payout is being sent." : "Confirmed. Your withdrawal is waiting for approval.");
+      return;
+    }
+    er.textContent = errMsg(r); er.hidden = false;
+  };
+}
+
+/* ================= STORE ================= */
+async function loadStore(force) {
+  if (S.store.loading) return;
+  if (S.store.loaded && !force) return;
+  // ensure overview loaded to know subdomain / approval
+  if (!S.overview.loaded && !S.overview.error) {
+    S.store.loading = true; renderStore();
+    await loadOverview();
+  }
+  S.store.loading = false;
+  S.store.loaded = true;
+  renderStore();
+}
+function renderStore() {
+  const el = $("p-store");
+  if (S.overview.error) { el.innerHTML = tabError("store", S.overview.error); return; }
+  const b = S.overview.data;
+  if (!b) {
+    el.innerHTML = `<div class="card">
+      <h2>No store yet</h2>
+      <p class="sub">Set up your business first to get a public store link.</p>
+      <div class="row"><button class="btn solid" data-goto="overview">Go to overview</button></div>
+    </div>`;
+    const g = el.querySelector('[data-goto="overview"]');
+    if (g) g.onclick = () => setTab("overview");
+    return;
+  }
+  const url = `https://${b.subdomain}.earnityug.com`;
+  const approved = b.approval_status === "approved";
+  el.innerHTML = `
+    <div class="card">
+      <h2>Your public store</h2>
+      <p class="sub">Share this link with buyers.</p>
+      <div class="store-link"><i class="fa-solid fa-globe"></i><a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></div>
+      ${!approved ? `<div class="banner" style="margin-top:12px">Your store link is live, but buyers won't see products until your business is approved.</div>` : ""}
+      <div class="row" style="margin-top:12px">
+        <button class="btn solid full" id="stCopy"><i class="fa-regular fa-copy"></i> Copy link</button>
+        <button class="btn line full" id="stShare"><i class="fa-solid fa-share-nodes"></i> Share</button>
+      </div>
+    </div>
+  `;
+  $("stCopy").onclick = async () => {
+    try { await navigator.clipboard.writeText(url); toast("Link copied"); }
+    catch { prompt("Copy your store link:", url); }
+  };
+  $("stShare").onclick = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: b.name || "Earnity store", url });
+      else { await navigator.clipboard.writeText(url); toast("Link copied"); }
+    } catch {}
+  };
+}
+
+/* ================= RETRY DELEGATION ================= */
+document.addEventListener("click", e => {
+  const rt = e.target.closest("[data-retry]");
+  if (rt) {
+    const t = rt.dataset.retry;
+    if (t === "overview") loadOverview(true);
+    else if (t === "products") loadProducts(true);
+    else if (t === "orders") loadOrders(true);
+    else if (t === "earnings") loadEarnings(true);
+    else if (t === "store") { S.store.loaded = false; loadStore(true); }
+  }
+});
+
+/* ================= START ================= */
+boot().catch(err => {
+  console.error(err);
+  $("loading").hidden = true;
+  gate(`<div class="card"><h2>Couldn't start</h2><p class="sub">Please refresh the page.</p>
+    <div class="row"><button class="btn solid" onclick="location.reload()">Refresh</button></div></div>`);
+});
+</script>
+</body>
+  </html>
