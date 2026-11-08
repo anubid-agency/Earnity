@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /order
+Disallow: /checkout
+Disallow: /referee
+Disallow: /business
+Disallow: /confirm-withdrawal
+Disallow: /account
+Disallow: /admin
+
+Sitemap: https://earnityug.com/sitemap.xml
