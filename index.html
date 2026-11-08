@@ -243,7 +243,7 @@ body.det .detail{transform:none;visibility:visible}
     </div>
     <div class="btns">
       <button class="btn solid" data-act="sell">Start Selling Now</button>
-      <button class="btn line" data-act="earn">My Referee Dashboard</button>
+      <button class="btn line" id="heroEarn" data-act="earn">Refer &amp; Earn Cash</button>
     </div>
   </div>
 </section>
@@ -815,6 +815,41 @@ function soon() {
   closeSheet(); toast("This action is connected in the next step.");
 }
 
+/* ================= DISCOUNT REQUEST ================= */
+function openDiscountSheet(id) {
+  const x = S.items.get(id);
+  const name = x ? x.name : "";
+  openSheet(`<div class="grab"></div>
+    <h2 style="font-size:19px;font-weight:800">Request a discount</h2>
+    ${name ? `<p class="lead" style="margin-top:6px">${esc(name)}</p>` : ""}
+    <textarea id="dreqMsg" maxlength="300" rows="4" placeholder="Tell the referee why (optional)"
+      style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px;font:inherit;font-size:15px;resize:vertical;color:var(--ink);background:#fff"></textarea>
+    <div class="row2" style="margin-top:14px">
+      <button class="act" type="button" data-act="disc-cancel">Cancel</button>
+      <button class="act main" type="button" data-act="disc-send">Send request</button>
+    </div>`);
+  const ta = sheet.querySelector("#dreqMsg");
+  if (ta) setTimeout(() => ta.focus({ preventScroll: true }), 60);
+}
+async function sendDiscountRequest(el) {
+  const id = S.cur;
+  if (!id) return;
+  const ta = sheet.querySelector("#dreqMsg");
+  const text = ta ? String(ta.value || "").trim().slice(0, 300) : "";
+  const body = { product_id: id };
+  if (text) body.message = text;
+  const btn = el || sheet.querySelector('[data-act="disc-send"]');
+  if (btn) { btn.disabled = true; btn.style.opacity = ".65"; btn.textContent = "Sending…"; }
+  const r = await api(CFG.REFERRALS, "/requests", { method: "POST", body, strict: true });
+  if (btn && document.body.contains(btn)) { btn.disabled = false; btn.style.opacity = ""; btn.textContent = "Send request"; }
+  if (r.ok) { closeSheet(); toast("Request sent. A referee has 3 days to reply."); return; }
+  const err = (r.data && r.data.error) || "";
+  if (r.status === 409 && err === "request_already_open") toast("You already have an open request for this product.");
+  else if (r.status === 429 && err === "rate_limit_exceeded") toast("You've reached today's limit of 5 requests.");
+  else if (r.status === 400 && err === "owner_cannot_request") toast("You can't request a discount on your own product.");
+  else toast("Couldn't send the request. Try again.");
+}
+
 /* ================= SHARE ================= */
 async function shareProduct(id) {
   const x = S.items.get(id); track("share", { product_id: id });
@@ -908,9 +943,12 @@ function doAct(act, el) {
   const id = S.cur;
   switch (act) {
     case "see": closeSheet(); openDetail(id); break;
-    case "buy": if (!needAccount(true)) return; soon(); break;
+    case "buy": if (!needAccount(true)) return; location.href = "checkout.html?product=" + encodeURIComponent(id); break;
     case "refer": handleRefer(el); break;
-    case "request": case "report": if (!needAccount(false)) return; soon(); break;
+    case "request": if (!needAccount(false)) return; openDiscountSheet(id); break;
+    case "report": if (!needAccount(false)) return; soon(); break;
+    case "disc-cancel": closeSheet(); break;
+    case "disc-send": sendDiscountRequest(el); break;
     case "sell":
       if (S.acct && S.acct.account_type === "seller") location.href = "business.html"; else goAccount(false);
       break;
@@ -978,12 +1016,18 @@ function needAccount(needPhone) {
   if (needPhone && !S.acct.phone_verified) { goAccount(); return false; }
   return true;
 }
+function updateHeroBtn() {
+  const hb = $("heroEarn");
+  if (!hb) return;
+  hb.textContent = (S.acct && S.acct.account_type === "referee") ? "My Referee Dashboard" : "Refer & Earn Cash";
+}
 function setRole(r) {
   S.role = r;
   document.body.classList.toggle("referee", r === "referee");
   document.body.classList.toggle("seller", r === "seller");
   $("bBuyer").setAttribute("aria-pressed", r === "buyer");
   $("bRef").setAttribute("aria-pressed", r === "referee");
+  updateHeroBtn();
   renderAll();
 }
 $("bBuyer").onclick = () => setRole("buyer");
