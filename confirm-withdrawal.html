@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Confirm your Earnity withdrawal.">
+<title>Confirm withdrawal · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+/* set the theme before first paint so there is no flash */
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7; --red:#b3261e;
+  --radius:18px;
+  --bg:#ffffff; --card:#ffffff;
+  --btn:#b8480c; --btn-ink:#ffffff;
+  --ok-bg:#e3f1e7; --ok-fg:#0b4a1a;
+  --bad-bg:#fdecea; --bad-fg:#99231b;
+  --warn-bg:#fff0dd; --warn-fg:#7a4204;
+  --info-bg:#e8f0f8; --info-fg:#1d4f7a;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f; --red:#ffb2a6;
+  --bg:#0a100c; --card:#101713;
+  --btn:#ff9a5c; --btn-ink:#1d1108;
+  --ok-bg:#12301e; --ok-fg:#a7ecc0;
+  --bad-bg:#3a1814; --bad-fg:#ffb2a6;
+  --warn-bg:#3a2810; --warn-fg:#ffd08f;
+  --info-bg:#14283a; --info-fg:#a9cdf0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.4;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:var(--green);text-decoration:none}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+img{max-width:100%;display:block}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* header (index.html / order.html pattern) */
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:6px;padding:9px 0}
+.logo{display:flex;align-items:center;flex:none;text-decoration:none}
+.logo img{height:32px;width:auto;max-width:104px}
+.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark span{color:var(--orange)}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px}
+.iconbtn:hover{background:var(--mist)}
+.hright{display:flex;align-items:center;gap:4px;margin-left:auto;min-width:0}
+.acctbtn{display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:999px;
+  background:var(--btn);color:var(--btn-ink);font-weight:700;font-size:13.5px;max-width:120px;margin-left:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:64px}
+@media(max-width:420px){ .logo{display:none} }
+
+/* main */
+main{padding:24px 0 48px}
+.card{max-width:480px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px}
+.center{text-align:center}
+.icon-big{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;font-size:26px}
+.icon-big.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.icon-big.bad{background:var(--bad-bg);color:var(--bad-fg)}
+.icon-big.warn{background:var(--warn-bg);color:var(--warn-fg)}
+.icon-big.spin{background:var(--soft-green);color:var(--green)}
+h1{font-size:20px;color:var(--green-deep);font-weight:800;line-height:1.25}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;line-height:1.5}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;
+  border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;width:100%}
+.btn.solid{background:var(--btn);color:var(--btn-ink)}
+.btn.line{border:1.5px solid var(--green);color:var(--green);background:transparent}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btnrow{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+
+/* code input */
+.code-box{width:100%;height:70px;text-align:center;font-size:32px;font-weight:800;letter-spacing:12px;
+  border:2px solid var(--line);border-radius:14px;background:var(--mist);color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:0 8px 0 20px;margin-top:16px}
+.code-box:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px var(--soft-green)}
+.hint{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.5;text-align:center}
+.inline-err{color:var(--bad-fg);background:var(--bad-bg);font-size:13.5px;margin-top:14px;padding:10px 14px;
+  border-radius:12px;text-align:left;line-height:1.45}
+
+/* summary (done state) */
+.summary{margin-top:16px;padding:12px 14px;background:var(--mist);border-radius:14px;font-size:14px}
+.summary .row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+.summary .row span{color:var(--muted)}
+.summary .row b{font-weight:700}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
+  z-index:80;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14px;
+  max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" href="index.html" aria-label="Earnity home">
+        <img src="earnity.png" alt="Earnity" id="logoImg">
+      </a>
+      <div class="hright">
+        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        </button>
+        <a class="acctbtn" id="acctBtn" href="account.html" hidden>Account</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="stage" aria-live="polite" aria-atomic="true"></section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  API:     "https://earnity-api.anubisdigital114-9df.workers.dev",
+  PAYOUTS: "https://earnity-payouts.anubisdigital114-9df.workers.dev",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const ugx = v => {
+  const n = Number(v);
+  return Number.isFinite(n) ? "UGX " + Math.round(n).toLocaleString("en-US") : "";
+};
+
+/* ================= STATE ================= */
+const S = {
+  user: null,
+  me: null,
+  payoutId: null,
+  token: null,
+  nextUrl: null,       /* original path + query (including p and t), captured once in boot */
+  emailOk: false,
+  accountType: null,   /* "referee" | "seller" | "buyer" | null */
+  emailInFlight: false
+};
+
+/* ================= THEME ================= */
+function setTheme(dark) {
+  document.documentElement.classList.toggle("dark", dark);
+  const b = $("themeBtn");
+  if (b) {
+    b.innerHTML = `<i class="fa-solid ${dark ? "fa-sun" : "fa-moon"}" aria-hidden="true"></i>`;
+    b.setAttribute("aria-pressed", dark ? "true" : "false");
+    b.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  try { localStorage.setItem("eu_theme", dark ? "dark" : "light"); } catch {}
+}
+
+/* ================= TOAST ================= */
+let toastT = null;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("on"), 3000);
+}
+
+/* ================= API ================= */
+async function api(base, path, opt = {}) {
+  const h = {};
+  if (opt.body !== undefined) h["Content-Type"] = "application/json";
+  try {
+    if (S.user) h.Authorization = "Bearer " + await S.user.getIdToken();
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 15000);
+    const r = await fetch(base + path, {
+      method: opt.method || "GET",
+      headers: h,
+      body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined,
+      signal: ctl.signal,
+      cache: "no-store"
+    });
+    clearTimeout(timer);
+    let data = null;
+    try { data = await r.json(); } catch {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch {
+    return { ok: false, status: 0, data: { error: "network" } };
+  }
+}
+
+/* ================= UI PRIMITIVES ================= */
+function showSpinner(msg) {
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big spin"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i></div>
+      <h1>${esc(msg || "Loading…")}</h1>
+    </div>`;
+}
+
+function showError(opts) {
+  const buttons = (opts.buttons || []).map((b, i) => {
+    if (b.href) return `<a class="btn ${b.cls || "solid"}" href="${esc(b.href)}">${esc(b.label)}</a>`;
+    return `<button type="button" class="btn ${b.cls || "solid"}" data-btn="${i}">${esc(b.label)}</button>`;
+  }).join("");
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big ${esc(opts.tone || "bad")}"><i class="fa-solid ${esc(opts.icon || "fa-triangle-exclamation")}" aria-hidden="true"></i></div>
+      <h1>${esc(opts.title || "Something went wrong")}</h1>
+      <p class="sub">${esc(opts.body || "")}</p>
+      ${buttons ? `<div class="btnrow">${buttons}</div>` : ""}
+    </div>`;
+  (opts.buttons || []).forEach((b, i) => {
+    if (!b.href && typeof b.onclick === "function") {
+      const el = stage.querySelector(`[data-btn="${i}"]`);
+      if (el) el.addEventListener("click", b.onclick);
+    }
+  });
+}
+
+function inlineError(id, msg) {
+  const el = $(id);
+  if (!el) return;
+  if (!msg) { el.hidden = true; el.textContent = ""; el.className = ""; return; }
+  el.hidden = false;
+  el.className = "inline-err";
+  el.textContent = msg;
+}
+
+function earningsHref() {
+  if (S.accountType === "referee") return "referee.html";
+  if (S.accountType === "seller") return "business.html";
+  if (S.accountType === "buyer") return "index.html";
+  return "referee.html"; /* fallback when unknown (e.g. missing params) */
+}
+
+/* ================= BOOT ================= */
+async function boot() {
+  /* 1. read p & t and capture the original next url — only on first run.
+        Re-runs (Try again, etc.) reuse what is already in S. */
+  const firstRun = !S.payoutId;
+  if (firstRun) {
+    const params = new URLSearchParams(location.search);
+    S.payoutId = (params.get("p") || "").trim();
+    S.token = (params.get("t") || "").trim();
+    S.nextUrl = location.pathname + location.search;
+
+    /* remove ONLY t from the address bar; keep p (it is not a secret) */
+    try {
+      const clean = new URL(location.href);
+      clean.searchParams.delete("t");
+      const q = clean.searchParams.toString();
+      history.replaceState(null, "", clean.pathname + (q ? "?" + q : ""));
+    } catch {}
+  }
+
+  /* 2. sessionStorage: was email already confirmed in this session? */
+  if (S.payoutId) {
+    try {
+      S.emailOk = sessionStorage.getItem("eu_email_ok_" + S.payoutId) === "1";
+    } catch {}
+  }
+
+  /* 3. missing params: p missing, or t missing and no email-ok flag */
+  if (!S.payoutId || (!S.token && !S.emailOk)) {
+    showError({
+      icon: "fa-link-slash", tone: "bad",
+      title: "This link isn't complete",
+      body: "The confirmation link is missing some details. Open the link from your email again, or go to your earnings page to start a new withdrawal.",
+      buttons: [{ label: "Go to my earnings", href: earningsHref(), cls: "solid" }]
+    });
+    return;
+  }
+
+  /* 4. init firebase auth */
+  let user = null;
+  try {
+    const V = "10.14.1";
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = appMod.getApps && appMod.getApps().length ? appMod.getApps()[0] : appMod.initializeApp(CFG.FIREBASE);
+    const auth = authMod.getAuth(app);
+    user = await new Promise(resolve => {
+      const off = authMod.onAuthStateChanged(auth, u => { off(); resolve(u || null); });
+      setTimeout(() => resolve(null), 12000);
+    });
+  } catch {}
+
+  if (!user) {
+    location.replace("account.html?next=" + encodeURIComponent(S.nextUrl));
+    return;
+  }
+  S.user = user;
+
+  /* 5. GET /me */
+  showSpinner("Loading…");
+  const me = await api(CFG.API, "/me");
+  if (!me.ok) {
+    if (me.status === 404 && me.data.error === "not_registered") {
+      location.replace("account.html?next=" + encodeURIComponent(S.nextUrl));
+      return;
+    }
+    if (me.status === 401) {
+      location.replace("account.html?next=" + encodeURIComponent(S.nextUrl));
+      return;
+    }
+    showError({
+      icon: "fa-triangle-exclamation", tone: "bad",
+      title: "Couldn't load your account",
+      body: "Check your connection and try again.",
+      buttons: [{ label: "Try again", cls: "solid", onclick: () => boot() }]
+    });
+    return;
+  }
+  S.me = me.data.user;
+  S.accountType = S.me.account_type || "buyer";
+
+  /* header account button */
+  const acctBtn = $("acctBtn");
+  if (acctBtn) {
+    const first = String(S.me.display_name || "").split(" ")[0] || "Account";
+    acctBtn.textContent = first;
+    acctBtn.href = earningsHref();
+    acctBtn.hidden = false;
+  }
+
+  /* 6. skip email if already confirmed in this session; otherwise confirm */
+  if (S.emailOk) {
+    showSms();
+  } else {
+    confirmEmail();
+  }
+}
+
+/* ================= STEP 1 · EMAIL ================= */
+function showEmailConfirming() {
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big spin"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i></div>
+      <h1>Confirming your email…</h1>
+      <p class="sub">Please wait a moment.</p>
+    </div>`;
+}
+
+async function confirmEmail() {
+  if (S.emailInFlight) return;
+  S.emailInFlight = true;
+  showEmailConfirming();
+
+  const r = await api(CFG.PAYOUTS, "/confirm-email", {
+    method: "POST",
+    body: { payout_id: S.payoutId, token: S.token }
+  });
+  S.emailInFlight = false;
+
+  /* success */
+  if (r.ok && r.data && r.data.email_confirmed) {
+    try { sessionStorage.setItem("eu_email_ok_" + S.payoutId, "1"); } catch {}
+    S.emailOk = true;
+    await showEmailConfirmed();
+    showSms();
+    return;
+  }
+
+  const e = String((r.data && r.data.error) || "");
+
+  /* 401 → sign in again (return to the full original link, token included) */
+  if (r.status === 401) {
+    location.replace("account.html?next=" + encodeURIComponent(S.nextUrl));
+    return;
+  }
+
+  /* specific errors */
+  if (e === "token_invalid_or_expired") {
+    /* If this session already confirmed the email, the token is single-use and
+       we can safely skip straight to the SMS step. */
+    let alreadyOk = false;
+    try { alreadyOk = sessionStorage.getItem("eu_email_ok_" + S.payoutId) === "1"; } catch {}
+    if (alreadyOk) {
+      S.emailOk = true;
+      showSms();
+      return;
+    }
+    showError({
+      icon: "fa-clock", tone: "warn",
+      title: "This link has expired or was already used",
+      body: "Start a new withdrawal from your earnings page.",
+      buttons: [{ label: "Go to my earnings", href: earningsHref(), cls: "solid" }]
+    });
+    return;
+  }
+  if (e === "invalid_token") {
+    showError({
+      icon: "fa-link-slash", tone: "bad",
+      title: "This link isn't valid",
+      body: "The confirmation link is not valid. Check your email for the correct link.",
+      buttons: [{ label: "Go to my earnings", href: earningsHref(), cls: "solid" }]
+    });
+    return;
+  }
+  if (r.status === 404 || e === "request_not_found") {
+    showError({
+      icon: "fa-circle-question", tone: "bad",
+      title: "We couldn't find this withdrawal",
+      body: "It may belong to a different account, or it was already confirmed or cancelled. Check that you are signed in with the right account.",
+      buttons: [
+        { label: "Go to my earnings", href: earningsHref(), cls: "solid" },
+        { label: "Switch account", href: "account.html", cls: "line" }
+      ]
+    });
+    return;
+  }
+
+  /* network / generic → manual retry */
+  if (r.status === 0 || e === "network") {
+    showError({
+      icon: "fa-wifi", tone: "warn",
+      title: "Couldn't confirm",
+      body: "Check your connection and try again.",
+      buttons: [{ label: "Try again", cls: "solid", onclick: () => confirmEmail() }]
+    });
+    return;
+  }
+  showError({
+    icon: "fa-triangle-exclamation", tone: "bad",
+    title: "Couldn't confirm",
+    body: "Something went wrong. Please try again.",
+    buttons: [{ label: "Try again", cls: "solid", onclick: () => confirmEmail() }]
+  });
+}
+
+async function showEmailConfirmed() {
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big ok"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
+      <h1>Email confirmed</h1>
+      <p class="sub">Now enter the SMS code we sent to your phone.</p>
+    </div>`;
+  await new Promise(r => setTimeout(r, 900));
+}
+
+/* ================= STEP 2 · SMS ================= */
+function showSms() {
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big spin"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></div>
+      <h1>Enter your SMS code</h1>
+      <p class="sub">Enter the 6-digit code we sent by SMS to confirm your withdrawal.</p>
+      <input type="text" id="smsCode" class="code-box" inputmode="numeric"
+             autocomplete="one-time-code" maxlength="6" aria-label="6-digit SMS code"
+             placeholder="······">
+      <div class="hint">Didn't get the SMS? It can take a minute. If it never arrives, start a new withdrawal from your earnings page.</div>
+      <div id="smsErr" hidden></div>
+      <button type="button" class="btn solid" id="smsGo" style="margin-top:16px" disabled>Confirm withdrawal</button>
+    </div>`;
+
+  const input = $("smsCode");
+  const btn = $("smsGo");
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "").slice(0, 6);
+    btn.disabled = input.value.length !== 6;
+    inlineError("smsErr", "");
+  });
+  input.addEventListener("keydown", ev => {
+    if (ev.key === "Enter" && input.value.length === 6) {
+      ev.preventDefault();
+      submitSms(input.value);
+    }
+  });
+  btn.addEventListener("click", () => submitSms(input.value));
+  setTimeout(() => { try { input.focus(); } catch {} }, 80);
+}
+
+async function submitSms(code) {
+  const btn = $("smsGo");
+  const input = $("smsCode");
+  if (btn) { btn.disabled = true; btn.textContent = "Confirming…"; }
+  inlineError("smsErr", "");
+
+  const r = await api(CFG.PAYOUTS, "/confirm-sms", {
+    method: "POST",
+    body: { payout_id: S.payoutId, code }
+  });
+
+  if (r.ok) {
+    showDone();
+    return;
+  }
+
+  const e = String((r.data && r.data.error) || "");
+
+  /* full-card errors */
+  if (e === "code_invalid_or_expired") {
+    showError({
+      icon: "fa-clock", tone: "warn",
+      title: "This code has expired",
+      body: "Start a new withdrawal from your earnings page.",
+      buttons: [{ label: "Go to my earnings", href: earningsHref(), cls: "solid" }]
+    });
+    return;
+  }
+  if (e === "max_attempts_exceeded") {
+    showError({
+      icon: "fa-lock", tone: "bad",
+      title: "Too many wrong tries",
+      body: "Start a new withdrawal from your earnings page.",
+      buttons: [{ label: "Go to my earnings", href: earningsHref(), cls: "solid" }]
+    });
+    return;
+  }
+  if (r.status === 404 || e === "request_not_found") {
+    showError({
+      icon: "fa-circle-question", tone: "bad",
+      title: "We couldn't find this withdrawal",
+      body: "It may belong to a different account, or it was already confirmed or cancelled. Check that you are signed in with the right account.",
+      buttons: [
+        { label: "Go to my earnings", href: earningsHref(), cls: "solid" },
+        { label: "Switch account", href: "account.html", cls: "line" }
+      ]
+    });
+    return;
+  }
+  if (e === "email_not_confirmed") {
+    /* token was used already, or session flag was stale — ask them to re-confirm */
+    try { sessionStorage.removeItem("eu_email_ok_" + S.payoutId); } catch {}
+    S.emailOk = false;
+    showError({
+      icon: "fa-envelope", tone: "warn",
+      title: "Please confirm your email first",
+      body: "You need to confirm your email before completing the withdrawal.",
+      buttons: [{ label: "Confirm email", cls: "solid", onclick: () => confirmEmail() }]
+    });
+    return;
+  }
+  if (r.status === 401) {
+    location.replace("account.html?next=" + encodeURIComponent(S.nextUrl));
+    return;
+  }
+
+  /* inline errors */
+  if (btn) { btn.disabled = input && input.value.length !== 6; btn.textContent = "Confirm withdrawal"; }
+
+  let msg = "Something went wrong. Try again.";
+  if (r.status === 0 || e === "network") msg = "Check your connection and try again.";
+  else if (r.status === 429) msg = "Too many attempts. Wait a minute, then try again.";
+  else if (e === "invalid_code") {
+    msg = "That code isn't right.";
+    if (input) { input.value = ""; try { input.focus(); } catch {} }
+    if (btn) btn.disabled = true;
+  }
+  inlineError("smsErr", msg);
+}
+
+/* ================= DONE ================= */
+async function showDone() {
+  showSpinner("Finishing…");
+  let payout = null;
+  try {
+    const r = await api(CFG.PAYOUTS, "/my-list");
+    if (r.ok) {
+      const list = Array.isArray(r.data.requests) ? r.data.requests
+        : Array.isArray(r.data.items) ? r.data.items : [];
+      payout = list.find(x => String(x.id || x.payout_id) === String(S.payoutId)) || null;
+    }
+  } catch {}
+
+  /* clear session flag — email step is single-use */
+  try { sessionStorage.removeItem("eu_email_ok_" + S.payoutId); } catch {}
+
+  let bodyText = "Your withdrawal is confirmed.";
+  if (payout && payout.status === "ready_to_pay") bodyText = "Earnity will pay you shortly.";
+  else if (payout && payout.status === "awaiting_approval") bodyText = "Your withdrawal is waiting for approval. We'll pay you as soon as it's approved.";
+
+  const rows = [];
+  if (payout) {
+    const amt = payout.amount_ugx;
+    const fee = payout.fee_ugx;
+    const net = payout.net_ugx;
+    if (amt != null && Number.isFinite(Number(amt))) rows.push(["Amount", ugx(amt)]);
+    if (fee != null && Number.isFinite(Number(fee))) rows.push(["Fee", ugx(fee)]);
+    if (net != null && Number.isFinite(Number(net))) rows.push(["You receive", ugx(net)]);
+  }
+
+  const stage = $("stage");
+  stage.innerHTML = `
+    <div class="card center">
+      <div class="icon-big ok"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
+      <h1>Withdrawal confirmed</h1>
+      <p class="sub">${esc(bodyText)}</p>
+      ${rows.length ? `<div class="summary">${rows.map(([k, v]) => `<div class="row"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
+      <div class="btnrow"><a class="btn solid" href="${esc(earningsHref())}">Back to my earnings</a></div>
+    </div>`;
+}
+
+/* ================= WIRE UP ================= */
+setTheme(document.documentElement.classList.contains("dark"));
+$("themeBtn").addEventListener("click", () => setTheme(!document.documentElement.classList.contains("dark")));
+
+const logoImg = $("logoImg");
+if (logoImg) logoImg.addEventListener("error", () => {
+  const a = logoImg.parentElement;
+  if (a) a.innerHTML = '<span class="wordmark">Earni<span>ty</span></span>';
+});
+
+/* ================= START ================= */
+boot().catch(err => {
+  /* never log the token; just show a friendly error */
+  console.error("boot_failed", { name: err && err.name });
+  showError({
+    icon: "fa-triangle-exclamation", tone: "bad",
+    title: "Couldn't start",
+    body: "Please refresh the page.",
+    buttons: [{ label: "Refresh", cls: "solid", onclick: () => location.reload() }]
+  });
+});
+</script>
+</body>
+</html>
