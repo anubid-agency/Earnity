@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b4a1a">
+<title>Your order · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+/* set the theme before first paint so there is no flash */
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<style>
+/* ============================================================
+   EARNITY · order page
+   Same tokens, fonts, radii, buttons and header as index.html
+   ============================================================ */
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
+  --radius:18px;
+  --bg:#ffffff; --card:#ffffff;
+  --btn:#b8480c; --btn-ink:#ffffff;
+  --ok-bg:#e3f1e7; --ok-fg:#0b4a1a;
+  --warn-bg:#fff0dd; --warn-fg:#7a4204;
+  --bad-bg:#fdecea; --bad-fg:#99231b;
+  --info-bg:#e8f0f8; --info-fg:#1d4f7a;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f;
+  --bg:#0a100c; --card:#101713;
+  --btn:#ff9a5c; --btn-ink:#1d1108;
+  --ok-bg:#12301e; --ok-fg:#a7ecc0;
+  --warn-bg:#3a2810; --warn-fg:#ffd08f;
+  --bad-bg:#3a1814; --bad-fg:#ffb2a6;
+  --info-bg:#14283a; --info-fg:#a9cdf0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.4;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---------- header (index.html) ---------- */
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px}
+header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line)}
+html.dark header{background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(10px)}
+.top{display:flex;align-items:center;gap:6px;padding:9px 0;min-width:0}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px}
+.iconbtn:hover{background:var(--mist)}
+.logo{display:flex;align-items:center;margin-left:2px;flex:none}
+.logo img{height:32px;width:auto;max-width:104px}
+.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark span{color:var(--orange)}
+.hright{display:flex;align-items:center;gap:2px;margin-left:auto;min-width:0}
+.ordlink{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 12px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--green)}
+.ordlink:hover{background:var(--mist)}
+.acctbtn{display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:999px;
+  background:var(--btn);color:var(--btn-ink);font-weight:700;font-size:13.5px;max-width:104px;margin-left:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:64px}
+@media(max-width:520px){ .ordlink span{display:none} .ordlink{padding:0 10px} }
+@media(max-width:420px){ .logo{display:none} }
+
+/* ---------- page ---------- */
+main{padding:14px 0 48px}
+.stage{max-width:520px;margin:0 auto;background:var(--mist);border:1px solid var(--line);border-radius:24px;
+  padding:16px 10px 20px}
+.printer{width:100%;max-width:420px;margin:0 auto;display:flex;flex-direction:column;align-items:center;position:relative}
+
+/* ---------- machine ---------- */
+.machine{position:relative;width:100%;overflow:hidden;border-radius:18px;border:1px solid #0a3a20;
+  background:linear-gradient(180deg,#0d5023,#07331a);padding:12px 12px 30px;color:#dff3e6;
+  box-shadow:0 18px 40px -20px rgba(5,48,26,.65)}
+html.dark .machine{box-shadow:0 18px 40px -16px rgba(0,0,0,.8)}
+.mhead{position:relative;display:flex;justify-content:space-between;align-items:center;height:32px;padding:0 4px;
+  margin-bottom:8px;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:#bfe3cc}
+.mhead .l,.mhead .r{display:flex;align-items:center;gap:7px}
+.mhead .l i{color:#ffb27a;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:#6ee7a0;box-shadow:0 0 0 3px rgba(110,231,160,.16)}
+.screen{position:relative;background:#03180c;border:1px solid #12522c;border-radius:12px;padding:13px 12px;
+  font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;box-shadow:inset 0 2px 8px rgba(0,0,0,.6)}
+.status{display:flex;align-items:center;gap:9px;min-height:22px}
+.status .ic{font-size:15px;display:grid;place-items:center;color:var(--sc,#9df3bf);flex:none}
+#sText{font-size:11.5px;font-weight:600;letter-spacing:.055em;text-transform:uppercase;color:var(--sc,#9df3bf);
+  line-height:1.25;overflow:hidden;text-overflow:ellipsis}
+.screen[data-tone="warn"]{--sc:#ffd28a}
+.screen[data-tone="bad"]{--sc:#ffb3a0}
+.screen[data-tone="ok"]{--sc:#b6f7cd}
+.screen[data-tone="info"]{--sc:#a9d4f5}
+.srow{margin-top:8px;padding-top:6px;border-top:1px solid rgba(110,231,160,.16);display:flex;
+  justify-content:space-between;gap:10px;font-size:10.5px;color:rgba(157,243,191,.72)}
+.srow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot{position:absolute;left:22px;right:22px;bottom:11px;height:8px;border-radius:4px;border:1px solid #0a3a20;
+  background:#02120a;box-shadow:inset 0 1px 3px #000;z-index:40}
+
+/* ---------- paper output ---------- */
+.output{position:relative;z-index:30;margin-top:-10px;width:calc(100% - 24px);height:0;overflow:hidden;
+  padding:0 6px;transition:height .25s ease}
+.output.noanim{transition:none!important}
+.shadow{position:absolute;left:18px;right:18px;top:-3px;height:12px;background:rgba(3,12,7,.4);filter:blur(5px);
+  z-index:20;pointer-events:none;opacity:0}
+.output[data-stage="printing"] .shadow,.output[data-stage="complete"] .shadow{opacity:1}
+.feed{position:relative;transform:translateY(-100%);opacity:0;will-change:transform;
+  filter:drop-shadow(0 10px 10px rgba(5,48,26,.22));
+  transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .5s}
+.output[data-stage="printing"] .feed{transform:translateY(-8%);opacity:1;
+  transition:transform 2.6s steps(9,end),opacity .15s}
+.output[data-stage="complete"] .feed{transform:translateY(0);opacity:1;
+  transition:transform .55s cubic-bezier(.16,1,.3,1),opacity .2s}
+.output.noanim .feed{transition:none!important}
+
+/* ---------- the receipt ---------- */
+.paper{position:relative;background:#fffdf5;color:#1a241d;padding:20px 16px 26px;
+  font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border-radius:2px}
+.rc-head{text-align:center;padding-bottom:10px;border-bottom:1px dashed #b9c4bc}
+.rc-brand{font-size:17px;font-weight:900;letter-spacing:.2em;color:#0b4a1a;line-height:1.1}
+.rc-site{font-size:10px;letter-spacing:.1em;color:#5d6a62;margin-top:3px}
+.rc-tag{font-size:10px;color:#5d6a62;margin-top:1px}
+.rc-meta{display:flex;justify-content:space-between;gap:10px;font-size:9.5px;line-height:1.5;
+  color:#5d6a62;padding:8px 0;border-bottom:1px dashed #b9c4bc}
+.rc-meta .r{text-align:right;word-break:break-all;font-weight:700;color:#3d4a42}
+.rc-tbl{width:100%;border-collapse:collapse;margin:9px 0 2px;font-size:11px}
+.rc-tbl th{text-align:left;font-weight:700;font-size:8.5px;letter-spacing:.1em;color:#6b776f;
+  padding-bottom:4px;border-bottom:1px solid #d7ded9}
+.rc-tbl td{padding:7px 0;vertical-align:top;border-bottom:1px solid #e9eeeb}
+.rc-tbl .r{text-align:right}
+.rc-item b{display:block;font-size:12px;font-weight:700;color:#16201a;line-height:1.35}
+.rc-item small{display:block;font-size:9.5px;color:#5d6a62;margin-top:3px;line-height:1.45;word-break:break-word}
+.rc-tot{margin-top:8px;padding-top:7px;border-top:1px dashed #b9c4bc;font-size:11px}
+.rc-row{display:flex;justify-content:space-between;gap:8px;padding:2px 0;color:#4a564e}
+.rc-row b{color:#16201a;font-weight:700;white-space:nowrap}
+.rc-bal{margin-top:9px;padding:8px 10px;background:#e3f1e7;border-radius:8px;display:flex;
+  justify-content:space-between;gap:8px;align-items:center}
+.rc-bal span{font-size:8.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#0b4a1a;line-height:1.3}
+.rc-bal b{font-size:13px;color:#0b4a1a;white-space:nowrap}
+.rc-code{margin-top:14px;padding-top:12px;border-top:1px dashed #b9c4bc;text-align:center;
+  opacity:0;transition:opacity .5s ease .15s}
+.output[data-stage="complete"] .rc-code{opacity:1}
+.rc-clabel{font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:#5d6a62;font-weight:800}
+.rc-cval{margin-top:6px;font-size:clamp(20px,7.4vw,26px);font-weight:800;letter-spacing:.16em;
+  color:#0b4a1a;line-height:1.15;word-break:break-all}
+.rc-cval.rc-date{font-size:15px;letter-spacing:.02em;font-weight:700}
+.rc-copy{margin-top:9px;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid #0b4a1a;
+  color:#0b4a1a;background:#fff;font:700 12px/1 inherit;display:inline-flex;align-items:center;gap:7px}
+.rc-copy:active{transform:scale(.97)}
+.rc-cnote{font-size:8.5px;color:#6b776f;margin-top:9px;line-height:1.55;padding:0 4px}
+.rc-foot{margin-top:12px;padding-top:10px;border-top:1px dashed #b9c4bc;font-size:9px;line-height:1.6;
+  color:#4a564e;text-align:center}
+.rc-stamp{position:absolute;top:104px;right:10px;transform:rotate(-11deg);border:2px solid #0b4a1a;
+  border-radius:6px;padding:4px 8px;font-size:11px;font-weight:900;letter-spacing:.16em;
+  text-transform:uppercase;color:#0b4a1a;opacity:.45;pointer-events:none;
+  box-shadow:inset 0 0 0 1px #0b4a1a}
+
+/* ---------- cards, buttons, bits ---------- */
+.card{max-width:520px;margin:14px auto 0;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:16px}
+.card h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;line-height:1.3}
+.card h2 i{color:var(--green);font-size:14px}
+.lead{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.5}
+.muted{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:7px 0;border-top:1px solid var(--line)}
+.kv:first-of-type{margin-top:10px}
+.kv span{color:var(--muted);flex:none}
+.kv b{font-weight:700;text-align:right;overflow:hidden;text-overflow:ellipsis}
+.btnrow{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;
+  border-radius:999px;font-weight:700;font-size:15px;border:0;width:100%;text-align:center;transition:transform .12s ease}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn.primary{background:var(--btn);color:var(--btn-ink)}
+.btn.ghost{border:1.5px solid var(--green);color:var(--green);background:transparent}
+.btn.quiet{background:var(--mist);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--bad-fg);color:#fff}
+html.dark .btn.danger{background:#ffb2a6;color:#2a0d0a}
+.cd{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:8px 14px;border-radius:999px;
+  background:var(--warn-bg);color:var(--warn-fg);font:700 15px/1 ui-monospace,Menlo,monospace}
+.cd.low{background:var(--bad-bg);color:var(--bad-fg)}
+.cd.over{background:var(--bad-bg);color:var(--bad-fg)}
+.notice{border-color:var(--info-fg)}
+.empty,.card.center{text-align:center}
+.emptyic{width:56px;height:56px;border-radius:18px;background:var(--soft-green);color:var(--green);
+  display:grid;place-items:center;font-size:22px;margin:0 auto 12px}
+.card.center .btn,.empty .btn{margin-top:16px}
+.pagehead{max-width:520px;margin:4px auto 14px}
+.pagehead h1{font-size:23px;font-weight:800;letter-spacing:-.02em}
+.pagehead p{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* ---------- my orders list ---------- */
+.olist{display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
+.orow{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.orow:hover{border-color:var(--green)}
+.orow-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.onum{font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.02em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oprod{font-size:15px;font-weight:600;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orow-bot{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:13px;color:var(--muted)}
+.orow-bot b{color:var(--ink);font-size:14px}
+.orow.sk{height:98px;border:0;background:linear-gradient(90deg,var(--mist),var(--line),var(--mist));
+  background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;white-space:nowrap;flex:none}
+.c-ok{background:var(--ok-bg);color:var(--ok-fg)}
+.c-warn{background:var(--warn-bg);color:var(--warn-fg)}
+.c-bad{background:var(--bad-bg);color:var(--bad-fg)}
+.c-info{background:var(--info-bg);color:var(--info-fg)}
+.endnote{text-align:center;color:var(--muted);font-size:13px;padding:18px 0}
+#omore{margin-top:12px}
+#omore .btn{max-width:520px;margin:0 auto}
+
+/* ---------- sheets ---------- */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-radius:24px 24px 0 0;
+  max-height:92vh;overflow-y:auto;max-width:520px;margin:0 auto;
+  padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);transition:transform .25s ease;visibility:hidden;
+  box-shadow:0 -10px 40px rgba(5,48,26,.25)}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .sheet{transform:none;visibility:visible}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.shtitle{font-size:18px;font-weight:800;line-height:1.25}
+.opts{border:0;margin-top:12px}
+.opts legend{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.opt{display:flex;gap:12px;align-items:center;min-height:52px;padding:11px 12px;border:1.5px solid var(--line);
+  border-radius:14px;margin-bottom:8px;cursor:pointer;font-size:14.5px;line-height:1.35}
+.opt:last-child{margin-bottom:0}
+.opt.on{border-color:var(--orange);background:var(--orange-soft)}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none;position:relative}
+.opt.on .radio{border-color:var(--orange)}
+.opt.on .radio:after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--orange)}
+.flabel{display:block;font-size:13.5px;font-weight:600;margin:14px 0 6px}
+.flabel span{color:var(--muted);font-weight:400}
+textarea{width:100%;background:var(--mist);border:1.5px solid var(--line);border-radius:14px;padding:12px;
+  font:inherit;font-size:15px;color:var(--ink);resize:vertical;min-height:96px;line-height:1.45}
+textarea::placeholder{color:var(--muted)}
+.ccount{text-align:right;font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ---------- toast (index.html) ---------- */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
+  z-index:80;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14px;
+  max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(prefers-reduced-motion:reduce){
+  .feed,.output,.rc-code,.sheet,.scrim,.toast,.btn{transition:none!important}
+  .feed{transform:none!important;opacity:1!important}
+  .orow.sk{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="iconbtn" href="index.html" aria-label="Back to home"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+      <a class="logo" href="index.html" aria-label="Earnity home"><img src="earnity.png" alt="Earnity" id="logoImg"></a>
+      <div class="hright">
+        <a class="ordlink" href="order.html" aria-label="My orders">
+          <i class="fa-solid fa-receipt" aria-hidden="true"></i><span>My orders</span>
+        </a>
+        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        </button>
+        <a class="acctbtn" id="acctBtn" href="account.html">Account</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="stage" id="stage" aria-label="Order receipt printer">
+    <div class="printer">
+      <div class="machine">
+        <div class="mhead">
+          <div class="l"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Earnity</span></div>
+          <div class="r"><span class="dot" aria-hidden="true"></span><span>Secure</span></div>
+        </div>
+        <div class="screen" id="screen" data-tone="">
+          <div class="status">
+            <span class="ic" id="sIcon" aria-hidden="true"></span>
+            <div id="sText" role="status">Loading your order…</div>
+          </div>
+          <div class="srow"><span id="sL"></span><span id="sR"></span></div>
+        </div>
+        <div class="slot" aria-hidden="true"></div>
+      </div>
+
+      <div class="output" id="output" data-stage="processing" hidden>
+        <div class="shadow" aria-hidden="true"></div>
+        <div class="feed" id="feed">
+          <article class="paper" id="paper" aria-label="Order receipt"></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="below"></div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const CFG = {
+  ORDERS:   "https://earnity-orders.anubisdigital114-9df.workers.dev",
+  PAYMENTS: "https://earnity-payments.anubisdigital114-9df.workers.dev",
+  CATALOG:  "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+
+/* ------------------------------------------------------------
+   Dispute reason codes.
+   The orders worker file was not supplied, so these are the
+   codes assumed from the brief. They live in ONE place:
+   change the `code` values here if the worker uses different
+   ones and everything else follows.
+   ------------------------------------------------------------ */
+const REASONS = [
+  { code: "not_delivered",   label: "Not delivered" },
+  { code: "not_as_described",label: "Item not as described" },
+  { code: "not_received",    label: "Seller says delivered but I didn't receive it" },
+  { code: "harassment",      label: "Harassment" },
+  { code: "other",           label: "Other" }
+];
+
+/* ============================================================
+   TINY HELPERS
+   ============================================================ */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function num(v) {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+function ugx(v) {
+  const n = num(v);
+  return n === null ? "—" : "UGX " + Math.round(n).toLocaleString("en-US");
+}
+
+const KLA = "Africa/Kampala";
+function toDate(v) {
+  if (v === null || v === undefined || v === "") return null;
+  if (v instanceof Date) return isNaN(v) ? null : v;
+  if (typeof v === "number") { const d = new Date(v < 1e12 ? v * 1000 : v); return isNaN(d) ? null : d; }
+  const s = String(v).trim();
+  if (/^\d+$/.test(s)) { const n = Number(s); const d = new Date(n < 1e12 ? n * 1000 : n); return isNaN(d) ? null : d; }
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+function fmtDate(v, withTime) {
+  const d = toDate(v);
+  if (!d) return "";
+  try {
+    const o = { timeZone: KLA, day: "2-digit", month: "short", year: "numeric" };
+    if (withTime) { o.hour = "2-digit"; o.minute = "2-digit"; o.hour12 = false; }
+    return new Intl.DateTimeFormat("en-GB", o).format(d);
+  } catch { return ""; }
+}
+function fmtParts(v) {
+  const d = toDate(v);
+  if (!d) return null;
+  try {
+    return {
+      date: new Intl.DateTimeFormat("en-GB", { timeZone: KLA, day: "2-digit", month: "short", year: "numeric" }).format(d),
+      time: new Intl.DateTimeFormat("en-GB", { timeZone: KLA, hour: "2-digit", minute: "2-digit", hour12: false }).format(d)
+    };
+  } catch { return null; }
+}
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+const STATUS = {
+  awaiting_payment: { label: "Awaiting payment", chip: "warn" },
+  paid:             { label: "Paid",             chip: "ok" },
+  delivered:        { label: "Delivered",        chip: "ok" },
+  under_review:     { label: "Under review",     chip: "info" },
+  refund_pending:   { label: "Refund in progress", chip: "info" },
+  refunded:         { label: "Refunded",         chip: "info" },
+  cancelled:        { label: "Cancelled",        chip: "bad" },
+  expired:          { label: "Expired",          chip: "bad" }
+};
+const PAPER_STATES = new Set(["paid", "delivered", "under_review"]);
+const statusLabel = s => (STATUS[s] && STATUS[s].label) || String(s || "unknown").replace(/_/g, " ");
+
+/* ============================================================
+   AUTH + API
+   ============================================================ */
+const S = { user: null, acct: null };
+let TOKEN_CACHE = { tok: null, at: 0 };
+
+async function idToken(force) {
+  if (!S.user) return null;
+  const now = Date.now();
+  if (!force && TOKEN_CACHE.tok && now - TOKEN_CACHE.at < 50000) return TOKEN_CACHE.tok;
+  try {
+    const t = await S.user.getIdToken(force);
+    TOKEN_CACHE = { tok: t, at: now };
+    return t;
+  } catch { return null; }
+}
+
+async function api(base, path, opt = {}) {
+  const headers = {};
+  if (opt.body !== undefined) headers["Content-Type"] = "application/json";
+  const t = await idToken();
+  if (t) headers.Authorization = "Bearer " + t;
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const res = await fetch(base + path, {
+      method: opt.method || "GET",
+      headers,
+      body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined,
+      signal: ctl.signal,
+      cache: "no-store"
+    });
+    let data = null;
+    try { data = await res.json(); } catch { data = null; }
+    return { ok: res.ok, status: res.status, data: data || {} };
+  } catch {
+    return { ok: false, status: 0, data: { error: "network" } };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function goAccount() {
+  const next = location.pathname + location.search;
+  location.replace("account.html?next=" + encodeURIComponent(next));
+}
+
+function initAuth() {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = v => { if (!done) { done = true; resolve(v); } };
+    setTimeout(() => finish(null), 12000);
+    (async () => {
+      try {
+        const V = "10.14.1";
+        const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+        const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+        const app = appMod.getApps && appMod.getApps().length ? appMod.getApps()[0] : appMod.initializeApp(CFG.FIREBASE);
+        const auth = authMod.getAuth(app);
+        authMod.onAuthStateChanged(auth, u => finish(u || null));
+      } catch { finish(null); }
+    })();
+  });
+}
+
+async function loadMe() {
+  const r = await api(CFG.ORDERS, "/me");
+  if (r.ok && r.data && r.data.user) { S.acct = r.data.user; return true; }
+  if (r.status === 404 && r.data && r.data.error === "not_registered") { goAccount(); return false; }
+  return true; /* network hiccup or missing route: carry on */
+}
+
+function updateAcctBtn() {
+  const b = $("#acctBtn");
+  if (!b) return;
+  const a = S.acct || {};
+  const name = String(a.display_name || a.first_name || a.name || "").trim();
+  b.textContent = name ? name.split(" ")[0] : "Account";
+  const t = a.account_type;
+  b.href = t === "referee" ? "referee.html" : t === "seller" ? "business.html" : "account.html";
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function setTheme(dark) {
+  document.documentElement.classList.toggle("dark", dark);
+  const b = $("#themeBtn");
+  if (b) {
+    b.innerHTML = `<i class="fa-solid ${dark ? "fa-sun" : "fa-moon"}" aria-hidden="true"></i>`;
+    b.setAttribute("aria-pressed", dark ? "true" : "false");
+    b.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  try { localStorage.setItem("eu_theme", dark ? "dark" : "light"); } catch {}
+}
+setTheme(document.documentElement.classList.contains("dark"));
+$("#themeBtn").addEventListener("click", () => setTheme(!document.documentElement.classList.contains("dark")));
+
+const logoImg = $("#logoImg");
+if (logoImg) logoImg.addEventListener("error", () => {
+  const a = logoImg.parentElement;
+  if (a) a.innerHTML = '<span class="wordmark">Earni<span>ty</span></span>';
+});
+
+/* ============================================================
+   TOAST / SHEET
+   ============================================================ */
+let toastTimer = null;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("on"), 2800);
+}
+
+const sheet = $("#sheet");
+const scrim = $("#scrim");
+let lastFocus = null;
+let sheetCloseCb = null;
+
+function openSheet(html, onClose) {
+  lastFocus = document.activeElement;
+  sheetCloseCb = onClose || null;
+  sheet.innerHTML = html;
+  document.body.classList.add("open");
+  requestAnimationFrame(() => {
+    const f = sheet.querySelector("[data-autofocus]") ||
+              sheet.querySelector("input, textarea, button, a[href], select");
+    (f || sheet).focus();
+  });
+}
+function closeSheet() {
+  document.body.classList.remove("open");
+  const cb = sheetCloseCb;
+  sheetCloseCb = null;
+  if (lastFocus && document.contains(lastFocus) && lastFocus.focus) {
+    try { lastFocus.focus(); } catch {}
+  }
+  lastFocus = null;
+  if (cb) cb();
+}
+scrim.addEventListener("click", closeSheet);
+sheet.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeSheet(); });
+
+document.addEventListener("keydown", e => {
+  if (!document.body.classList.contains("open")) return;
+  if (e.key === "Escape") { e.preventDefault(); closeSheet(); return; }
+  if (e.key !== "Tab") return;
+  const f = $$('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select,[tabindex]:not([tabindex="-1"])', sheet)
+    .filter(el => el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+function confirmSheet({ title, body, confirm, cancel = "Keep it", danger = false }) {
+  return new Promise(resolve => {
+    let settled = false;
+    const done = v => {
+      if (settled) return;
+      settled = true;
+      sheetCloseCb = null;
+      closeSheet();
+      resolve(v);
+    };
+    openSheet(`
+      <div class="grab"></div>
+      <h2 class="shtitle" id="sheetTitle" tabindex="-1" data-autofocus>${esc(title)}</h2>
+      <p class="lead">${esc(body)}</p>
+      <div class="btnrow">
+        <button class="btn ${danger ? "danger" : "primary"}" type="button" data-yes>${esc(confirm)}</button>
+        <button class="btn quiet" type="button" data-no>${esc(cancel)}</button>
+      </div>`, () => { if (!settled) { settled = true; resolve(false); } });
+    sheet.querySelector("[data-yes]").addEventListener("click", () => done(true));
+    sheet.querySelector("[data-no]").addEventListener("click", () => done(false));
+  });
+}
+
+/* ============================================================
+   ERROR TEXT
+   ============================================================ */
+function errText(r) {
+  const e = String((r && r.data && r.data.error) || "");
+  if (!r || r.status === 0 || e === "network") {
+    return "You're offline or the connection dropped. Check your network and try again.";
+  }
+  const map = {
+    not_found: "We couldn't find that order.",
+    forbidden: "You don't have access to this order.",
+    rate_limited: "Too many attempts. Wait a minute, then try again.",
+    code_locked: "The delivery code is locked right now. Try again later.",
+    invalid_state: "That action isn't available for this order any more.",
+    already_disputed: "You've already reported a problem with this order.",
+    dispute_not_allowed: "You can't report a problem at this stage.",
+    not_disputable: "You can't report a problem at this stage.",
+    limit_reached: "You've reached the limit for that action.",
+    resend_limit_reached: "You've used all 3 code resends for this order.",
+    code_resend_limit: "You've used all 3 code resends for this order.",
+    invalid_reason: "Pick a reason from the list.",
+    payment_failed: "We couldn't start the payment. Try again.",
+    not_registered: "Please sign in again."
+  };
+  if (r.status === 429) return map.rate_limited;
+  if (r.status === 401) return "Your session expired. Sign in again.";
+  if (r.status === 403 && !e) return map.forbidden;
+  return map[e] || "Something went wrong. Please try again.";
+}
+
+/* ============================================================
+   ORDER SHAPE
+   ============================================================ */
+function normOrder(raw, fallbackId) {
+  const o = raw && typeof raw === "object" ? raw : {};
+  const p = o.product && typeof o.product === "object" ? o.product : {};
+  const b = o.business && typeof o.business === "object" ? o.business : {};
+  return {
+    id: String(o.id || o.order_id || fallbackId || ""),
+    number: String(o.order_number || o.number || ""),
+    status: String(o.status || "").toLowerCase() || "unknown",
+    createdAt: o.created_at || o.createdAt || null,
+    expiresAt: o.expires_at || o.expiresAt || null,
+    deliveredAt: o.delivered_at || o.deliveredAt || null,
+    productName: String(o.product_name || p.name || o.item_name || ""),
+    businessName: String(o.business_name || b.name || p.business_name || ""),
+    deliveryText: String(o.delivery_details || o.delivery_text || p.delivery_text || ""),
+    deliveryDays: num(o.delivery_days != null ? o.delivery_days : p.delivery_days),
+    price: num(o.buyer_price_ugx != null ? o.buyer_price_ugx : p.price_ugx),
+    discount: num(o.discount != null ? o.discount : o.discount_ugx),
+    deposit: num(o.deposit_ugx),
+    fee: num(o.payment_fee_ugx),
+    total: num(o.total_charged_ugx),
+    balance: num(o.balance_due_ugx),
+    code: o.delivery_code ? String(o.delivery_code) : null
+  };
+}
+
+/* ============================================================
+   PAGE ELEMENTS / STATE
+   ============================================================ */
+const stageEl = $("#stage");
+const output = $("#output");
+const paper = $("#paper");
+const screenEl = $("#screen");
+const iconEl = $("#sIcon");
+const textEl = $("#sText");
+const sL = $("#sL");
+const sR = $("#sR");
+const below = $("#below");
+
+let ORDER = null;
+let ANIMATED = false;
+let POLLING = false;
+let cdTimer = null;
+let refreshing = false;
+const RESENDS = {};
+
+const LIST = { cursor: null, done: false, loading: false, rendered: 0 };
+
+/* ============================================================
+   MACHINE
+   ============================================================ */
+function setScreen(o) {
+  screenEl.dataset.tone = o.tone || "";
+  iconEl.innerHTML = o.icon
+    ? `<i class="fa-solid ${o.icon}${o.spin ? " fa-spin" : ""}" aria-hidden="true"></i>`
+    : "";
+  textEl.textContent = o.text || "";
+  sL.textContent = o.left || "";
+  sR.textContent = o.right || "";
+}
+
+function setStage(st) {
+  output.dataset.stage = st;
+  if (st !== "processing") output.style.height = (paper.offsetHeight || 0) + "px";
+}
+
+function tornEdge(el) {
+  const teeth = 26, depth = 5, pts = [];
+  for (let i = 0; i < teeth * 2; i++) {
+    const x = 100 - ((i + 1) * 100) / (teeth * 2);
+    const y = i % 2 === 0 ? "100%" : `calc(100% - ${depth}px)`;
+    pts.push(`${x}% ${y}`);
+  }
+  el.style.clipPath = `polygon(0 0, 100% 0, 100% calc(100% - ${depth}px), ${pts.join(", ")})`;
+}
+
+function showPaper(o, stageName, animate) {
+  output.hidden = false;
+  paper.innerHTML = paperHTML(o);
+  tornEdge(paper);
+  if (!animate) output.classList.add("noanim");
+  output.dataset.stage = stageName;
+  output.style.height = stageName === "processing" ? "0px" : (paper.offsetHeight || 0) + "px";
+  if (!animate) {
+    requestAnimationFrame(() => requestAnimationFrame(() => output.classList.remove("noanim")));
+  }
+}
+
+let resizeTimer = null;
+addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (!output.hidden && output.dataset.stage !== "processing") {
+      output.style.height = (paper.offsetHeight || 0) + "px";
+    }
+  }, 120);
+});
+
+/* ============================================================
+   RECEIPT CONTENT
+   ============================================================ */
+function paperHTML(o) {
+  const st = o.status;
+  const dt = fmtParts(o.createdAt);
+
+  const rows = [];
+  const push = (label, val) => {
+    if (val !== null && val !== undefined) {
+      rows.push(`<div class="rc-row"><span>${label}</span><b>${val}</b></div>`);
+    }
+  };
+  if (o.price !== null) push("Price", ugx(o.price));
+  if (o.discount !== null && o.discount > 0) push("Discount", "− " + ugx(o.discount));
+  if (o.deposit !== null) push("Deposit paid", ugx(o.deposit));
+  if (o.fee !== null && o.fee > 0) push("Payment fee", ugx(o.fee));
+  if (o.total !== null) push("Total charged", ugx(o.total));
+
+  const meta = [];
+  if (o.businessName) meta.push(esc(o.businessName));
+  const del = [];
+  if (o.deliveryText) del.push(esc(o.deliveryText));
+  if (o.deliveryDays !== null) del.push(`${o.deliveryDays} day${o.deliveryDays === 1 ? "" : "s"}`);
+  if (del.length) meta.push("Delivery: " + del.join(" · "));
+
+  let foot = "";
+  if (st === "delivered") {
+    const dd = fmtParts(o.deliveredAt);
+    foot = `
+      <div class="rc-code">
+        <div class="rc-clabel">Delivered</div>
+        <div class="rc-cval rc-date">${dd ? esc(dd.date + ", " + dd.time) : "—"}</div>
+        <div class="rc-cnote">Your delivery code is no longer shown for this order.</div>
+      </div>`;
+  } else if (o.code) {
+    foot = `
+      <div class="rc-code">
+        <div class="rc-clabel">Delivery code</div>
+        <div class="rc-cval">${esc(o.code)}</div>
+        <button class="rc-copy" type="button" data-act="copy">
+          <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+        </button>
+        <div class="rc-cnote">The seller sees your name, phone and email only after you pay.</div>
+      </div>`;
+  } else {
+    foot = `
+      <div class="rc-code">
+        <div class="rc-clabel">Delivery code</div>
+        <div class="rc-cval">—</div>
+      </div>`;
+  }
+
+  const footerText = st === "delivered"
+    ? "This order was delivered. If something isn't right, use Report a problem and Earnity will look into it."
+    : "Give this code to the seller ONLY when you have received your item. The seller enters it to complete the order.";
+
+  return `
+    <div class="rc-head">
+      <div class="rc-brand">EARNITY</div>
+      <div class="rc-site">earnityug.com</div>
+      <div class="rc-tag">Refer, Earn, Save</div>
+    </div>
+    <div class="rc-meta">
+      <div>${dt ? esc(dt.date) + "<br>" + esc(dt.time) : "—"}</div>
+      <div class="r">${o.number ? esc(o.number) : ""}</div>
+    </div>
+    <table class="rc-tbl">
+      <thead><tr><th>ITEM</th><th class="r">QTY</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rc-item">
+            <b>${esc(o.productName || "Item")}</b>
+            ${meta.map(m => `<small>${m}</small>`).join("")}
+          </td>
+          <td class="r">1</td>
+        </tr>
+      </tbody>
+    </table>
+    ${rows.length ? `<div class="rc-tot">${rows.join("")}</div>` : ""}
+    <div class="rc-bal"><span>Balance due at delivery</span><b>${ugx(o.balance)}</b></div>
+    ${foot}
+    <div class="rc-foot">${footerText}</div>
+    ${st === "delivered" ? '<div class="rc-stamp" aria-hidden="true">Delivered</div>' : ""}
+  `;
+}
+
+/* ============================================================
+   SCREEN COPY PER STATE
+   ============================================================ */
+function screenFor(st, o) {
+  const left = o && o.number ? o.number : "";
+  const right = o ? (o.total !== null ? ugx(o.total) : (o.balance !== null ? ugx(o.balance) : "")) : "";
+  switch (st) {
+    case "awaiting_payment": return { tone: "warn", icon: "fa-clock", text: "Awaiting payment", left, right };
+    case "paid":             return { tone: "ok",   icon: "fa-circle-check", text: "Payment confirmed", left, right };
+    case "delivered":        return { tone: "ok",   icon: "fa-circle-check", text: "Delivered", left, right };
+    case "under_review":     return { tone: "info", icon: "fa-magnifying-glass", text: "Under review", left, right };
+    case "refund_pending":   return { tone: "info", icon: "fa-rotate-left", text: "Refund in progress", left, right };
+    case "refunded":         return { tone: "ok",   icon: "fa-rotate-left", text: "Refunded", left, right };
+    case "cancelled":        return { tone: "bad",  icon: "fa-xmark", text: "Order cancelled", left, right };
+    case "expired":          return { tone: "bad",  icon: "fa-hourglass-end", text: "Order expired", left, right };
+    default:                 return { tone: "",     icon: "fa-circle-info", text: statusLabel(st), left, right };
+  }
+}
+
+/* ============================================================
+   PAINT (no animation)
+   ============================================================ */
+function paint() {
+  clearInterval(cdTimer); cdTimer = null;
+  POLLING = false;
+  if (!ORDER) return;
+  const o = ORDER;
+  const st = o.status;
+  stageEl.hidden = false;
+  below.innerHTML = "";
+
+  if (PAPER_STATES.has(st)) {
+    setScreen(screenFor(st, o));
+    showPaper(o, "complete", false);
+    renderActions(o);
+    return;
+  }
+
+  output.hidden = true;
+  output.style.height = "0px";
+  paper.innerHTML = "";
+  setScreen(screenFor(st, o));
+  renderState(st, o);
+}
+
+/* ============================================================
+   NON-PAPER STATES
+   ============================================================ */
+function summaryBlock(o) {
+  return `
+    ${o.number ? `<div class="kv"><span>Order number</span><b>${esc(o.number)}</b></div>` : ""}
+    ${o.productName ? `<div class="kv"><span>Item</span><b>${esc(o.productName)}</b></div>` : ""}
+    ${o.businessName ? `<div class="kv"><span>Seller</span><b>${esc(o.businessName)}</b></div>` : ""}
+    ${o.total !== null ? `<div class="kv"><span>Total charged</span><b>${ugx(o.total)}</b></div>` : ""}
+    ${o.createdAt ? `<div class="kv"><span>Ordered</span><b>${esc(fmtDate(o.createdAt))}</b></div>` : ""}
+  `;
+}
+
+function renderState(st, o) {
+  if (st === "awaiting_payment") {
+    below.innerHTML = `
+      <div class="card">
+        <h2>Complete your payment</h2>
+        <p class="lead">Your order is held for a short time. Pay before the timer runs out.</p>
+        ${o.expiresAt ? `<div class="cd" id="cd"><i class="fa-solid fa-clock" aria-hidden="true"></i><span>--:--</span></div>` : ""}
+        ${o.productName ? `<div class="kv"><span>Item</span><b>${esc(o.productName)}</b></div>` : ""}
+        ${o.businessName ? `<div class="kv"><span>Seller</span><b>${esc(o.businessName)}</b></div>` : ""}
+        ${o.number ? `<div class="kv"><span>Order number</span><b>${esc(o.number)}</b></div>` : ""}
+        ${o.total !== null
+          ? `<div class="kv"><span>Total to pay</span><b>${ugx(o.total)}</b></div>`
+          : o.price !== null ? `<div class="kv"><span>Price</span><b>${ugx(o.price)}</b></div>` : ""}
+        ${o.balance !== null ? `<div class="kv"><span>Balance at delivery</span><b>${ugx(o.balance)}</b></div>` : ""}
+        <div class="btnrow">
+          <button class="btn primary" type="button" data-act="pay">Pay now</button>
+          <button class="btn quiet" type="button" data-act="cancel">Cancel order</button>
+        </div>
+      </div>`;
+    if (o.expiresAt) startCountdown(o.expiresAt);
+    return;
+  }
+
+  if (st === "refund_pending") {
+    below.innerHTML = `
+      <div class="card">
+        <h2>Refund in progress</h2>
+        <p class="lead">We're sending your money back to the payment method you used. Refunds usually take 3–5 business days to show up.</p>
+        ${summaryBlock(o)}
+        <div class="btnrow"><a class="btn quiet" href="order.html">My orders</a></div>
+      </div>`;
+    return;
+  }
+
+  if (st === "refunded") {
+    below.innerHTML = `
+      <div class="card">
+        <h2>Refunded</h2>
+        <p class="lead">Your money has been returned to the payment method you used. Nothing more is owed on this order.</p>
+        ${summaryBlock(o)}
+        <div class="btnrow"><a class="btn primary" href="index.html">Browse products</a></div>
+      </div>`;
+    return;
+  }
+
+  if (st === "cancelled" || st === "expired") {
+    const expired = st === "expired";
+    below.innerHTML = `
+      <div class="card">
+        <h2>${expired ? "Order expired" : "Order cancelled"}</h2>
+        <p class="lead">${expired
+          ? "This order expired before payment was completed, so nothing was charged."
+          : "This order was cancelled and no money was taken."}</p>
+        ${o.number ? `<div class="kv"><span>Order number</span><b>${esc(o.number)}</b></div>` : ""}
+        <div class="btnrow"><a class="btn primary" href="index.html">Browse products</a></div>
+      </div>`;
+    return;
+  }
+
+  /* unknown status: readable text + summary, no invented promises */
+  below.innerHTML = `
+    <div class="card">
+      <h2>Order status</h2>
+      <p class="lead">This order is marked <b>${esc(statusLabel(st))}</b>.</p>
+      ${summaryBlock(o)}
+      <div class="btnrow"><a class="btn quiet" href="order.html">My orders</a></div>
+    </div>`;
+}
+
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+function startCountdown(exp) {
+  clearInterval(cdTimer);
+  const el = $("#cd");
+  if (!el) return;
+  const end = toDate(exp);
+  if (!end) { el.hidden = true; return; }
+  const tick = () => {
+    const ms = end.getTime() - Date.now();
+    if (ms <= 0) {
+      el.classList.add("over");
+      el.innerHTML = '<i class="fa-solid fa-hourglass-end" aria-hidden="true"></i><span>Expired</span>';
+      clearInterval(cdTimer); cdTimer = null;
+      const payBtn = below.querySelector('[data-act="pay"]');
+      if (payBtn) { payBtn.disabled = true; }
+      refreshOrderOnce();
+      return;
+    }
+    const s = Math.floor(ms / 1000);
+    const sp = el.querySelector("span");
+    if (sp) sp.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+    el.classList.toggle("low", ms < 5 * 60 * 1000);
+  };
+  tick();
+  cdTimer = setInterval(tick, 1000);
+}
+
+async function refreshOrderOnce() {
+  if (refreshing || !ORDER) return;
+  refreshing = true;
+  const r = await loadOrder(ORDER.id);
+  refreshing = false;
+  if (r.ok && r.data.status !== ORDER.status) {
+    ORDER = r.data;
+    paint();
+  }
+}
+
+/* ============================================================
+   ACTIONS BELOW THE RECEIPT
+   ============================================================ */
+function renderActions(o) {
+  const st = o.status;
+  let html = "";
+
+  if (st === "paid") {
+    html = `
+      <div class="card">
+        <h2>Order confirmed</h2>
+        <p class="lead">Keep your delivery code safe. Give it to the seller only when your item arrives.</p>
+        <div class="btnrow">
+          <button class="btn ghost" type="button" data-act="resend">Get a new code</button>
+          <button class="btn quiet" type="button" data-act="dispute">Report a problem</button>
+          <a class="btn quiet" href="order.html">My orders</a>
+        </div>
+      </div>`;
+  } else if (st === "delivered") {
+    const dd = fmtDate(o.deliveredAt, true);
+    html = `
+      <div class="card">
+        <h2>Delivered</h2>
+        <p class="lead">${dd ? "Delivered on " + esc(dd) + ". " : ""}We hope everything is as expected.</p>
+        <div class="btnrow">
+          <button class="btn quiet" type="button" data-act="dispute">Report a problem</button>
+          <a class="btn quiet" href="index.html">Browse products</a>
+        </div>
+      </div>`;
+  } else if (st === "under_review") {
+    html = `
+      <div class="card notice">
+        <h2><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Report under review</h2>
+        <p class="lead">Your problem report is being reviewed by Earnity. We'll email you when there's an update.</p>
+        <div class="btnrow"><a class="btn quiet" href="order.html">My orders</a></div>
+      </div>`;
+  }
+
+  below.innerHTML = html;
+
+  if (st === "paid" && RESENDS[o.id] >= 3) {
+    const b = below.querySelector('[data-act="resend"]');
+    if (b) { b.disabled = true; b.textContent = "No more code resends"; }
+  }
+}
+
+/* ============================================================
+   COPY
+   ============================================================ */
+async function copyText(text) {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast("Code copied");
+    return;
+  } catch {}
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    toast("Code copied");
+  } catch {
+    toast("Couldn't copy. Long-press the code to copy it.");
+  }
+}
+
+paper.addEventListener("click", e => {
+  const b = e.target.closest('[data-act="copy"]');
+  if (b && ORDER && ORDER.code) copyText(ORDER.code);
+});
+
+/* ============================================================
+   PAYMENT
+   ============================================================ */
+async function startPayment(btn) {
+  if (!ORDER) return;
+  const old = btn ? btn.innerHTML : "";
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Opening…'; }
+  const r = await api(CFG.PAYMENTS, "/payments/start", { method: "POST", body: { order_id: ORDER.id } });
+  if (r.ok) {
+    const url = (r.data && (r.data.redirect_url || r.data.payment_url || r.data.url)) || "";
+    if (url) { location.href = url; return; }
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = old; }
+  toast(errText(r));
+}
+
+async function cancelOrder(btn) {
+  const yes = await confirmSheet({
+    title: "Cancel this order?",
+    body: "The order will close and you won't be able to pay for it.",
+    confirm: "Yes, cancel order",
+    cancel: "Keep my order",
+    danger: true
+  });
+  if (!yes) return;
+  if (btn) btn.disabled = true;
+  const r = await api(CFG.ORDERS, "/orders/" + encodeURIComponent(ORDER.id) + "/cancel", { method: "POST", body: {} });
+  if (btn) btn.disabled = false;
+  if (!r.ok) { toast(errText(r)); return; }
+  toast("Order cancelled");
+  const fresh = await loadOrder(ORDER.id);
+  if (fresh.ok) ORDER = fresh.data;
+  else ORDER = Object.assign({}, ORDER, { status: "cancelled" });
+  paint();
+}
+
+async function resendCode(btn) {
+  const yes = await confirmSheet({
+    title: "Get a new code?",
+    body: "The old code stops working immediately. You can do this up to 3 times.",
+    confirm: "Get new code",
+    cancel: "Keep current code"
+  });
+  if (!yes) return;
+  if (btn) btn.disabled = true;
+  const r = await api(CFG.ORDERS, "/orders/" + encodeURIComponent(ORDER.id) + "/code/resend", { method: "POST", body: {} });
+  if (btn) btn.disabled = false;
+
+  if (!r.ok) {
+    const e = String((r.data && r.data.error) || "");
+    if (e === "limit_reached" || e === "code_resend_limit" || e === "resend_limit_reached") {
+      RESENDS[ORDER.id] = 3;
+      renderActions(ORDER);
+    }
+    toast(errText(r));
+    return;
+  }
+
+  RESENDS[ORDER.id] = (RESENDS[ORDER.id] || 0) + 1;
+  const code = (r.data && (r.data.delivery_code || r.data.code)) || null;
+  if (code) {
+    ORDER.code = String(code);
+  } else {
+    const f = await loadOrder(ORDER.id);
+    if (f.ok) ORDER = f.data;
+  }
+  showPaper(ORDER, "complete", false);
+  renderActions(ORDER);
+  toast("New code ready");
+}
+
+/* ============================================================
+   POLLING (return flow)
+   ============================================================ */
+async function startPolling() {
+  if (POLLING || !ORDER) return;
+  POLLING = true;
+  clearInterval(cdTimer); cdTimer = null;
+  output.hidden = true;
+  paper.innerHTML = "";
+  below.innerHTML = `<div class="card"><p class="lead" style="margin-top:0">Keep this page open — we're checking with Pesapal. This usually takes a few seconds.</p></div>`;
+  setScreen({
+    tone: "", icon: "fa-circle-notch", spin: true,
+    text: "Confirming your payment…",
+    left: ORDER.number,
+    right: ORDER.total !== null ? ugx(ORDER.total) : ""
+  });
+
+  const started = Date.now();
+  let first = true;
+
+  while (Date.now() - started < 120000) {
+    await wait(first ? 400 : 3000);
+    first = false;
+    if (!POLLING) return;
+
+    const os = await loadOrder(ORDER.id);
+    if (os.ok) {
+      ORDER = os.data;
+      if (PAPER_STATES.has(ORDER.status)) {
+        POLLING = false;
+        animateSuccess();
+        return;
+      }
+      if (ORDER.status === "cancelled" || ORDER.status === "expired") {
+        POLLING = false;
+        paint();
+        return;
+      }
+    }
+
+    const pr = await api(CFG.PAYMENTS, "/payments/status?order_id=" + encodeURIComponent(ORDER.id));
+    if (pr.ok && pr.data) {
+      const st = String(pr.data.status || "").toLowerCase();
+      const cs = String(pr.data.confirm_status || "").toLowerCase();
+      if (st === "failed" || cs === "failed" || st === "cancelled" || st === "canceled") {
+        POLLING = false;
+        showPaymentFailed();
+        return;
+      }
+    }
+  }
+
+  POLLING = false;
+  showPending();
+}
+
+function showPaymentFailed() {
+  stageEl.hidden = false;
+  output.hidden = true;
+  paper.innerHTML = "";
+  output.style.height = "0px";
+  setScreen({
+    tone: "bad", icon: "fa-circle-xmark",
+    text: "Payment not completed",
+    left: ORDER.number,
+    right: ORDER.total !== null ? ugx(ORDER.total) : ""
+  });
+  below.innerHTML = `
+    <div class="card">
+      <h2>Payment not completed</h2>
+      <p class="lead">No money was taken for this order. You can try again, or cancel the order.</p>
+      ${ORDER.number ? `<div class="kv"><span>Order number</span><b>${esc(ORDER.number)}</b></div>` : ""}
+      ${ORDER.total !== null ? `<div class="kv"><span>Total to pay</span><b>${ugx(ORDER.total)}</b></div>` : ""}
+      <div class="btnrow">
+        <button class="btn primary" type="button" data-act="pay">Try again</button>
+        <button class="btn quiet" type="button" data-act="cancel">Cancel order</button>
+      </div>
+    </div>`;
+}
+
+function showPending() {
+  stageEl.hidden = false;
+  output.hidden = true;
+  paper.innerHTML = "";
+  output.style.height = "0px";
+  setScreen({
+    tone: "warn", icon: "fa-clock",
+    text: "Still waiting",
+    left: ORDER.number,
+    right: ORDER.total !== null ? ugx(ORDER.total) : ""
+  });
+  below.innerHTML = `
+    <div class="card">
+      <h2>Still waiting for confirmation</h2>
+      <p class="lead">This can take a few minutes. You will get an email when it's confirmed.</p>
+      <p class="muted">If money left your account, don't pay again — we'll update this page as soon as the payment confirms.</p>
+      <div class="btnrow">
+        <button class="btn primary" type="button" data-act="check">Check again</button>
+        <a class="btn quiet" href="order.html">My orders</a>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   SUCCESS ANIMATION (once per page load, return flow only)
+   ============================================================ */
+async function animateSuccess() {
+  POLLING = false;
+  clearInterval(cdTimer); cdTimer = null;
+  if (ANIMATED) { paint(); return; }
+  ANIMATED = true;
+
+  const fresh = await loadOrder(ORDER.id);
+  if (fresh.ok) ORDER = fresh.data;
+  if (!PAPER_STATES.has(ORDER.status)) { paint(); return; }
+
+  stageEl.hidden = false;
+  below.innerHTML = "";
+  setScreen({
+    tone: "ok", icon: "fa-circle-notch", spin: true,
+    text: "Printing your receipt…",
+    left: ORDER.number,
+    right: ORDER.total !== null ? ugx(ORDER.total) : ""
+  });
+
+  showPaper(ORDER, "processing", true);
+
+  if (reduced()) {
+    setStage("complete");
+    setScreen(screenFor(ORDER.status, ORDER));
+    renderActions(ORDER);
+    return;
+  }
+
+  await wait(420);
+  setStage("printing");
+  await wait(3000);
+  setStage("complete");
+  setScreen(screenFor(ORDER.status, ORDER));
+  await wait(500);
+  renderActions(ORDER);
+}
+
+/* ============================================================
+   DISPUTE
+   ============================================================ */
+function openDispute() {
+  if (!ORDER) return;
+  const opts = REASONS.map(r => `
+    <label class="opt" data-code="${esc(r.code)}">
+      <input type="radio" name="reason" value="${esc(r.code)}" class="sr">
+      <span class="radio" aria-hidden="true"></span>
+      <span class="optl">${esc(r.label)}</span>
+    </label>`).join("");
+
+  openSheet(`
+    <div class="grab"></div>
+    <h2 class="shtitle" id="sheetTitle" tabindex="-1" data-autofocus>Report a problem</h2>
+    <p class="lead">Tell us what went wrong with this order. Earnity will review it and email you.</p>
+    <form id="dform" novalidate>
+      <fieldset class="opts">
+        <legend>What went wrong?</legend>
+        ${opts}
+      </fieldset>
+      <label class="flabel" for="dmsg">More details <span>(optional)</span></label>
+      <textarea id="dmsg" maxlength="500" rows="4" placeholder="Anything that helps us understand."></textarea>
+      <div class="ccount"><span id="dc">0</span>/500</div>
+      <div class="btnrow">
+        <button class="btn primary" type="submit" id="dsubmit">Send report</button>
+        <button class="btn quiet" type="button" data-close>Cancel</button>
+      </div>
+    </form>`);
+
+  const form = $("#dform");
+  const msg = $("#dmsg");
+  const counter = $("#dc");
+
+  form.addEventListener("change", e => {
+    if (e.target.name === "reason") {
+      $$(".opt", form).forEach(l => l.classList.toggle("on", l.contains(e.target)));
+    }
+  });
+  msg.addEventListener("input", () => { counter.textContent = String(msg.value.length); });
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const sel = form.querySelector('input[name="reason"]:checked');
+    if (!sel) { toast("Choose a reason"); return; }
+    const body = { reason: sel.value };
+    const text = msg.value.trim();
+    if (text) body.message = text;
+
+    const sb = $("#dsubmit");
+    sb.disabled = true;
+    const r = await api(CFG.ORDERS, "/orders/" + encodeURIComponent(ORDER.id) + "/dispute", { method: "POST", body });
+    sb.disabled = false;
+
+    if (!r.ok) { toast(errText(r)); return; }
+
+    closeSheet();
+    toast("Report sent");
+    const fresh = await loadOrder(ORDER.id);
+    if (fresh.ok) ORDER = fresh.data;
+    else ORDER = Object.assign({}, ORDER, { status: "under_review" });
+    paint();
+  });
+}
+
+/* ============================================================
+   LOADING AN ORDER
+   ============================================================ */
+async function loadOrder(id) {
+  const r = await api(CFG.ORDERS, "/orders/" + encodeURIComponent(id));
+  if (!r.ok) return r;
+  const raw = (r.data && (r.data.order || r.data)) || null;
+  if (!raw || typeof raw !== "object") return { ok: false, status: 0, data: { error: "not_found" } };
+  return { ok: true, status: r.status, data: normOrder(raw, id) };
+}
+
+async function findOrderId(number) {
+  try {
+    const raw = sessionStorage.getItem("eu_pending_order");
+    if (raw) {
+      let p = null;
+      try { p = JSON.parse(raw); } catch { p = null; }
+      if (p && typeof p === "object") {
+        const n = p.order_number || p.number;
+        const pid = p.id || p.order_id;
+        if (n && String(n) === number && pid) return String(pid);
+      }
+    }
+  } catch {}
+
+  let cursor = null;
+  for (let i = 0; i < 12; i++) {
+    const q = new URLSearchParams({ limit: "20" });
+    if (cursor) q.set("cursor", cursor);
+    const r = await api(CFG.ORDERS, "/orders?" + q.toString());
+    if (!r.ok) return null;
+    const arr = Array.isArray(r.data.orders) ? r.data.orders : Array.isArray(r.data.items) ? r.data.items : [];
+    const hit = arr.find(o => String(o.order_number || o.number || "") === number);
+    if (hit) return String(hit.id || hit.order_id || "");
+    cursor = r.data.next_cursor || null;
+    if (!cursor) break;
+  }
+  return null;
+}
+
+/* ============================================================
+   MY ORDERS
+   ============================================================ */
+function orderRow(o) {
+  const st = String(o.status || "").toLowerCase();
+  const chip = (STATUS[st] && STATUS[st].chip) || "info";
+  const number = String(o.order_number || o.number || "Order");
+  const product = String(o.product_name || (o.product && o.product.name) || "");
+  const total = num(o.total_charged_ugx);
+  const balance = num(o.balance_due_ugx);
+  const amount = total !== null ? ugx(total) : balance !== null ? ugx(balance) : "";
+  const date = fmtDate(o.created_at);
+  const id = o.id || o.order_id;
+  const href = id
+    ? "order.html?id=" + encodeURIComponent(id)
+    : "order.html?n=" + encodeURIComponent(number);
+
+  return `<a class="orow" href="${href}">
+    <div class="orow-top">
+      <span class="onum">${esc(number)}</span>
+      <span class="chip c-${chip}">${esc(statusLabel(st))}</span>
+    </div>
+    ${product ? `<div class="oprod">${esc(product)}</div>` : ""}
+    <div class="orow-bot"><b>${esc(amount)}</b><span>${esc(date)}</span></div>
+  </a>`;
+}
+
+async function showList() {
+  stageEl.hidden = true;
+  below.innerHTML = `
+    <div class="pagehead">
+      <h1>My orders</h1>
+      <p>Everything you've bought on Earnity.</p>
+    </div>
+    <div id="olist" class="olist" aria-busy="true">
+      <div class="orow sk"></div><div class="orow sk"></div><div class="orow sk"></div>
+    </div>
+    <div id="omore"></div>`;
+  LIST.cursor = null; LIST.done = false; LIST.loading = false; LIST.rendered = 0;
+  await loadList();
+}
+
+async function loadList() {
+  if (LIST.loading || LIST.done) return;
+  LIST.loading = true;
+
+  const q = new URLSearchParams({ limit: "20" });
+  if (LIST.cursor) q.set("cursor", LIST.cursor);
+  const r = await api(CFG.ORDERS, "/orders?" + q.toString());
+  LIST.loading = false;
+
+  const list = $("#olist");
+  if (!list) return;
+  list.setAttribute("aria-busy", "false");
+
+  if (!r.ok) {
+    if (!LIST.cursor) {
+      list.innerHTML = `
+        <div class="card center">
+          <h2>Couldn't load your orders</h2>
+          <p class="lead">${esc(errText(r))}</p>
+          <button class="btn primary" type="button" data-act="retry-list">Try again</button>
+        </div>`;
+    }
+    return;
+  }
+
+  const first = !LIST.cursor;
+  const arr = Array.isArray(r.data.orders) ? r.data.orders
+    : Array.isArray(r.data.items) ? r.data.items
+    : Array.isArray(r.data) ? r.data : [];
+
+  LIST.cursor = r.data.next_cursor || null;
+  if (!LIST.cursor) LIST.done = true;
+
+  if (first) list.innerHTML = "";
+
+  if (!arr.length && first) {
+    list.innerHTML = `
+      <div class="card center empty">
+        <div class="emptyic"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
+        <h2>No orders yet</h2>
+        <p class="lead">When you buy something on Earnity, it shows up here.</p>
+        <a class="btn primary" href="index.html">Browse products</a>
+      </div>`;
+    const more = $("#omore");
+    if (more) more.innerHTML = "";
+    return;
+  }
+
+  LIST.rendered += arr.length;
+  list.insertAdjacentHTML("beforeend", arr.map(orderRow).join(""));
+
+  const more = $("#omore");
+  if (more) {
+    more.innerHTML = LIST.cursor
+      ? `<button class="btn quiet" type="button" data-act="more">Load more</button>`
+      : `<p class="endnote">That's all your orders.</p>`;
+  }
+}
+
+/* ============================================================
+   BELOW-CARD EVENT DELEGATION
+   ============================================================ */
+below.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === "pay") startPayment(b);
+  else if (act === "cancel") cancelOrder(b);
+  else if (act === "check") startPolling();
+  else if (act === "resend") resendCode(b);
+  else if (act === "dispute") openDispute();
+  else if (act === "more") loadList();
+  else if (act === "retry-list") showList();
+});
+
+/* ============================================================
+   NOT FOUND / LOAD ERROR
+   ============================================================ */
+function showNotFound() {
+  stageEl.hidden = true;
+  below.innerHTML = `
+    <div class="card center">
+      <div class="emptyic"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
+      <h2>We couldn't find this order</h2>
+      <p class="lead">The link may be out of date, or this order belongs to a different account.</p>
+      <a class="btn primary" href="order.html">My orders</a>
+    </div>`;
+}
+
+function showLoadError(r) {
+  if (r && r.status === 404) { showNotFound(); return; }
+  stageEl.hidden = true;
+  below.innerHTML = `
+    <div class="card center">
+      <h2>We couldn't open this order</h2>
+      <p class="lead">${esc(errText(r))}</p>
+      <a class="btn primary" href="order.html">My orders</a>
+    </div>`;
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(async function boot() {
+  setScreen({ tone: "", icon: "fa-circle-notch", spin: true, text: "Loading your order…", left: "", right: "" });
+
+  let user = null;
+  try { user = await initAuth(); } catch { user = null; }
+
+  if (!user) {
+    /* not signed in: keep the original query in ?next */
+    const next = location.pathname + location.search;
+    location.replace("account.html?next=" + encodeURIComponent(next));
+    return;
+  }
+
+  S.user = user;
+  const meOk = await loadMe();
+  if (!meOk) return;
+  updateAcctBtn();
+
+  const url = new URL(location.href);
+  const id = (url.searchParams.get("id") || "").trim();
+  const number = (url.searchParams.get("n") || "").trim();
+  const pay = (url.searchParams.get("payment") || "").trim().toLowerCase();
+
+  /* strip the query string once it has been read */
+  try { history.replaceState(null, "", location.pathname); } catch {}
+
+  if (!id && !number) {
+    await showList();
+    return;
+  }
+
+  let orderId = id;
+  if (!orderId && number) orderId = await findOrderId(number);
+  if (!orderId) { showNotFound(); return; }
+
+  const r = await loadOrder(orderId);
+  if (!r.ok) { showLoadError(r); return; }
+
+  ORDER = r.data;
+  if (!ORDER.id) ORDER.id = orderId;
+
+  if (pay === "cancelled") {
+    if (PAPER_STATES.has(ORDER.status)) paint();
+    else showPaymentFailed();
+    return;
+  }
+
+  if (pay === "return") {
+    if (PAPER_STATES.has(ORDER.status)) { animateSuccess(); return; }
+    if (ORDER.status === "cancelled" || ORDER.status === "expired") { paint(); return; }
+    startPolling();
+    return;
+  }
+
+  paint();
+})();
+</script>
+</body>
+</html>
