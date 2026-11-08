@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Earnity seller terms.">
+<title>Seller Terms · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+/* set the theme before first paint so there is no flash */
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<!--
+  DRAFT — this page still contains 1 unfilled [FILL IN] placeholder.
+  Before you publish:
+    1. Section 6: the penalty clause asks for a lawyer's review of "twice the original deposit".
+       Confirm or change the amount, then remove the [FILL IN: …] chip and the surrounding
+       <span class="fill-in">…</span> wrapper so the highlight disappears.
+  Version stays 2026-10-25 (it matches what your sign-up worker records).
+-->
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
+  --radius:18px;
+  --bg:#ffffff; --card:#ffffff;
+  --fill-bg:#fff3c4; --fill-ink:#7a4d00; --fill-line:#f2d76a;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f;
+  --bg:#0a100c; --card:#101713;
+  --fill-bg:#3a2810; --fill-ink:#ffd08f; --fill-line:#6b4a15;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.6;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+img{max-width:100%;display:block}
+
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* header */
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
+.logo{display:flex;align-items:center;text-decoration:none;flex:none}
+.logo img{height:36px;width:auto;max-width:120px}
+.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark span{color:var(--orange)}
+.hright{display:flex;align-items:center;gap:2px}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:18px}
+.iconbtn:hover{background:var(--mist)}
+
+/* main */
+main{padding:32px 0 56px}
+h1{font-size:clamp(24px,5vw,34px);font-weight:800;color:var(--green);line-height:1.15;letter-spacing:-.3px}
+h2{font-size:18px;color:var(--green-deep);font-weight:700;margin-top:28px}
+p{color:var(--ink);font-size:15px;margin-top:10px}
+.sub{color:var(--muted);font-size:14px;margin-top:6px}
+ul{margin:10px 0 0 20px;color:var(--ink);font-size:15px}
+ul ul{margin-top:6px;margin-left:8px}
+li{margin:6px 0}
+li strong,p strong{color:var(--ink)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;
+  background:var(--mist);padding:1px 6px;border-radius:5px}
+
+/* [FILL IN] placeholder — visible, high-contrast in both themes */
+.fill-in{display:inline-block;padding:1px 8px;margin:0 2px;border-radius:6px;
+  background:var(--fill-bg);color:var(--fill-ink);border:1px solid var(--fill-line);
+  font-weight:700;font-size:.94em;letter-spacing:.01em;vertical-align:baseline}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.drawer{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(78vw,320px);z-index:50;
+  background:var(--card);border-left:1px solid var(--line);
+  transform:translateX(105%);transition:transform .25s ease;visibility:hidden;
+  display:flex;flex-direction:column;padding:18px 0 calc(18px + env(safe-area-inset-bottom,0px))}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .drawer{transform:none;visibility:visible}
+.drawer .close{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;color:var(--green);font-size:18px}
+.drawer .close:hover{background:var(--mist)}
+.drawer h2{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+  padding:0 20px;margin-top:6px}
+.drawer nav{display:flex;flex-direction:column;margin-top:14px}
+.drawer nav a{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 20px;font-size:16px;font-weight:600;
+  color:var(--ink);border-top:1px solid var(--line)}
+.drawer nav a:last-child{border-bottom:1px solid var(--line)}
+.drawer nav a i{width:20px;text-align:center;color:var(--green)}
+.drawer nav a:hover{background:var(--mist)}
+@media(prefers-reduced-motion:reduce){.drawer,.scrim{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" href="index.html" aria-label="Earnity home">
+        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
+      </a>
+      <div class="hright">
+        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        </button>
+        <button class="iconbtn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Seller Terms</h1>
+  <p class="sub">Earnity · Version 2026-10-25 · Last updated 25 October 2026</p>
+  <p>These terms apply to anyone who sells on Earnity ("seller", "you"). They are in addition to our <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>. By ticking the box when you create your business, you accept these terms.</p>
+
+  <h2>1. Your business and your store</h2>
+  <ul>
+    <li>You must give true details about your business and keep them up to date.</li>
+    <li>You get a public store at your own subdomain (for example <code>yourname.earnityug.com</code>). The subdomain can't be changed later and some names are reserved.</li>
+    <li>Earnity reviews every new business. Your store and products are visible to buyers <strong>only after we approve it</strong>. We may ask for more information, and we may refuse or remove a business.</li>
+    <li>One seller account has one business.</li>
+  </ul>
+
+  <h2>2. What you can sell</h2>
+  <ul>
+    <li>You may sell only goods and services you are allowed to sell and are able to deliver. No illegal, stolen, counterfeit, unsafe or restricted items.</li>
+    <li>Describe each product truthfully. Photos must be yours or ones you have the right to use.</li>
+    <li>Starting limits for new sellers: a maximum price per product of <strong>UGX 1,000,000</strong>, a delivery time of up to <strong>14 days</strong>, and a limit on active products. We may raise these limits when you build a good record. Limits can change.</li>
+    <li>You are responsible for your own licences, taxes and legal duties.</li>
+  </ul>
+
+  <h2>3. Pricing, commission and the fee cap</h2>
+  <ul>
+    <li>You set the price of each product and the <strong>referee commission</strong>. The minimum commission is <strong>1%</strong>.</li>
+    <li>Together, the referee commission, any business referrer share, Earnity's percentage and your seller share must fit inside the <strong>48% deposit cap</strong>. Earnity's system refuses any combination that doesn't.</li>
+    <li>A business referrer (the person you named when you signed up) can't be changed. You may raise their rate, but not lower it.</li>
+    <li>Earnity's percentage is currently <strong>5%</strong> of the product price. We will tell you before a change applies to new orders.</li>
+    <li>Your seller share is what remains of the deposit after the referee commission and Earnity's percentage.</li>
+    <li>You can run time-limited offers (up to 30 days) at a lower price.</li>
+  </ul>
+
+  <h2>4. How you get paid</h2>
+  <ul>
+    <li>The buyer pays a <strong>deposit</strong> to Earnity. The rest is paid <strong>directly to you when you deliver</strong>. Earnity is not part of that payment.</li>
+    <li>Your seller share of the deposit shows as <strong>Pending</strong>. It is released to your wallet only when you enter the buyer's <strong>delivery code</strong>.</li>
+    <li>You can withdraw your available balance to a verified phone number. Withdrawals need email confirmation and an SMS code, and large ones need Earnity's approval. Daily limits apply and can change.</li>
+  </ul>
+
+  <h2>5. Delivering an order</h2>
+  <ul>
+    <li>Deliver within the delivery time you stated on the product. If you have not delivered and entered the code <strong>3 days</strong> after that time, the order counts as not delivered.</li>
+    <li>When the buyer receives the item, ask for their delivery code and enter it in your dashboard. After 5 wrong attempts the code locks and Earnity reviews the order.</li>
+    <li>You see the buyer's name, phone and email only after the deposit is paid, only for that order. Use them only to complete the order. Don't share them, and don't use them to market to the buyer or to take the sale off Earnity.</li>
+    <li>Don't ask buyers to pay outside Earnity to avoid fees. Sales completed outside Earnity are not protected by Earnity.</li>
+  </ul>
+
+  <h2>6. If you don't deliver</h2>
+  <p>If you don't deliver, deliver something that is not as described, or cancel an order you accepted:</p>
+  <ul>
+    <li>The buyer is refunded their deposit, and the referee's pending commission is cancelled.</li>
+    <li>Your pending share is forfeited to Earnity.</li>
+    <li>Earnity must not lose money on a failed sale. Non-refundable payment processing fees are charged to you.</li>
+    <li>You are charged a penalty of <strong>twice the original deposit</strong>. <span class="fill-in">[FILL IN: confirm this amount with your lawyer.]</span></li>
+    <li>If the penalty makes your balance negative, we take it from future earnings, and your account stays blocked from listing and withdrawing until the debt is cleared.</li>
+    <li>Repeated failures can lead to permanent removal.</li>
+  </ul>
+
+  <h2>7. If the buyer never collects</h2>
+  <p>If a buyer abandons an order after you have dispatched it, the buyer's deposit is forfeited and shared equally between you and Earnity (half each), to cover your costs. Earnity decides each case after reviewing the order.</p>
+
+  <h2>8. Disputes</h2>
+  <p>Either side can report a problem on an order. Earnity reviews it, may hold the related money, and decides. If a buyer is found to have made a false claim, they may be blocked. If you are found to have made a false claim, or to have given a false delivery confirmation, you may be penalised and blocked. Our decisions on disputes are final on Earnity, but you keep your legal rights.</p>
+
+  <h2>9. Honest conduct</h2>
+  <ul>
+    <li>No fake orders, fake accounts, buying through your own referral links to take commission, or any attempt to cheat commissions or discounts. We check for this, and we can cancel earnings, charge penalties and block accounts.</li>
+    <li>No harassment of buyers, referees or Earnity staff.</li>
+    <li>Don't try to damage or overload the site.</li>
+  </ul>
+
+  <h2>10. Your content</h2>
+  <p>You keep ownership of your photos and descriptions. You give Earnity permission to show them on Earnity, in the feed, in your store, and in messages and shares about your products.</p>
+
+  <h2>11. Suspension and ending</h2>
+  <p>We may hide your products, hold payouts, or block or close your account to stop fraud, follow the law or enforce these terms. You may close your business at any time, after finishing your open orders. Money you owe stays owed after closing.</p>
+
+  <h2>12. Changes</h2>
+  <p>We may update these terms. The version and date at the top show which one applies, and we record the version you accepted. If a change is important, we will tell you.</p>
+
+  <h2>13. Law and contact</h2>
+  <p>These terms are governed by the laws of Uganda. Questions: <a href="mailto:support@earnityug.com">support@earnityug.com</a></p>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
+  <button class="close" id="closeBtn" type="button" aria-label="Close menu">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  <h2>Menu</h2>
+  <nav>
+    <a href="index.html"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+    <a href="account.html"><i class="fa-regular fa-user" aria-hidden="true"></i> Account</a>
+    <a href="contact.html"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Contact</a>
+  </nav>
+</aside>
+
+<script>
+const body = document.body;
+const drawer = document.getElementById('drawer');
+const scrim = document.getElementById('scrim');
+const menuBtn = document.getElementById('menuBtn');
+const closeBtn = document.getElementById('closeBtn');
+
+function openDrawer() {
+  body.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  menuBtn.setAttribute('aria-expanded', 'true');
+  setTimeout(() => { try { closeBtn.focus(); } catch {} }, 80);
+}
+function closeDrawer() {
+  body.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  try { menuBtn.focus(); } catch {}
+}
+menuBtn.addEventListener('click', openDrawer);
+closeBtn.addEventListener('click', closeDrawer);
+scrim.addEventListener('click', closeDrawer);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && body.classList.contains('open')) { closeDrawer(); return; }
+  if (e.key === 'Tab' && body.classList.contains('open')) {
+    const f = Array.from(drawer.querySelectorAll('a,button')).filter(el => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+/* theme */
+function setTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  const b = document.getElementById('themeBtn');
+  b.innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}" aria-hidden="true"></i>`;
+  b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  try { localStorage.setItem('eu_theme', dark ? 'dark' : 'light'); } catch {}
+}
+setTheme(document.documentElement.classList.contains('dark'));
+document.getElementById('themeBtn').addEventListener('click', () => {
+  setTheme(!document.documentElement.classList.contains('dark'));
+});
+</script>
+</body>
+  </html>
