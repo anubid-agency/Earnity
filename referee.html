@@ -1,0 +1,692 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Your Earnity referee dashboard: slots, discount requests and earnings.">
+<title>Referee · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!--
+  Earnity referee dashboard.
+  Workers used: api (/me), referrals (/referee/summary, /requests/inbox, /requests/:id/grant, /discounts/:id/cancel,
+  /notifications), catalog (/referee/slots), ledger (/wallet), payouts (/settings, /my-list, /request, /confirm-sms),
+  verify (/phone). Serve from earnityug.com. Sign-in lives on account.html.
+  Check the worker URLs in CFG below.
+-->
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7; --red:#b3261e; --amber:#8a5a00;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--mist);line-height:1.4;
+  min-height:100vh;padding-top:env(safe-area-inset-top,0px)}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.bar{max-width:760px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bar img{height:44px;width:auto;display:block}
+.bar .r{display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13.5px;text-decoration:none;
+  background:var(--soft-green);color:var(--green);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:17px}
+.icon:hover{background:var(--mist)}
+
+.tabs{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:19}
+.tabs .in{max-width:760px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6px}
+.tabs .in::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;padding:13px 14px;font-weight:700;font-size:14.5px;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--green);border-color:var(--orange)}
+.tab .n{display:inline-block;min-width:20px;padding:1px 6px;margin-left:6px;border-radius:999px;background:var(--orange);color:#fff;font-size:12px;text-align:center}
+
+main{max-width:760px;margin:0 auto;padding:16px 14px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+h1{font-size:22px;color:var(--green-deep)}
+h2{font-size:17px;color:var(--green-deep)}
+.sub{color:var(--muted);font-size:14.5px;margin-top:4px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hd .b{font-size:14px;font-weight:700;color:var(--green)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none}
+.btn.solid{background:var(--orange);color:#fff}
+.btn.line{border:1.5px solid var(--green);color:var(--green);background:#fff}
+.btn.full{width:100%}
+.btn.sm{min-height:38px;padding:0 16px;font-size:13.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{color:var(--green);font-weight:600;font-size:14px;text-decoration:underline;padding:8px 2px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat small{display:block;color:var(--muted);font-size:12.5px}
+.stat b{display:block;font-size:24px;margin-top:2px;color:var(--green-deep)}
+.stat.hi{background:var(--green);border-color:var(--green)}
+.stat.hi small{color:#cfe6d6} .stat.hi b{color:#fff}
+
+.banner{padding:12px 14px;border-radius:14px;font-size:14.5px;margin-bottom:14px;background:var(--orange-soft);color:#7a3200}
+.banner.err{background:#fdecea;color:var(--red)}
+.banner.ok{background:var(--soft-green);color:var(--green-deep)}
+
+.check{display:grid;gap:8px;margin-top:10px}
+.check a,.check div{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--mist);text-decoration:none;color:var(--ink);font-size:14.5px}
+.check i{width:20px;text-align:center;color:var(--muted)}
+.check .done i{color:var(--green)} .check .done{color:var(--muted)}
+
+.item{padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0;padding-bottom:0} .item:first-child{padding-top:0}
+.item .t{font-weight:700;font-size:15.5px}
+.item .m{color:var(--muted);font-size:13.5px;margin-top:2px}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--mist);color:var(--muted);vertical-align:middle;margin-left:6px}
+.chip.good{background:var(--soft-green);color:var(--green)} .chip.warn{background:var(--orange-soft);color:var(--orange)} .chip.bad{background:#fdecea;color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.earn{color:var(--green);font-weight:800}
+.msg{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--mist);font-size:14px;font-style:italic}
+
+.disc{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.disc input{width:90px;height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 10px;font-size:16px}
+.disc input:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px var(--soft-green)}
+.mini{border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:700;color:var(--green)}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.inerr{font-size:13.5px;color:var(--red);margin-top:6px}
+
+.bal{font-size:32px;font-weight:800;color:var(--green-deep);letter-spacing:-.5px}
+.tx{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.tx:last-child{border-bottom:0}
+.tx .d{color:var(--muted);font-size:12.5px}
+.tx .a{font-weight:800;white-space:nowrap} .tx .a.pos{color:var(--green)} .tx .a.neg{color:var(--ink)}
+.nt{padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.nt:last-child{border-bottom:0}
+.nt .dot{width:9px;height:9px;border-radius:50%;background:var(--orange);margin-top:6px;flex:none}
+.nt.read .dot{background:transparent}
+
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:15px}
+.empty i{display:block;font-size:30px;color:var(--line);margin-bottom:10px}
+.center{display:flex;justify-content:center;padding:60px 0;color:var(--green);font-size:28px}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-radius:24px 24px 0 0;max-width:560px;margin:0 auto;
+  max-height:90vh;overflow-y:auto;padding:12px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet label{display:block;font-weight:700;font-size:14px;margin:16px 0 8px}
+.sheet input[type=text]{width:100%;height:50px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;font-size:17px}
+.sheet input[type=text]:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px var(--soft-green)}
+.sheet .code{letter-spacing:8px;text-align:center;font-size:24px;font-weight:700}
+.sheet ol{margin:12px 0 0 20px;font-size:14.5px;display:grid;gap:6px}
+.sum{margin-top:12px;padding:12px;border-radius:14px;background:var(--mist);font-size:14.5px;display:grid;gap:4px}
+.sum div{display:flex;justify-content:space-between}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;
+  background:var(--green-deep);color:#fff;padding:12px 16px;border-radius:14px;font-size:14.5px;z-index:60;max-width:92vw;
+  display:flex;gap:14px;align-items:center;transition:.2s}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{color:#ffb27f;font-weight:800}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="index.html"><img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<b style=\'font-size:24px;color:#0b4a1a\'>Earnity</b>'"></a>
+    <div class="r">
+      <button class="icon" id="refresh" aria-label="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      <a class="pill" id="who" href="account.html">Account</a>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabsWrap" aria-label="Sections" hidden>
+  <div class="in" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="slots" aria-selected="false">My slots</button>
+    <button class="tab" role="tab" data-tab="requests" aria-selected="false">Requests<span class="n" id="nReq" hidden></span></button>
+    <button class="tab" role="tab" data-tab="money" aria-selected="false">Money</button>
+    <button class="tab" role="tab" data-tab="alerts" aria-selected="false">Alerts<span class="n" id="nAl" hidden></span></button>
+  </div>
+</nav>
+
+<main>
+  <div class="center" id="loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+  <div id="gate" hidden></div>
+
+  <section id="p-overview" hidden></section>
+  <section id="p-slots" hidden></section>
+  <section id="p-requests" hidden></section>
+  <section id="p-money" hidden></section>
+  <section id="p-alerts" hidden></section>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  API:       "https://earnity-api.anubisdigital114-9df.workers.dev",
+  CATALOG:   "https://earnity-catalog.anubisdigital114-9df.workers.dev",
+  REFERRALS: "https://earnity-referrals.anubisdigital114-9df.workers.dev",
+  LEDGER:    "https://earnity-ledger.anubisdigital114-9df.workers.dev",
+  PAYOUTS:   "https://earnity-payouts.anubisdigital114-9df.workers.dev",
+  VERIFY:    "https://earnity-verify.anubisdigital114-9df.workers.dev",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+const THIS_PAGE = "referee.html";
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const pct = bps => (Number(bps) / 100).toString();
+const earnOf = (price, bps) => Math.floor(Number(price) * Number(bps) / 10000);
+const nowS = () => Math.floor(Date.now() / 1000);
+const dt = ts => new Date(Number(ts) * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function ago(ts) {
+  const s = Math.max(0, nowS() - Number(ts));
+  if (s < 90) return "just now";
+  if (s < 5400) return Math.round(s / 60) + " min ago";
+  if (s < 129600) return Math.round(s / 3600) + " h ago";
+  return Math.round(s / 86400) + " d ago";
+}
+function left(ts) {
+  const s = Number(ts) - nowS();
+  if (s <= 0) return "expired";
+  if (s < 5400) return Math.max(1, Math.round(s / 60)) + " min left";
+  if (s < 129600) return Math.round(s / 3600) + " h left";
+  return Math.round(s / 86400) + " days left";
+}
+let toastT;
+function toast(msg, actionLabel, fn) {
+  const t = $("toast");
+  t.innerHTML = `<span>${esc(msg)}</span>` + (actionLabel ? `<button type="button">${esc(actionLabel)}</button>` : "");
+  if (actionLabel) t.querySelector("button").onclick = () => { t.classList.remove("on"); fn && fn(); };
+  t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), actionLabel ? 9000 : 3000);
+}
+
+const ERR = {
+  network: "Can't reach Earnity. Check your connection and try again.",
+  unauthorized: "Please sign in again.", invalid_token: "Your sign-in expired. Please sign in again.",
+  account_blocked: "This account has been blocked.", wrong_account_type: "This page is only for referee accounts.",
+  rate_limit_exceeded: "Too many tries. Please wait a bit and try again.",
+  server_error: "Something went wrong on our side. Please try again.",
+  /* discounts */
+  invalid_discount_bps: "Enter a valid discount.", discount_exceeds_commission: "That discount is more than your commission on this product.",
+  request_not_found: "This request is no longer open.", request_closed_or_expired: "This request has closed or expired.",
+  self_grant_not_allowed: "You can't discount your own request.", business_owner_referee: "You can't discount your own product.",
+  no_live_slot: "You no longer hold a slot for this product.", discount_already_granted: "You already gave a discount for this request.",
+  discount_not_found: "That discount can't be cancelled any more.",
+  /* withdrawals */
+  invalid_amount: "Enter a valid amount.", payouts_disabled: "Withdrawals are paused right now. Please try again later.",
+  below_minimum: "That's below the minimum withdrawal.", amount_too_small_for_fee: "That amount is too small to cover the fee.",
+  payout_hold_active: "Withdrawals are on hold after a phone change.", phone_not_verified: "Verify your phone number first.",
+  phone_recently_changed: "Your phone was changed recently. Try again after the 24-hour safety wait.",
+  request_already_open: "You already have a withdrawal in progress. Finish or wait for it first.",
+  daily_limit: "That goes over your daily withdrawal limit.", system_limit: "Withdrawals are busy right now. Try again later.",
+  insufficient_funds: "You don't have enough available balance.",
+  invalid_code: "That code isn't right.", code_invalid_or_expired: "That code has expired. Your request will be released shortly, then you can start again.",
+  max_attempts_exceeded: "Too many wrong codes. Your request will be released shortly, then you can start again.",
+  email_not_confirmed: "First open the confirmation link in your email, then enter the code here.",
+  sms_failed: "We couldn't send the SMS. Please try again.", email_failed: "We couldn't send the email. Please try again.",
+  upstream_unavailable: "A service is busy. Please try again in a moment."
+};
+function errMsg(r) {
+  const e = r.data && r.data.error;
+  if (r.status === 0) return ERR.network;
+  if (e === "payout_hold_active" && r.data.payout_hold_until) return "Withdrawals are on hold until " + dt(r.data.payout_hold_until) + " after a phone change.";
+  return ERR[e] || "Something went wrong. Please try again.";
+}
+
+/* ================= STATE + API ================= */
+const S = {
+  user: null, me: null, username: "", tab: "overview", loaded: false,
+  summary: null, slots: null, inbox: null, hold: null,
+  wallet: null, entries: [], next: null, payouts: null, settings: null,
+  notifs: null
+};
+let fb = null;
+
+async function api(base, path, opt = {}) {
+  const h = {};
+  if (opt.body !== undefined) h["Content-Type"] = "application/json";
+  try {
+    if (S.user) h.Authorization = "Bearer " + await S.user.getIdToken();
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 15000);
+    const r = await fetch(base + path, { method: opt.method || "GET", headers: h, body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined, signal: ctl.signal });
+    clearTimeout(t);
+    let data = null; try { data = await r.json(); } catch {}
+    return { ok: r.ok, status: r.status, data: data || {} };
+  } catch { return { ok: false, status: 0, data: { error: "network" } }; }
+}
+
+/* ================= SHELL ================= */
+function showOnly(id) {
+  for (const x of ["loading", "gate", "p-overview", "p-slots", "p-requests", "p-money", "p-alerts"]) $(x).hidden = x !== id;
+}
+function gate(html) {
+  $("tabsWrap").hidden = true; $("gate").innerHTML = html; showOnly("gate");
+}
+function setTab(t) {
+  S.tab = t;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  showOnly("p-" + t);
+  scrollTo({ top: 0 });
+}
+$("tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) setTab(b.dataset.tab); });
+$("refresh").addEventListener("click", () => { if (S.me) loadAll(true); });
+
+function badge(id, n) { const el = $(id); el.textContent = n > 99 ? "99+" : n; el.hidden = !n; }
+
+/* ================= LOADING ================= */
+async function loadAll(manual) {
+  if (manual) toast("Refreshing…");
+  const [sum, slots, inbox, wal, pay, set, notes, phone] = await Promise.all([
+    api(CFG.REFERRALS, "/referee/summary"),
+    api(CFG.CATALOG, "/referee/slots"),
+    api(CFG.REFERRALS, "/requests/inbox"),
+    api(CFG.LEDGER, "/wallet"),
+    api(CFG.PAYOUTS, "/my-list"),
+    api(CFG.PAYOUTS, "/settings"),
+    api(CFG.REFERRALS, "/notifications"),
+    api(CFG.VERIFY, "/phone")
+  ]);
+  S.summary = sum.ok ? sum.data : null;
+  S.slots = slots.ok ? (slots.data.slots || []) : null;
+  S.inbox = inbox.ok ? (inbox.data.requests || []) : null;
+  if (wal.ok) { S.wallet = wal.data.balances; S.entries = wal.data.entries || []; S.next = wal.data.next_cursor; } else S.wallet = null;
+  S.payouts = pay.ok ? (pay.data.requests || []) : null;
+  S.settings = set.ok ? set.data : null;
+  S.notifs = notes.ok ? (notes.data.notifications || []) : null;
+  S.hold = phone.ok && phone.data.payout_hold_active ? phone.data.payout_hold_until : null;
+  S.phoneCount = phone.ok ? (phone.data.phones || []).length : null;
+  S.failed = { sum: !sum.ok, slots: !slots.ok, inbox: !inbox.ok, wal: !wal.ok };
+  S.loaded = true;
+  renderAll();
+  if (manual) toast("Up to date");
+}
+function renderAll() {
+  $("tabsWrap").hidden = false;
+  renderOverview(); renderSlots(); renderRequests(); renderMoney(); renderAlerts();
+  badge("nReq", S.inbox ? S.inbox.length : 0);
+  badge("nAl", S.notifs ? S.notifs.filter(n => n.read_at == null).length : 0);
+  if ($("loading").hidden === false || $("gate").hidden === false) setTab(S.tab);
+}
+const fail = key => S.failed && S.failed[key] ? `<div class="banner err">Couldn't load this section. Tap the refresh icon to try again.</div>` : "";
+
+/* ================= OVERVIEW ================= */
+function renderOverview() {
+  const s = S.summary, g = (s && s.discounts_granted) || {};
+  const hasSlot = (S.slots || []).some(x => x.status === "pending" || x.status === "active");
+  const hadSale = (S.slots || []).some(x => x.status === "active") || (S.entries || []).some(e => e.reason === "referee_commission_pending");
+  const steps = [
+    [true, "Referral username set", "@" + S.username, null],
+    [!!S.me.phone_verified, "Verify your phone number", "", "account.html?next=" + THIS_PAGE],
+    [hasSlot || (S.slots || []).length > 0, "Claim your first product slot", "", "index.html"],
+    [hadSale, "Get your first sale", "", "index.html"]
+  ];
+  const allDone = steps.every(x => x[0]);
+  const check = steps.map(([done, label, extra, href]) => {
+    const inner = `<i class="fa-solid ${done ? "fa-circle-check" : "fa-circle"}"></i><span>${esc(label)} ${esc(extra)}</span>`;
+    return !done && href ? `<a href="${href}">${inner}</a>` : `<div class="${done ? "done" : ""}">${inner}</div>`;
+  }).join("");
+  const w = S.wallet;
+  $("p-overview").innerHTML = `
+    ${S.hold ? `<div class="banner"><b>Withdrawals on hold.</b> Because your phone numbers changed, payouts are paused until ${esc(dt(S.hold))}.</div>` : ""}
+    ${fail("sum")}
+    <div class="card"><h1>Hi ${esc(String(S.me.display_name || "").split(" ")[0] || "there")} 👋</h1>
+      <p class="sub">Your referral name is <b>@${esc(S.username)}</b>. Share product links, answer discount requests, and get paid when orders are delivered.</p></div>
+    ${allDone ? "" : `<div class="card"><h2>Get started</h2><div class="check">${check}</div></div>`}
+    <div class="grid" style="margin-bottom:14px">
+      <div class="stat hi"><small>Available to withdraw</small><b>UGX ${fmt(w ? w.available_ugx : 0)}</b></div>
+      <div class="stat"><small>Pending delivery</small><b>UGX ${fmt(w ? w.pending_ugx : 0)}</b></div>
+      <div class="stat"><small>Link visits (30 days)</small><b>${fmt(s ? s.link_visits_last_30_days : 0)}</b></div>
+      <div class="stat"><small>Requests waiting</small><b>${fmt(S.inbox ? S.inbox.length : 0)}</b></div>
+      <div class="stat"><small>Discounts you gave</small><b>${fmt((g.active || 0) + (g.used || 0) + (g.expired || 0) + (g.cancelled || 0))}</b></div>
+      <div class="stat"><small>Discounts used by buyers</small><b>${fmt(g.used || 0)}</b></div>
+    </div>
+    <div class="row" style="margin:0 0 14px">
+      <a class="btn solid" href="index.html"><i class="fa-solid fa-magnifying-glass"></i> Find products to refer</a>
+      <button class="btn line" data-go="requests">Answer requests</button>
+    </div>`;
+}
+$("p-overview").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) setTab(b.dataset.go); });
+
+/* ================= SLOTS ================= */
+const refLink = pid => location.origin + "/?product=" + encodeURIComponent(pid) + "&ref=" + encodeURIComponent(S.username);
+function slotHTML(x, live) {
+  const earn = earnOf(x.effective_price_ugx, x.commission_bps);
+  const chip = x.status === "active" ? '<span class="chip good">Active</span>'
+    : x.status === "pending" ? '<span class="chip warn">Pending</span>'
+    : x.status === "released" ? '<span class="chip">Released</span>' : '<span class="chip">Expired</span>';
+  const note = x.status === "pending" && x.expires_at ? `Expires if no sale · ${left(x.expires_at)}`
+    : x.status === "active" ? "You have a sale on this product"
+    : x.released_at ? "Released " + ago(x.released_at) : x.expires_at ? "Ended " + ago(x.expires_at) : "";
+  return `<div class="item" data-pid="${esc(x.product_id)}">
+    <div class="t">${esc(x.product_name)}${chip}</div>
+    <div class="m">UGX ${fmt(x.effective_price_ugx)} · ${pct(x.commission_bps)}% commission · <span class="earn">earn UGX ${fmt(earn)}</span> per sale</div>
+    ${note ? `<div class="m">${esc(note)}</div>` : ""}
+    ${live ? `<div class="row">
+      <button class="btn solid sm" data-share="${esc(x.product_id)}"><i class="fa-solid fa-share-nodes"></i> Share link</button>
+      <button class="btn line sm" data-copy="${esc(x.product_id)}"><i class="fa-regular fa-copy"></i> Copy</button>
+      <a class="btn line sm" href="index.html?product=${encodeURIComponent(x.product_id)}">View product</a></div>` : ""}
+  </div>`;
+}
+function renderSlots() {
+  const all = S.slots || [];
+  const live = all.filter(x => x.status === "pending" || x.status === "active");
+  const past = all.filter(x => !(x.status === "pending" || x.status === "active"));
+  $("p-slots").innerHTML = `${fail("slots")}
+    <div class="card"><div class="hd"><h2>Products you can refer</h2></div>
+      <p class="sub" style="margin:-4px 0 10px">A slot is your spot to refer a product. Your link earns you commission when a buyer uses it and the order is delivered.</p>
+      ${live.length ? live.map(x => slotHTML(x, true)).join("") :
+        `<div class="empty"><i class="fa-solid fa-link"></i>You don't hold any slots yet.<br><a class="btn solid sm" style="margin-top:12px" href="index.html">Browse products</a></div>`}
+    </div>
+    ${past.length ? `<div class="card"><div class="hd"><h2>Past slots</h2></div>${past.map(x => slotHTML(x, false)).join("")}</div>` : ""}`;
+}
+$("p-slots").addEventListener("click", async e => {
+  const sh = e.target.closest("[data-share]"), cp = e.target.closest("[data-copy]");
+  const pid = (sh || cp) && (sh || cp).dataset[sh ? "share" : "copy"];
+  if (!pid) return;
+  const x = (S.slots || []).find(s => s.product_id === pid);
+  const url = refLink(pid);
+  if (sh && navigator.share) {
+    try { await navigator.share({ title: x ? x.product_name : "Earnity", text: x ? "Check this out on Earnity: " + x.product_name : "Check this out on Earnity", url }); return; } catch (err) { if (err && err.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast("Link copied"); } catch { prompt("Copy your link:", url); }
+});
+
+/* ================= REQUESTS ================= */
+function reqHTML(r) {
+  const maxPct = pct(r.commission_bps);
+  return `<div class="item" data-rid="${esc(r.request_id)}" data-price="${Number(r.effective_price_ugx)}" data-max="${Number(r.commission_bps)}">
+    <div class="t">${esc(r.product_name)}</div>
+    <div class="m">${esc(r.buyer_first_name || "A buyer")} asked ${esc(ago(r.created_at))} · closes in ${esc(left(Number(r.created_at) + 3 * 86400).replace(" left", ""))} · UGX ${fmt(r.effective_price_ugx)}</div>
+    ${r.message ? `<div class="msg">“${esc(r.message)}”</div>` : ""}
+    <div class="disc">
+      <input type="text" inputmode="decimal" placeholder="%" aria-label="Discount percent" data-in>
+      <span>%</span>
+      <button type="button" class="mini" data-half>Half</button>
+      <button type="button" class="mini" data-max-btn>Max ${esc(maxPct)}%</button>
+    </div>
+    <div class="hint" data-save>The discount comes out of your commission (up to ${esc(maxPct)}% on this product). It lasts 24 hours.</div>
+    <div class="inerr" data-err hidden></div>
+    <div class="row"><button type="button" class="btn solid sm" data-grant>Give discount</button></div>
+  </div>`;
+}
+function renderRequests() {
+  const list = S.inbox || [];
+  $("p-requests").innerHTML = `${fail("inbox")}
+    <div class="card"><div class="hd"><h2>Discount requests</h2></div>
+      <p class="sub" style="margin:-4px 0 10px">Buyers ask for a better price on products you refer. A quick answer often turns into a sale.</p>
+      ${list.length ? list.map(reqHTML).join("") :
+        `<div class="empty"><i class="fa-regular fa-comments"></i>No requests waiting.<br>When a buyer asks for a discount on a product you hold, it shows up here.</div>`}
+    </div>`;
+}
+function parseBps(raw) {
+  const v = Number(String(raw).replace(",", ".").trim());
+  if (!Number.isFinite(v) || v <= 0) return NaN;
+  return Math.round(v * 100);
+}
+$("p-requests").addEventListener("input", e => {
+  const it = e.target.closest("[data-rid]"); if (!it || !e.target.matches("[data-in]")) return;
+  const bps = parseBps(e.target.value), price = Number(it.dataset.price), max = Number(it.dataset.max);
+  const hint = it.querySelector("[data-save]"), er = it.querySelector("[data-err]");
+  er.hidden = true;
+  if (!e.target.value.trim()) hint.textContent = `The discount comes out of your commission (up to ${pct(max)}% on this product). It lasts 24 hours.`;
+  else if (!Number.isFinite(bps)) hint.textContent = "Enter a number like 2 or 2.5.";
+  else if (bps > max) hint.textContent = `Too high. The most you can give is ${pct(max)}%.`;
+  else hint.textContent = `Buyer saves UGX ${fmt(earnOf(price, bps))} (${pct(bps)}%). It comes out of your commission and lasts 24 hours.`;
+});
+$("p-requests").addEventListener("click", async e => {
+  const it = e.target.closest("[data-rid]"); if (!it) return;
+  const inp = it.querySelector("[data-in]"), max = Number(it.dataset.max);
+  if (e.target.closest("[data-half]")) { inp.value = pct(Math.max(1, Math.floor(max / 2))); inp.dispatchEvent(new Event("input", { bubbles: true })); return; }
+  if (e.target.closest("[data-max-btn]")) { inp.value = pct(max); inp.dispatchEvent(new Event("input", { bubbles: true })); return; }
+  const g = e.target.closest("[data-grant]"); if (!g) return;
+  const er = it.querySelector("[data-err]"); er.hidden = true;
+  const bps = parseBps(inp.value);
+  if (!Number.isFinite(bps)) { er.textContent = "Enter the discount as a percent, like 2 or 2.5."; er.hidden = false; return; }
+  if (bps > max) { er.textContent = "The most you can give here is " + pct(max) + "%."; er.hidden = false; return; }
+  g.disabled = true; g.textContent = "Sending…";
+  const r = await api(CFG.REFERRALS, "/requests/" + encodeURIComponent(it.dataset.rid) + "/grant", { method: "POST", body: { discount_bps: bps } });
+  g.disabled = false; g.textContent = "Give discount";
+  if (r.ok) {
+    const did = r.data.discount && r.data.discount.id;
+    S.inbox = (S.inbox || []).filter(x => x.request_id !== it.dataset.rid);
+    renderRequests(); badge("nReq", S.inbox.length); renderOverview();
+    toast("Discount sent to the buyer", did ? "Undo" : null, async () => {
+      const u = await api(CFG.REFERRALS, "/discounts/" + encodeURIComponent(did) + "/cancel", { method: "POST", body: {} });
+      toast(u.ok ? "Discount cancelled" : errMsg(u));
+      loadAll();
+    });
+    return;
+  }
+  er.textContent = errMsg(r); er.hidden = false;
+  if (["request_not_found", "request_closed_or_expired", "discount_already_granted", "no_live_slot"].includes(r.data.error)) setTimeout(() => loadAll(), 1200);
+});
+
+/* ================= MONEY ================= */
+const PO = {
+  awaiting_confirmation: ["Needs your confirmation", "warn"], awaiting_approval: ["Waiting for approval", "warn"],
+  ready_to_pay: ["Approved, being paid", "good"], paid: ["Paid", "good"],
+  failed: ["Failed, money returned", "bad"], rejected: ["Rejected, money returned", "bad"], expired: ["Expired, money returned", "bad"]
+};
+/* ledger entries have no account name, so a few reasons appear twice (one per side). Show one clear line per event. */
+function txInfo(e) {
+  const r = String(e.reason || ""), c = e.direction === "C";
+  switch (r) {
+    case "referee_commission_pending": return c ? ["Commission earned (waiting for delivery)", true] : null;
+    case "referee_cleared": return c ? ["Commission ready to withdraw", true] : null;
+    case "referrer_commission_pending": return c ? ["Business referral earned (waiting for delivery)", true] : null;
+    case "referrer_cleared": return c ? ["Business referral ready to withdraw", true] : null;
+    case "withdrawal_reserve": return !c ? ["Withdrawal requested", false] : null;
+    case "return_to_available": return c ? ["Withdrawal returned to your balance", true] : null;
+    case "settle_reserved_withdrawal": return !c ? ["Withdrawal paid out", false] : null;
+    case "release_referee": case "release_referrer": case "release_reserved_withdrawal": return null;
+    default:
+      if (r.startsWith("reverse_")) return !c ? ["Earning cancelled (order refunded)", false] : null;
+      return [r.replace(/_/g, " ").replace(/^./, m => m.toUpperCase()), c];
+  }
+}
+function renderMoney() {
+  const w = S.wallet || { available_ugx: 0, pending_ugx: 0, reserved_ugx: 0 }, st = S.settings;
+  const min = st ? st.min_withdrawal_ugx : 30000;
+  let note = "", can = true;
+  if (!S.wallet) { can = false; }
+  else if (st && !st.payouts_enabled) { can = false; note = "Withdrawals are paused right now."; }
+  else if (S.hold) { can = false; note = "On hold until " + dt(S.hold) + " after a phone change."; }
+  else if (!S.me.phone_verified && S.phoneCount === 0) { can = false; note = "Verify your phone number to withdraw."; }
+  else if (w.available_ugx < min) { can = false; note = "You can withdraw once you have UGX " + fmt(min) + " available."; }
+  else if ((S.payouts || []).some(p => ["awaiting_confirmation", "awaiting_approval", "ready_to_pay"].includes(p.status))) { can = false; note = "You have a withdrawal in progress."; }
+  const rows = (S.entries || []).map(e => ({ e, i: txInfo(e) })).filter(x => x.i);
+  $("p-money").innerHTML = `${fail("wal")}
+    <div class="card"><small class="sub">Available to withdraw</small>
+      <div class="bal">UGX ${fmt(w.available_ugx)}</div>
+      <div class="grid" style="margin-top:12px">
+        <div class="stat"><small>Pending delivery</small><b style="font-size:19px">UGX ${fmt(w.pending_ugx)}</b></div>
+        <div class="stat"><small>In withdrawal</small><b style="font-size:19px">UGX ${fmt(w.reserved_ugx)}</b></div>
+      </div>
+      <p class="hint">Money moves from pending to available once the buyer's order is delivered. Withdrawals are sent to your verified primary phone.</p>
+      ${note ? `<div class="banner" style="margin:12px 0 0">${esc(note)}${!S.me.phone_verified && S.phoneCount === 0 ? ` <a href="account.html?next=${THIS_PAGE}">Verify now</a>` : ""}</div>` : ""}
+      <div class="row"><button class="btn solid full" id="wd" ${can ? "" : "disabled"}><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</button></div>
+      ${st ? `<p class="hint">Minimum UGX ${fmt(st.min_withdrawal_ugx)} · fee UGX ${fmt(st.fee_ugx)} · daily limit UGX ${fmt(st.per_user_daily_limit_ugx)}</p>` : ""}
+    </div>
+    ${(S.payouts || []).length ? `<div class="card"><div class="hd"><h2>Withdrawals</h2></div>${S.payouts.map(p => {
+      const [lb, cl] = PO[p.status] || [p.status, ""];
+      return `<div class="item"><div class="t">UGX ${fmt(p.amount_ugx)}<span class="chip ${cl}">${esc(lb)}</span></div>
+        <div class="m">You receive UGX ${fmt(p.net_ugx)} (fee UGX ${fmt(p.fee_ugx)}) · ${esc(dt(p.created_at))}</div>
+        ${p.status === "awaiting_confirmation" ? `<div class="m">Confirm within 30 minutes of requesting · ${esc(left(Number(p.created_at) + 1800))}</div>
+          <div class="row"><button class="btn solid sm" data-confirm="${esc(p.id)}" data-amt="${Number(p.amount_ugx)}">Enter SMS code</button></div>` : ""}
+      </div>`; }).join("")}</div>` : ""}
+    <div class="card"><div class="hd"><h2>Activity</h2></div>
+      ${rows.length ? rows.map(({ e, i }) => `<div class="tx"><div><div>${esc(i[0])}</div><div class="d">${esc(dt(e.created_at))}</div></div>
+        <div class="a ${i[1] ? "pos" : "neg"}">${i[1] ? "+" : "−"}UGX ${fmt(e.amount)}</div></div>`).join("") :
+        `<div class="empty"><i class="fa-solid fa-coins"></i>No activity yet.</div>`}
+      ${S.next ? `<div class="row" style="justify-content:center"><button class="btn line sm" id="more">Load more</button></div>` : ""}
+    </div>`;
+}
+$("p-money").addEventListener("click", async e => {
+  if (e.target.closest("#wd")) return openWithdraw();
+  const c = e.target.closest("[data-confirm]"); if (c) return openConfirm(c.dataset.confirm, Number(c.dataset.amt));
+  if (e.target.closest("#more")) {
+    const b = e.target.closest("#more"); b.disabled = true; b.textContent = "Loading…";
+    const r = await api(CFG.LEDGER, "/wallet?cursor=" + encodeURIComponent(S.next));
+    if (r.ok) { S.entries = S.entries.concat(r.data.entries || []); S.next = r.data.next_cursor; }
+    else toast(errMsg(r));
+    renderMoney();
+  }
+});
+
+/* ---- sheets ---- */
+function openSheet(html) {
+  $("sheet").innerHTML = `<div class="grab"></div>` + html;
+  $("scrim").hidden = false; $("sheet").hidden = false;
+}
+function closeSheet() { $("scrim").hidden = true; $("sheet").hidden = true; $("sheet").innerHTML = ""; }
+$("scrim").addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+$("sheet").addEventListener("click", e => { if (e.target.closest("[data-close]")) closeSheet(); });
+
+function openWithdraw() {
+  const st = S.settings || { min_withdrawal_ugx: 30000, fee_ugx: 1800 }, w = S.wallet;
+  openSheet(`<h2>Withdraw money</h2>
+    <p class="sub">You have UGX ${fmt(w.available_ugx)} available. Minimum UGX ${fmt(st.min_withdrawal_ugx)}.</p>
+    <label for="wAmt">Amount (UGX)</label>
+    <input type="text" id="wAmt" inputmode="numeric" autocomplete="off" placeholder="e.g. ${fmt(Math.max(st.min_withdrawal_ugx, 50000))}">
+    <div class="row" style="margin-top:8px"><button class="mini" id="wAll">Withdraw everything</button></div>
+    <div class="sum"><div><span>Fee</span><b>UGX ${fmt(st.fee_ugx)}</b></div><div><span>You receive</span><b id="wNet">UGX 0</b></div></div>
+    <p class="hint">To keep your money safe we'll email you a link and text a 6-digit code to your phone. You need both.</p>
+    <div class="inerr" id="wErr" hidden></div>
+    <div class="row"><button class="btn solid full" id="wGo">Request withdrawal</button></div>
+    <div class="row"><button class="btn line full" data-close>Cancel</button></div>`);
+  const amt = $("wAmt");
+  const upd = () => { const v = Number(amt.value.replace(/\D/g, "")); $("wNet").textContent = "UGX " + fmt(Math.max(0, v - st.fee_ugx)); };
+  amt.addEventListener("input", () => { const d = amt.value.replace(/\D/g, ""); amt.value = d ? fmt(Number(d)) : ""; upd(); });
+  $("wAll").onclick = () => { amt.value = fmt(w.available_ugx); upd(); };
+  $("wGo").onclick = async () => {
+    const er = $("wErr"); er.hidden = true;
+    const v = Number(amt.value.replace(/\D/g, ""));
+    if (!v) { er.textContent = ERR.invalid_amount; er.hidden = false; return; }
+    if (v < st.min_withdrawal_ugx) { er.textContent = "The minimum is UGX " + fmt(st.min_withdrawal_ugx) + "."; er.hidden = false; return; }
+    if (v > w.available_ugx) { er.textContent = ERR.insufficient_funds; er.hidden = false; return; }
+    const b = $("wGo"); b.disabled = true; b.textContent = "Requesting…";
+    const r = await api(CFG.PAYOUTS, "/request", { method: "POST", body: { amount_ugx: v } });
+    if (r.ok) { openConfirm(r.data.payout_id, v, true); loadAll(); return; }
+    b.disabled = false; b.textContent = "Request withdrawal";
+    er.textContent = errMsg(r); er.hidden = false;
+  };
+}
+function openConfirm(payoutId, amount, fresh) {
+  openSheet(`<h2>${fresh ? "Almost done" : "Confirm your withdrawal"}</h2>
+    <p class="sub">Withdrawal of UGX ${fmt(amount)}. Do both steps within 30 minutes.</p>
+    <ol><li>Open the confirmation link we emailed to <b>${esc(S.me.email)}</b>.</li>
+        <li>Enter the 6-digit code we texted to your phone (it lasts 10 minutes).</li></ol>
+    <label for="wCode">SMS code</label>
+    <input type="text" id="wCode" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······">
+    <div class="inerr" id="wErr" hidden></div>
+    <div class="row"><button class="btn solid full" id="wOk">Confirm withdrawal</button></div>
+    <div class="row"><button class="btn line full" data-close>Close</button></div>`);
+  const code = $("wCode");
+  code.addEventListener("input", () => { code.value = code.value.replace(/\D/g, "").slice(0, 6); });
+  $("wOk").onclick = async () => {
+    const er = $("wErr"); er.hidden = true;
+    if (!/^\d{6}$/.test(code.value)) { er.textContent = "Enter the 6-digit code."; er.hidden = false; return; }
+    const b = $("wOk"); b.disabled = true; b.textContent = "Confirming…";
+    const r = await api(CFG.PAYOUTS, "/confirm-sms", { method: "POST", body: { payout_id: payoutId, code: code.value } });
+    b.disabled = false; b.textContent = "Confirm withdrawal";
+    if (r.ok) {
+      closeSheet(); await loadAll();
+      toast(r.data.status === "ready_to_pay" ? "Confirmed. Your payout is being sent." : "Confirmed. Your withdrawal is waiting for approval.");
+      return;
+    }
+    er.textContent = errMsg(r); er.hidden = false;
+  };
+}
+
+/* ================= ALERTS ================= */
+const NT = {
+  discount_granted: "A discount was granted", slot_activated: "Your slot is now active", slot_expired: "A slot expired",
+  slot_released: "A slot was released", order_delivered: "An order was delivered", payout_paid: "Your withdrawal was paid"
+};
+const ntLabel = t => NT[t] || String(t || "Update").replace(/_/g, " ").replace(/^./, m => m.toUpperCase());
+function renderAlerts() {
+  const list = S.notifs || [], unread = list.filter(n => n.read_at == null);
+  $("p-alerts").innerHTML = `
+    <div class="card"><div class="hd"><h2>Alerts</h2>${unread.length ? `<button class="b" id="readAll">Mark all read</button>` : ""}</div>
+      ${S.notifs === null ? `<div class="banner err">Couldn't load alerts. Tap the refresh icon.</div>` : ""}
+      ${list.length ? list.map(n => `<div class="nt ${n.read_at != null ? "read" : ""}"><span class="dot"></span><div><div>${esc(ntLabel(n.type))}</div><div class="m">${esc(ago(n.created_at))}</div></div></div>`).join("") :
+        (S.notifs === null ? "" : `<div class="empty"><i class="fa-regular fa-bell"></i>Nothing new.</div>`)}
+    </div>`;
+}
+$("p-alerts").addEventListener("click", async e => {
+  if (!e.target.closest("#readAll")) return;
+  const ids = (S.notifs || []).filter(n => n.read_at == null).map(n => n.id).slice(0, 30);
+  if (!ids.length) return;
+  const r = await api(CFG.REFERRALS, "/notifications/read", { method: "POST", body: { ids } });
+  if (r.ok) { const t = nowS(); S.notifs.forEach(n => { if (ids.includes(n.id)) n.read_at = t; }); renderAlerts(); badge("nAl", S.notifs.filter(n => n.read_at == null).length); }
+  else toast(errMsg(r));
+});
+
+/* ================= AUTH + START ================= */
+function toAccount() { location.replace("account.html?next=" + encodeURIComponent(THIS_PAGE)); }
+function homeFor(t) { return t === "seller" ? "business.html" : "index.html"; }
+
+async function start(u) {
+  S.user = u;
+  const r = await api(CFG.API, "/me");
+  if (r.status === 404 && r.data.error === "not_registered") return toAccount();
+  if (!r.ok) {
+    if (r.status === 401) return toAccount();
+    return gate(`<div class="card"><h2>${r.data.error === "account_blocked" ? "Account blocked" : "Couldn't load your account"}</h2>
+      <p class="sub">${esc(errMsg(r))}</p><div class="row"><button class="btn solid" onclick="location.reload()">Try again</button></div></div>`);
+  }
+  S.me = r.data.user;
+  $("who").textContent = String(S.me.display_name || "Account").split(" ")[0];
+  if (S.me.account_type !== "referee") {
+    return gate(`<div class="card"><h2>This page is for referees</h2>
+      <p class="sub">You're signed in as a ${esc(S.me.account_type)}. Referee tools are only available on referee accounts.</p>
+      <div class="row"><a class="btn solid" href="${homeFor(S.me.account_type)}">Go to my page</a><a class="btn line" href="account.html">My account</a></div></div>`);
+  }
+  S.username = S.me.username || "";
+  if (!S.username) {
+    return gate(`<div class="card"><h2>Choose your referral username</h2>
+      <p class="sub">Your username goes in every link you share. Pick it on your account page, then come back.</p>
+      <div class="row"><a class="btn solid" href="account.html?next=${THIS_PAGE}">Choose username</a></div></div>`);
+  }
+  await loadAll(false);
+  $("loading").hidden = true;
+  setTab(S.tab);
+}
+
+(async function init() {
+  try {
+    const V = "10.14.1";
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = appMod.initializeApp(CFG.FIREBASE);
+    fb = { auth: authMod.getAuth(app), mod: authMod };
+    let first = true;
+    authMod.onAuthStateChanged(fb.auth, u => {
+      if (!u) return toAccount();
+      if (first || !S.me) { first = false; start(u); }
+    });
+  } catch {
+    gate(`<div class="card"><h2>Couldn't load sign-in</h2><p class="sub">Check your connection and refresh the page.</p>
+      <div class="row"><button class="btn solid" onclick="location.reload()">Refresh</button></div></div>`);
+  }
+})();
+</script>
+</body>
+</html>
