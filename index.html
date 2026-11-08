@@ -316,7 +316,8 @@ const S = {
   role: "buyer", auth: null, fbMod: null, user: null, acct: null,
   cat: "all", mode: "feed", q: "", store: "",
   cursor: null, done: false, loading: false, gen: 0,
-  list: [], items: new Map(), cur: null, chips: []
+  list: [], items: new Map(), cur: null, chips: [],
+  held: new Set()
 };
 
 /* ================= VISITOR ID + API ================= */
@@ -358,6 +359,148 @@ async function api(base, path, opt = {}) {
     r = await req(base, path, opt, null);   /* fall back to anonymous */
   }
   return r;
+}
+
+/* ================= REFEREE SLOTS ================= */
+async function loadHeld() {
+  if (!S.acct || S.acct.account_type !== "referee") { S.held = new Set(); return; }
+  const r = await api(CFG.CATALOG, "/referee/slots", { strict: true });
+  if (r.ok && Array.isArray(r.data.slots)) {
+    const h = new Set();
+    for (const s of r.data.slots) {
+      if (s.status === "pending" || s.status === "active") h.add(s.product_id);
+    }
+    S.held = h;
+  }
+}
+
+let claiming = false;
+async function handleRefer(el) {
+  const id = S.cur;
+  if (!id || claiming) return;
+
+  if (!S.user || !S.acct) { goAccount(); return; }
+  if (S.acct.account_type !== "referee") { toast("Only referee accounts can refer products."); return; }
+
+  if (S.held.has(id)) { openLinkSheet(id, S.acct.username || ""); return; }
+
+  claiming = true;
+  const btn = el || document.querySelector('[data-act="refer"]');
+  const orig = btn ? btn.innerHTML : null;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="l"><i class="fa-solid fa-coins"></i><span>Claiming…</span></span>';
+  }
+
+  const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(id) + "/referee-slot", {
+    method: "POST", body: {}, strict: true
+  });
+
+  if (r.ok) {
+    if (btn) btn.disabled = false;
+    S.held.add(id);
+    const x = S.items.get(id);
+    if (x && x.slots > 0) x.slots = x.slots - 1;
+    renderAll();
+    updateReferLabels();
+    refreshDetailRefer(id);
+    const uname = (r.data.link_params && r.data.link_params.referee_username) || S.acct.username || "";
+    openLinkSheet(id, uname);
+    loadHeld().then(() => { renderAll(); updateReferLabels(); refreshDetailRefer(id); });
+    claiming = false;
+    return;
+  }
+
+  if (btn && orig !== null) { btn.disabled = false; btn.innerHTML = orig; }
+  const err = (r.data && r.data.error) || "";
+  switch (err) {
+    case "slots_full":
+      toast("All referee slots on this product are taken.");
+      break;
+    case "slot_already_claimed":
+      S.held.add(id);
+      renderAll();
+      updateReferLabels();
+      refreshDetailRefer(id);
+      openLinkSheet(id, S.acct.username || "");
+      break;
+    case "own_product":
+      toast("You can't refer your own product.");
+      break;
+    case "referee_username_required":
+      goAccount();
+      break;
+    case "product_not_found":
+      toast("This product is no longer available.");
+      break;
+    case "wrong_account_type":
+      toast("Only referee accounts can refer products.");
+      break;
+    default:
+      if (r.status === 401 || err === "not_registered") goAccount();
+      else toast("Couldn't claim the slot. Try again.");
+  }
+  claiming = false;
+}
+
+function openLinkSheet(id, username) {
+  const x = S.items.get(id);
+  const name = x ? x.name : "";
+  const earn = x ? x.earn : 0;
+  const link = location.origin + "/?product=" + encodeURIComponent(id) + "&ref=" + encodeURIComponent(username);
+  openSheet(`<div class="grab"></div>
+    <h2 style="font-size:19px;font-weight:800">Your link is ready</h2>
+    <p class="lead" style="margin-top:6px">${esc(name)}</p>
+    <div class="earnrow"><i class="fa-solid fa-coins"></i>Earn UGX ${fmt(earn)} per sale</div>
+    <div style="margin-top:14px;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:var(--mist);font-size:13.5px;word-break:break-all">${esc(link)}</div>
+    <p class="offer" style="margin-top:10px">Your slot expires in 7 days if there is no sale.</p>
+    <div class="row2" style="margin-top:14px">
+      <button class="act" type="button" data-act="share-link">Share</button>
+      <button class="act main" type="button" data-act="copy-link">Copy link</button>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <a class="act" href="referee.html" style="justify-content:center;border-bottom:0">View my slots</a>
+    </div>`);
+  const sh = sheet.querySelector('[data-act="share-link"]');
+  const cp = sheet.querySelector('[data-act="copy-link"]');
+  if (sh) sh.onclick = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: name || "Earnity", text: "Check this out on Earnity", url: link });
+      else { await navigator.clipboard.writeText(link); toast("Link copied"); }
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch {}
+    }
+  };
+  if (cp) cp.onclick = async () => {
+    try { await navigator.clipboard.writeText(link); toast("Link copied"); }
+    catch { toast("Couldn't copy. Long-press the link to copy."); }
+  };
+}
+
+function updateReferLabels() {
+  const id = S.cur;
+  if (!id) return;
+  const held = S.held.has(id);
+  document.querySelectorAll('[data-act="refer"]').forEach(b => {
+    const inner = b.querySelector(".l > span");
+    if (!inner) return;
+    const small = inner.querySelector("small");
+    const smallHTML = small ? small.outerHTML : "";
+    inner.innerHTML = (held ? "Your link" : "Refer and earn") + smallHTML;
+  });
+}
+
+function refreshDetailRefer(id) {
+  if (!document.body.classList.contains("det") || S.cur !== id) return;
+  const facts = detail.querySelectorAll(".fact");
+  facts.forEach(f => {
+    const s = f.querySelector("small");
+    if (s && /Referee slots open/.test(s.textContent)) {
+      const x = S.items.get(id);
+      if (x) { const b = f.querySelector("b"); if (b) b.textContent = String(x.slots); }
+    }
+  });
 }
 
 /* ================= TRACKING ================= */
@@ -429,6 +572,7 @@ function normStoreItem(p, biz) {
 }
 function badgeHTML(x) {
   if (S.role === "referee") {
+    if (S.held.has(x.id)) return '<span class="badge">' + arrow + "Earn UGX " + fmt(x.earn) + "</span>";
     if (x.slots <= 0) return '<span class="badge full">Slots full</span>';
     return '<span class="badge">' + arrow + "Earn UGX " + fmt(x.earn) + "</span>";
   }
@@ -645,8 +789,13 @@ function openProductSheet(id) {
   const x = S.items.get(id); if (!x) return;
   S.cur = id; track("three_dot_open", { product_id: id });
   const ref = S.role === "referee", sel = S.role === "seller"; const l = lvl(x.biz);
+  const held = S.held.has(id);
+  const refLabel = held ? "Your link" : "Refer and earn";
+  const smallText = (held || x.slots > 0)
+    ? "Your link earns UGX " + fmt(x.earn) + " per sale"
+    : "All referee slots are taken";
   const first = ref
-    ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn<small>${x.slots > 0 ? "Your link earns UGX " + fmt(x.earn) + " per sale" : "All referee slots are taken"}</small></span></span>${arrow}</button>`
+    ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>${refLabel}<small>${smallText}</small></span></span>${arrow}</button>`
     : sel ? "" : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`;
   const rows = [
     ref ? ["buy", "fa-bag-shopping", "Buy"] : null,
@@ -692,6 +841,17 @@ async function openDetail(id) {
   if (!r.ok) { detail.innerHTML = dHead("Product", `<div class="msg">${r.status === 404 ? "This product is no longer available." : "Couldn't load this product. Check your connection."}</div>`); return; }
   const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee", sel = S.role === "seller";
   const eff = Number(d.effective_price_ugx), bps = Number(d.commission_bps);
+
+  /* store minimal item so the link-ready sheet can show name + earn for products opened via URL */
+  if (!S.items.has(id)) {
+    S.items.set(id, {
+      id, name: d.name, image: null, price: Number(d.price_ugx), eff,
+      offer: !!d.offer_active, bps, earn: earnOf(eff, bps),
+      slots: Number(d.slots_free), days: Number(d.delivery_days),
+      cat: d.category_id, biz: b
+    });
+  }
+
   const ids = (Array.isArray(d.images) ? d.images : []).filter(x => imgUrl(x, 1)).slice(0, 6);
   const n = ids.length || 1;
   const slides = Array.from({ length: n }, (_, k) => {
@@ -719,9 +879,10 @@ async function openDetail(id) {
     </div>
     ${d.description ? `<div class="dh">About this item</div><div class="desc">${esc(d.description)}</div>` : ""}`;
   const isSaved = saved().includes(id);
+  const refLabel = S.held.has(id) ? "Your link" : "Refer and earn";
   const bar = `<div class="dact"><button class="sec" data-act="save" aria-label="Save"><i class="${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark"></i></button>
     <button class="sec" data-act="share" aria-label="Share"><i class="fa-solid fa-share-nodes"></i></button>` +
-    (ref ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>Refer and earn</span></span>${arrow}</button>`
+    (ref ? `<button class="act main" data-act="refer"><span class="l"><i class="fa-solid fa-coins"></i><span>${refLabel}</span></span>${arrow}</button>`
          : sel ? "" : `<button class="act main buy" data-act="buy"><span class="l"><i class="fa-solid fa-bag-shopping"></i><span>Buy Now</span></span></button>`) + `</div>`;
   detail.innerHTML = dHead(d.name, body, bar);
   const sl = $("slides"), cnt = $("cnt"), th = $("thumbs");
@@ -739,15 +900,16 @@ function closeDetail() {
 detail.addEventListener("click", e => {
   if (e.target.closest("[data-close]")) { closeDetail(); return; }
   const st = e.target.closest("[data-store]"); if (st) { startStore(st.dataset.store); return; }
-  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act, a);
 });
 
 /* ================= ACTIONS ================= */
-function doAct(act) {
+function doAct(act, el) {
   const id = S.cur;
   switch (act) {
     case "see": closeSheet(); openDetail(id); break;
-    case "buy": case "refer": if (!needAccount(true)) return; soon(); break;
+    case "buy": if (!needAccount(true)) return; soon(); break;
+    case "refer": handleRefer(el); break;
     case "request": case "report": if (!needAccount(false)) return; soon(); break;
     case "sell":
       if (S.acct && S.acct.account_type === "seller") location.href = "business.html"; else goAccount(false);
@@ -787,7 +949,7 @@ sheet.addEventListener("click", e => {
     if (!on && document.querySelectorAll("#pk [aria-pressed='true']").length >= 3) { toast("Pick up to 3"); return; }
     pk.setAttribute("aria-pressed", !on); return;
   }
-  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act, a);
 });
 feed.addEventListener("click", e => {
   const d = e.target.closest("[data-dots]"); if (d) { openProductSheet(d.dataset.dots); return; }
@@ -796,9 +958,9 @@ feed.addEventListener("click", e => {
 });
 $("fhead").addEventListener("click", e => {
   const s = e.target.closest("[data-store]"); if (s) { startStore(s.dataset.store); return; }
-  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act);
+  const a = e.target.closest("[data-act]"); if (a) doAct(a.dataset.act, a);
 });
-document.querySelectorAll(".hero [data-act]").forEach(b => b.addEventListener("click", () => doAct(b.dataset.act)));
+document.querySelectorAll(".hero [data-act]").forEach(b => b.addEventListener("click", () => doAct(b.dataset.act, b)));
 $("scrim").addEventListener("click", closeSheet);
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { if (document.body.classList.contains("det") && !document.body.classList.contains("open")) closeDetail(); else closeSheet(); }
@@ -847,11 +1009,14 @@ async function loadMe() {
     S.acct = r.data.user;
     $("switch").hidden = true;
     const t = S.acct.account_type;
+    if (t === "referee") await loadHeld();
+    else S.held = new Set();
     setRole(t === "referee" ? "referee" : t === "seller" ? "seller" : "buyer");
     updateAcctBtn();
     return true;
   }
   S.acct = null;
+  S.held = new Set();
   if (r.status === 404 && r.data.error === "not_registered") { goAccount(); return false; }
   if (r.status === 403 && r.data.error === "account_blocked") toast("This account has been blocked.");
   $("switch").hidden = false; setRole("buyer"); updateAcctBtn();
@@ -880,7 +1045,7 @@ async function initAuth() {
         linkVisitor();
         startFeed();
       } else if (!u && was) {
-        S.acct = null; $("switch").hidden = false; setRole("buyer"); updateAcctBtn(); startFeed();
+        S.acct = null; S.held = new Set(); $("switch").hidden = false; setRole("buyer"); updateAcctBtn(); startFeed();
       }
     });
   } catch { /* the site keeps working signed out */ }
