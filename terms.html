@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Earnity terms and conditions.">
+<title>Terms · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+/* set the theme before first paint so there is no flash */
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
+  --radius:18px;
+  --bg:#ffffff; --card:#ffffff;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f;
+  --bg:#0a100c; --card:#101713;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.6;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--green);text-decoration:none}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+[hidden]{display:none!important}
+img{max-width:100%;display:block}
+
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* header */
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
+.logo{display:flex;align-items:center;text-decoration:none;flex:none}
+.logo img{height:36px;width:auto;max-width:120px}
+.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark span{color:var(--orange)}
+.hright{display:flex;align-items:center;gap:2px}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:18px}
+.iconbtn:hover{background:var(--mist)}
+
+/* main */
+main{padding:32px 0 56px}
+h1{font-size:clamp(24px,5vw,34px);font-weight:800;color:var(--green);line-height:1.15;letter-spacing:-.3px}
+h2{font-size:18px;color:var(--green-deep);font-weight:700;margin-top:28px}
+p{color:var(--ink);font-size:15px;margin-top:10px}
+.sub{color:var(--muted);font-size:14px;margin-top:6px}
+ul{margin:10px 0 0 20px;color:var(--ink);font-size:15px}
+li{margin:6px 0}
+.notice{margin-top:24px;padding:12px 14px;border-radius:12px;background:var(--mist);color:var(--muted);font-size:13.5px}
+
+/* right drawer (full height, slides from the right) */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.drawer{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(78vw,320px);z-index:50;
+  background:var(--card);border-left:1px solid var(--line);
+  transform:translateX(105%);transition:transform .25s ease;visibility:hidden;
+  display:flex;flex-direction:column;padding:18px 0 calc(18px + env(safe-area-inset-bottom,0px))}
+body.open .scrim{opacity:1;pointer-events:auto}
+body.open .drawer{transform:none;visibility:visible}
+.drawer .close{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;color:var(--green);font-size:18px}
+.drawer .close:hover{background:var(--mist)}
+.drawer h2{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+  padding:0 20px;margin-top:6px}
+.drawer nav{display:flex;flex-direction:column;margin-top:14px}
+.drawer nav a{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 20px;font-size:16px;font-weight:600;
+  color:var(--ink);border-top:1px solid var(--line)}
+.drawer nav a:last-child{border-bottom:1px solid var(--line)}
+.drawer nav a i{width:20px;text-align:center;color:var(--green)}
+.drawer nav a:hover{background:var(--mist)}
+@media(prefers-reduced-motion:reduce){.drawer,.scrim{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" href="index.html" aria-label="Earnity home">
+        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
+      </a>
+      <div class="hright">
+        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        </button>
+        <button class="iconbtn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Terms &amp; Conditions</h1>
+  <p class="sub">Last updated: 8 November 2026</p>
+
+  <h2>1. About Earnity</h2>
+  <p>Earnity is a referral and e-commerce platform. Buyers discover products, referees share links and earn commissions, and sellers list their products. By using Earnity you agree to these terms.</p>
+
+  <h2>2. Accounts</h2>
+  <p>You must provide accurate information and keep your login secure. You are responsible for activity on your account. Accounts are one of three types: buyer, referee or seller.</p>
+
+  <h2>3. Buying</h2>
+  <ul>
+    <li>Prices are shown in Ugandan Shillings (UGX).</li>
+    <li>Payment is collected by Earnity and released to the seller after delivery is confirmed.</li>
+    <li>Delivery timelines are estimates and may vary by seller.</li>
+  </ul>
+
+  <h2>4. Refereeing</h2>
+  <p>Referees earn a commission when a buyer uses their link and the order is delivered. Self-referral, fake clicks and attempts to game the referral system are not allowed and may lead to account suspension.</p>
+
+  <h2>5. Selling</h2>
+  <p>Sellers agree to list accurate product details, deliver as promised, and comply with Ugandan law. Earnity may hide or remove products that break these terms.</p>
+
+  <h2>6. Withdrawals</h2>
+  <p>Available earnings can be withdrawn to your verified primary phone. A fee applies per withdrawal. Withdrawals require both email and SMS confirmation for safety.</p>
+
+  <h2>7. Disputes</h2>
+  <p>If something goes wrong with an order, use the "Report a problem" button on the order page. Earnity will review the case and decide whether to refund, release funds or take other action.</p>
+
+  <h2>8. Changes</h2>
+  <p>We may update these terms. Continued use of Earnity after changes means you accept the new terms.</p>
+
+  <div class="notice">Questions? Reach us through the Contact page in the menu.</div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
+  <button class="close" id="closeBtn" type="button" aria-label="Close menu">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  <h2>Menu</h2>
+  <nav>
+    <a href="index.html"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+    <a href="account.html"><i class="fa-regular fa-user" aria-hidden="true"></i> Account</a>
+    <a href="contact.html"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Contact</a>
+  </nav>
+</aside>
+
+<script>
+const body = document.body;
+const drawer = document.getElementById('drawer');
+const scrim = document.getElementById('scrim');
+const menuBtn = document.getElementById('menuBtn');
+const closeBtn = document.getElementById('closeBtn');
+
+function openDrawer() {
+  body.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  menuBtn.setAttribute('aria-expanded', 'true');
+  setTimeout(() => { try { closeBtn.focus(); } catch {} }, 80);
+}
+function closeDrawer() {
+  body.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  try { menuBtn.focus(); } catch {}
+}
+menuBtn.addEventListener('click', openDrawer);
+closeBtn.addEventListener('click', closeDrawer);
+scrim.addEventListener('click', closeDrawer);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && body.classList.contains('open')) { closeDrawer(); return; }
+  if (e.key === 'Tab' && body.classList.contains('open')) {
+    const f = Array.from(drawer.querySelectorAll('a,button')).filter(el => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+/* theme */
+function setTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  const b = document.getElementById('themeBtn');
+  b.innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}" aria-hidden="true"></i>`;
+  b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  try { localStorage.setItem('eu_theme', dark ? 'dark' : 'light'); } catch {}
+}
+setTheme(document.documentElement.classList.contains('dark'));
+document.getElementById('themeBtn').addEventListener('click', () => {
+  setTheme(!document.documentElement.classList.contains('dark'));
+});
+</script>
+</body>
+</html>
