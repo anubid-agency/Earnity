@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Earnity seller dashboard: products, orders, earnings and your public store.">
+<meta name="robots" content="noindex, nofollow">
 <title>Business · Earnity</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+ <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -164,10 +165,10 @@ body.open .sheet{transform:none;visibility:visible}
 
 <header>
   <div class="bar">
-    <a href="index.html" aria-label="Earnity home"><img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<b style=\'font-size:22px;color:#0b4a1a\'>Earnity</b>'"></a>
+    <a href="/index.html" aria-label="Earnity home"><img src="/earnity.png" alt="Earnity" onerror="this.outerHTML='<b style=\'font-size:22px;color:#0b4a1a\'>Earnity</b>'"></a>
     <div class="r">
       <button class="icon" id="refresh" aria-label="Refresh"><i class="fa-solid fa-rotate"></i></button>
-      <a class="pill" id="who" href="account.html">Account</a>
+      <a class="pill" id="who" href="/account.html">Account</a>
     </div>
   </div>
 </header>
@@ -248,7 +249,7 @@ const ERR = {
   forbidden: "You don't have access to this.",
   server_error: "Something went wrong on our side. Please try again.",
   business_not_found: "You don't have a business yet.",
-  subdomain_taken: "That subdomain is already taken.",
+  subdomain_taken: "That store link is already taken.",
   business_exists: "You already have a business.",
   terms_not_accepted: "You must accept the seller terms.",
   referrer_not_found: "No referee has that username.",
@@ -422,22 +423,22 @@ async function boot() {
       setTimeout(() => resolve(null), 10000);
     });
   } catch {}
-  if (!u) { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+  if (!u) { location.replace("/account.html?next=" + encodeURIComponent(THIS)); return; }
   S.user = u;
   const r = await api(CFG.API, "/me");
   if (!r.ok) {
-    if (r.status === 401) { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+    if (r.status === 401) { location.replace("/account.html?next=" + encodeURIComponent(THIS)); return; }
     return gate(`<div class="card"><h2>Couldn't load your account</h2>
       <p class="sub">${esc(errMsg(r))}</p>
       <div class="row"><button class="btn solid" onclick="location.reload()">Try again</button></div></div>`);
   }
-  if (r.data.error === "not_registered") { location.replace("account.html?next=" + encodeURIComponent(THIS)); return; }
+  if (r.data.error === "not_registered") { location.replace("/account.html?next=" + encodeURIComponent(THIS)); return; }
   S.me = r.data.user;
   $("who").textContent = String(S.me.display_name || "Account").split(" ")[0];
   if (S.me.account_type !== "seller") {
     return gate(`<div class="card"><h2>This page is for seller accounts</h2>
       <p class="sub">You're signed in as a ${esc(S.me.account_type)}. Seller tools are only available on seller accounts.</p>
-      <div class="row"><a class="btn solid" href="index.html">Go to home</a><a class="btn line" href="account.html">My account</a></div></div>`);
+      <div class="row"><a class="btn solid" href="/index.html">Go to home</a><a class="btn line" href="/account.html">My account</a></div></div>`);
   }
   $("loading").hidden = true;
   $("tabsWrap").hidden = false;
@@ -490,7 +491,7 @@ async function renderOverview() {
         <h2>${esc(b.name || "Your business")} <span class="chip ${chipClassForApproval(approval)}">${esc(approval)}</span></h2>
         <button class="b" id="editBiz">Edit</button>
       </div>
-      <p class="sub">Store: <a href="https://${esc(b.subdomain)}.earnityug.com" target="_blank" rel="noopener">${esc(b.subdomain)}.earnityug.com</a></p>
+      <p class="sub">Store: <a href="https://earnityug.com/s/${esc(b.subdomain)}" target="_blank" rel="noopener">earnityug.com/s/${esc(b.subdomain)}</a></p>
       ${b.description ? `<p class="sub" style="margin-top:8px">${esc(b.description)}</p>` : ""}
     </div>
     <div class="grid" style="margin-bottom:14px">
@@ -530,7 +531,7 @@ async function renderSetupForm() {
         <div class="field">
           <label for="fSub">Store link</label>
           <input type="text" id="fSub" maxlength="30" required autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="my-store">
-          <div class="preview" id="fSubPrev">.earnityug.com</div>
+          <div class="preview" id="fSubPrev">earnityug.com/s/</div>
           <div class="inerr" id="eSub" hidden></div>
           <div class="hint">3–30 lowercase letters, digits, hyphens. Must start and end with a letter or digit.</div>
         </div>
@@ -566,7 +567,7 @@ async function renderSetupForm() {
         </div>
         <div class="checkbox-row">
           <input type="checkbox" id="fTerms">
-          <label for="fTerms">I agree to the <a href="seller-terms.html" target="_blank" rel="noopener">seller terms</a>.</label>
+          <label for="fTerms">I agree to the <a href="/seller-terms.html" target="_blank" rel="noopener">seller terms</a>.</label>
         </div>
         <div class="inerr" id="eForm" hidden></div>
         <div class="row" style="margin-top:8px">
@@ -578,7 +579,7 @@ async function renderSetupForm() {
   const sub = $("fSub"), prev = $("fSubPrev");
   sub.addEventListener("input", () => {
     const v = sub.value.trim().toLowerCase();
-    prev.innerHTML = (v ? `<b>${esc(v)}</b>` : "") + ".earnityug.com";
+    prev.innerHTML = "earnityug.com/s/" + (v ? `<b>${esc(v)}</b>` : "");
   });
   $("setupForm").addEventListener("submit", submitSetup);
 }
@@ -640,10 +641,10 @@ async function submitSetup(e) {
 
 function validateSubdomain(v) {
   if (!v) return "Required.";
-  if (v.length < 3) return "At least 3 characters.";
-  if (v.length > 30) return "At most 30 characters.";
-  if (!/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/.test(v)) return "Only lowercase letters, digits and hyphens; must start and end with a letter or digit.";
-  if (RESERVED.has(v)) return "This subdomain is reserved.";
+  if (v.length < 3) return "Use 3 to 30 letters, numbers or hyphens.";
+  if (v.length > 30) return "Use 3 to 30 letters, numbers or hyphens.";
+  if (!/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/.test(v)) return "Use 3 to 30 letters, numbers or hyphens.";
+  if (RESERVED.has(v)) return "This store link is reserved.";
   return null;
 }
 
@@ -669,8 +670,8 @@ async function openEditBusiness() {
       </div>
       <div class="field">
         <label>Store link</label>
-        <input type="text" value="${esc(b.subdomain)}.earnityug.com" disabled>
-        <div class="hint">Subdomain can't be changed.</div>
+        <input type="text" value="earnityug.com/s/${esc(b.subdomain)}" disabled>
+        <div class="hint">Store link can't be changed.</div>
       </div>
       <div class="field">
         <label for="eDesc">Description</label>
@@ -1494,7 +1495,7 @@ function renderEarnings() {
         <div class="stat"><small>In withdrawal</small><b style="font-size:19px">UGX ${fmt(w.reserved_ugx)}</b></div>
       </div>
       <p class="sub" style="margin-top:10px;font-size:13px">Money moves from pending to available once the buyer's order is delivered. Withdrawals are sent to your verified primary phone.</p>
-      ${note ? `<div class="banner" style="margin:12px 0 0">${esc(note)}${!S.me.phone_verified && S.earn.phoneCount === 0 ? ` <a href="account.html?next=${THIS}">Verify now</a>` : ""}</div>` : ""}
+      ${note ? `<div class="banner" style="margin:12px 0 0">${esc(note)}${!S.me.phone_verified && S.earn.phoneCount === 0 ? ` <a href="/account.html?next=${THIS}">Verify now</a>` : ""}</div>` : ""}
       <div class="row" style="margin-top:10px"><button class="btn solid full" id="wd" ${can ? "" : "disabled"}><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</button></div>
       ${st ? `<p class="sub" style="margin-top:8px;font-size:13px">Minimum UGX ${fmt(st.min_withdrawal_ugx)} · fee UGX ${fmt(st.fee_ugx)} · daily limit UGX ${fmt(st.per_user_daily_limit_ugx)}</p>` : ""}
     </div>
@@ -1624,7 +1625,7 @@ function renderStore() {
     if (g) g.onclick = () => setTab("overview");
     return;
   }
-  const url = `https://${b.subdomain}.earnityug.com`;
+  const url = `https://earnityug.com/s/${b.subdomain}`;
   const approved = b.approval_status === "approved";
   el.innerHTML = `
     <div class="card">
@@ -1672,4 +1673,4 @@ boot().catch(err => {
 });
 </script>
 </body>
-  </html>
+</html>
