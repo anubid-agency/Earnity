@@ -238,14 +238,14 @@ body.det .detail{transform:none;visibility:visible}
   <div class="wrap">
     <div class="top">
       <div class="logo">
-        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
+        <img src="/earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
       </div>
       <div class="hright">
         <div class="switch" id="switch" role="group" aria-label="Preview as">
           <button id="bBuyer" aria-pressed="true">B</button>
           <button id="bRef" aria-pressed="false">R</button>
         </div>
-        <a class="acctbtn" id="acctBtn" href="account.html">Signin</a>
+        <a class="acctbtn" id="acctBtn" href="/account.html">Signin</a>
       </div>
     </div>
   </div>
@@ -289,7 +289,38 @@ body.det .detail{transform:none;visibility:visible}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Options"></div>
 <div class="detail" id="detail" role="dialog" aria-modal="true" aria-label="Product details"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://earnityug.com/#org",
+      "name": "Earnity",
+      "url": "https://earnityug.com/",
+      "logo": "https://earnityug.com/web-app-manifest-512x512.png",
+      "description": "Earnity is a Uganda marketplace where you refer products, earn commission when your friends buy, and save with discounts.",
+      "areaServed": "UG",
+      "contactPoint": [{
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "support@earnityug.com",
+        "telephone": "+256743677758",
+        "areaServed": "UG",
+        "availableLanguage": "English"
+      }]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://earnityug.com/#website",
+      "url": "https://earnityug.com/",
+      "name": "Earnity",
+      "publisher": { "@id": "https://earnityug.com/#org" },
+      "inLanguage": "en"
+    }
+  ]
+}
+</script>
 <script type="module">
 /* ================= CONFIG ================= */
 const CFG = {
@@ -318,11 +349,18 @@ const fmt = n => Number(n || 0).toLocaleString("en-US");
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pct = bps => (Number(bps) / 100).toString();
 const earnOf = (price, bps) => Math.floor(Number(price) * Number(bps) / 10000);
+function slugify(name){
+  if (typeof name !== "string") return "item";
+  let s = name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  if (s.length > 60) s = s.slice(0,60).replace(/-+$/g,"");
+  return s || "item";
+}
+function productPath(id, name){ return "/p/" + id + "-" + slugify(name); }
 const arrow = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>';
 const dotsIcon = '<i class="fa-solid fa-ellipsis" style="font-size:20px" aria-hidden="true"></i>';
 const lvl = b => Math.max(0, Number(b && b.level) || 0);
 const lvlName = l => l >= 1 ? "Level " + l + (LEVELS[l - 1] ? " " + LEVELS[l - 1] : "") : "New seller";
-const lvlBadge = l => l >= 1 && l <= 10 ? `<img class="bd" src="${l}.png" alt="" onerror="this.remove()">` : "";
+const lvlBadge = l => l >= 1 && l <= 10 ? `<img class="bd" src="/${l}.png" alt="" onerror="this.remove()">` : "";
 
 function imgUrl(id, w) {
   if (!CFG.CLOUD_NAME || typeof id !== "string" || !ID_RE.test(id)) return "";
@@ -468,9 +506,9 @@ async function handleRefer(el) {
 
 function openLinkSheet(id, username) {
   const x = S.items.get(id);
-  const name = x ? x.name : "";
+  const name = x ? x.name : null;
   const earn = x ? x.earn : 0;
-  const link = location.origin + "/?product=" + encodeURIComponent(id) + "&ref=" + encodeURIComponent(username);
+  const link = location.origin + productPath(id, name) + "?ref=" + encodeURIComponent(username);
   openSheet(`<div class="grab"></div>
     <h2 style="font-size:19px;font-weight:800">Your link is ready</h2>
     <p class="lead" style="margin-top:6px">${esc(name)}</p>
@@ -482,7 +520,7 @@ function openLinkSheet(id, username) {
       <button class="act main" type="button" data-act="copy-link">Copy link</button>
     </div>
     <div class="row2" style="margin-top:10px">
-      <a class="act" href="referee.html" style="justify-content:center;border-bottom:0">View my slots</a>
+      <a class="act" href="/referee.html" style="justify-content:center;border-bottom:0">View my slots</a>
     </div>`);
   const sh = sheet.querySelector('[data-act="share-link"]');
   const cp = sheet.querySelector('[data-act="copy-link"]');
@@ -567,7 +605,7 @@ const viewObs = new IntersectionObserver(es => {
 /* ================= HERO SLIDESHOW ================= */
 (function () {
   const bg = $("heroBg");
-  for (let i = 1; i <= 8; i++) { const d = document.createElement("i"); d.style.backgroundImage = 'url("back' + i + '.jpg")'; bg.appendChild(d); }
+  for (let i = 1; i <= 8; i++) { const d = document.createElement("i"); d.style.backgroundImage = 'url("/back' + i + '.jpg")'; bg.appendChild(d); }
   const s = bg.children; let k = 0; s[0].classList.add("on");
   if (!matchMedia("(prefers-reduced-motion:reduce)").matches) {
     setInterval(() => { s[k].classList.remove("on"); k = (k + 1) % s.length; s[k].classList.add("on"); }, 5000);
@@ -606,12 +644,12 @@ function cardHTML(x, i) {
   const u = imgUrl(x.image, 600);
   const eager = i < 6 ? "eager" : "lazy";
   return `<article class="card" data-id="${esc(x.id)}">
-    <a class="img" href="?product=${encodeURIComponent(x.id)}" data-open="${esc(x.id)}" style="background:linear-gradient(160deg,${tn[0]},${tn[1]})">
+    <a class="img" href="${esc(productPath(x.id, x.name))}" data-open="${esc(x.id)}" style="background:linear-gradient(160deg,${tn[0]},${tn[1]})">
       <span class="ph">${u ? "" : "No photo"}</span>
       ${u ? `<img src="${esc(u)}" alt="${esc(x.name)}" loading="${eager}" decoding="async">` : ""}
       ${badgeHTML(x)}</a>
     <div class="meta">
-      <a class="info" href="?product=${encodeURIComponent(x.id)}" data-open="${esc(x.id)}">
+      <a class="info" href="${esc(productPath(x.id, x.name))}" data-open="${esc(x.id)}">
         <span class="price">UGX ${fmt(x.eff)}${x.offer ? `<s>${fmt(x.price)}</s>` : ""}</span>
         <span class="ttl">${esc(x.name)}</span>
         <span class="bz">${esc(x.biz ? x.biz.name : "")}</span></a>
@@ -750,14 +788,14 @@ document.addEventListener("click", e => { if (!e.target.closest(".sw")) closeSug
 /* ================= CATEGORIES ================= */
 function catImg(name) {
   const n = String(name).toLowerCase();
-  if (/beauty|cosmetic|hair/.test(n)) return "beauty.png";
-  if (/vehicle|car|auto|motor/.test(n)) return "car.png";
-  if (/child|kid|baby|toy/.test(n)) return "child.png";
-  if (/fashion|cloth|shoe|wear/.test(n)) return "clothes.png";
-  if (/food|grocer|drink/.test(n)) return "food.png";
-  if (/electro|phone|laptop|gadget/.test(n)) return "phone.png";
-  if (/furnit|home|house/.test(n)) return "furniture.png";
-  return "other.jpg";
+  if (/beauty|cosmetic|hair/.test(n)) return "/beauty.png";
+  if (/vehicle|car|auto|motor/.test(n)) return "/car.png";
+  if (/child|kid|baby|toy/.test(n)) return "/child.png";
+  if (/fashion|cloth|shoe|wear/.test(n)) return "/clothes.png";
+  if (/food|grocer|drink/.test(n)) return "/food.png";
+  if (/electro|phone|laptop|gadget/.test(n)) return "/phone.png";
+  if (/furnit|home|house/.test(n)) return "/furniture.png";
+  return "/other.jpg";
 }
 async function loadChips() {
   const r = await api(CFG.FEED, "/chips", { auth: false });
@@ -876,7 +914,7 @@ async function sendDiscountRequest(el) {
 /* ================= SHARE ================= */
 async function shareProduct(id) {
   const x = S.items.get(id); track("share", { product_id: id });
-  const url = location.origin + location.pathname + "?product=" + encodeURIComponent(id);
+  const url = location.origin + productPath(id, x && x.name);
   try {
     if (navigator.share) await navigator.share({ title: x ? x.name : "Earnity", url });
     else { await navigator.clipboard.writeText(url); toast("Link copied"); }
@@ -893,12 +931,15 @@ async function openDetail(id) {
   track("click", { product_id: id });
   detail.innerHTML = dHead(known ? known.name : "Product", '<div class="skel"></div><div class="skel" style="height:120px"></div>');
   document.body.classList.add("det"); detail.scrollTop = 0;
-  try { history.replaceState(null, "", "?product=" + encodeURIComponent(id)); } catch {}
   const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(id), { auth: false });
   if (!document.body.classList.contains("det") || S.cur !== id) return;
   if (!r.ok) { detail.innerHTML = dHead("Product", `<div class="msg">${r.status === 404 ? "This product is no longer available." : "Couldn't load this product. Check your connection."}</div>`); return; }
   const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee", sel = S.role === "seller";
   const eff = Number(d.effective_price_ugx), bps = Number(d.commission_bps);
+
+  /* keep the address bar in sync with the product path, preserving ?ref= if present */
+  const keepRef = new URLSearchParams(location.search).get("ref");
+  try { history.replaceState(null, "", productPath(id, d.name) + (keepRef ? "?ref=" + encodeURIComponent(keepRef) : "")); } catch {}
 
   /* store minimal item so the link-ready sheet can show name + earn for products opened via URL */
   if (!S.items.has(id)) {
@@ -953,7 +994,7 @@ async function openDetail(id) {
 }
 function closeDetail() {
   document.body.classList.remove("det");
-  try { history.replaceState(null, "", location.pathname); } catch {}
+  try { history.replaceState(null, "", "/"); } catch {}
 }
 detail.addEventListener("click", e => {
   if (e.target.closest("[data-close]")) { closeDetail(); return; }
@@ -966,17 +1007,17 @@ function doAct(act, el) {
   const id = S.cur;
   switch (act) {
     case "see": closeSheet(); openDetail(id); break;
-    case "buy": if (!needAccount(true)) return; location.href = "checkout.html?product=" + encodeURIComponent(id); break;
+    case "buy": if (!needAccount(true)) return; location.href = "/checkout.html?product=" + encodeURIComponent(id); break;
     case "refer": handleRefer(el); break;
     case "request": if (!needAccount(false)) return; openDiscountSheet(id); break;
     case "report": if (!needAccount(false)) return; soon(); break;
     case "disc-cancel": closeSheet(); break;
     case "disc-send": sendDiscountRequest(el); break;
     case "sell":
-      if (S.acct && S.acct.account_type === "seller") location.href = "business.html"; else goAccount(false);
+      if (S.acct && S.acct.account_type === "seller") location.href = "/business.html"; else goAccount(false);
       break;
     case "earn":
-      if (S.acct && S.acct.account_type === "referee") location.href = "referee.html"; else goAccount(false);
+      if (S.acct && S.acct.account_type === "referee") location.href = "/referee.html"; else goAccount(false);
       break;
     case "share": shareProduct(id); break;
     case "save": {
@@ -1028,12 +1069,12 @@ document.addEventListener("keydown", e => {
 });
 $("nHome").addEventListener("click", () => { if (S.mode !== "feed" || S.cat !== "all") { S.cat = "all"; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.chip === "all")); startFeed(); } scrollTo({ top: 0, behavior: "smooth" }); });
 $("nSearch").addEventListener("click", () => { scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => qEl.focus({ preventScroll: true }), 350); });
-$("nProfile").addEventListener("click", () => { if (S.user) location.href = "account.html"; else goAccount(); });
+$("nProfile").addEventListener("click", () => { if (S.user) location.href = "/account.html"; else goAccount(); });
 
 /* ================= ROLE + ACCOUNT ================= */
 /* All sign-in and sign-up happens on account.html. This page only reads the login state. */
-function nextHref() { return "account.html?next=" + encodeURIComponent(location.pathname + location.search); }
-function goAccount(keepNext) { location.href = keepNext === false ? "account.html" : nextHref(); }
+function nextHref() { return "/account.html?next=" + encodeURIComponent(location.pathname + location.search); }
+function goAccount(keepNext) { location.href = keepNext === false ? "/account.html" : nextHref(); }
 function needAccount(needPhone) {
   if (!S.user || !S.acct) { goAccount(); return false; }
   if (needPhone && !S.acct.phone_verified) { goAccount(); return false; }
@@ -1062,9 +1103,9 @@ function updateAcctBtn() {
     const t = S.acct.account_type;
     b.textContent = String(S.acct.display_name || "Account").split(" ")[0];
     b.classList.add("in");
-    b.href = t === "referee" ? "referee.html" : t === "seller" ? "business.html" : "index.html";
+    b.href = t === "referee" ? "/referee.html" : t === "seller" ? "/business.html" : "/index.html";
   } else {
-    b.textContent = "Sign in"; b.classList.remove("in"); b.href = "account.html";
+    b.textContent = "Sign in"; b.classList.remove("in"); b.href = "/account.html";
   }
 }
 $("acctBtn").addEventListener("click", e => { if (!S.acct) { e.preventDefault(); goAccount(); } });
@@ -1121,7 +1162,11 @@ async function initAuth() {
 /* ================= START ================= */
 (async function () {
   const params = new URLSearchParams(location.search);
-  const pid = params.get("product"), refName = params.get("ref");
+  const pathId = (location.pathname.match(/^\/p\/([A-Za-z0-9_]+)/) || [])[1] || null;
+  const pid = (typeof window.__EARNITY_PRODUCT__ === "string" && window.__EARNITY_PRODUCT__)
+    ? window.__EARNITY_PRODUCT__
+    : (pathId || params.get("product"));
+  const refName = params.get("ref");
   if (pid && refName) {
     /* referral link: record the visit (the worker ignores it when Do-Not-Track is on) */
     api(CFG.REFERRALS, "/links/resolve", { method: "POST", body: { product_id: pid, ref: refName } });
@@ -1133,5 +1178,6 @@ async function initAuth() {
   if (pid && pid.length < 128) openDetail(pid);
 })();
 </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"5ed03284a6c24b938020d0ba89b83c3f","r":1,"spa":2}' crossorigin="anonymous"></script>
 </body>
-  </html>
+</html>
