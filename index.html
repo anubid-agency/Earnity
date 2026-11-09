@@ -1,11 +1,10 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Earnity: refer, earn, save. Discover products in Uganda and earn when you share.">
 <title>Earnity – Refer. Earn. Save. | Uganda's Referral Marketplace</title>
-<meta name="description" content="Earnity is a Uganda marketplace where you refer products, earn commission when your friends buy, and save with discounts. Refer. Earn. Save.">
 <link rel="canonical" href="https://earnityug.com/">
 <meta name="theme-color" content="#0B4A1A">
 
@@ -25,14 +24,7 @@
 <meta name="twitter:image" content="https://earnityug.com/og-image.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<!--
-  Earnity home page, connected to the workers.
-  Serve this file from earnityug.com (the workers only accept that origin).
-  Files expected next to this page:
-    earnity.png (logo), back1.jpg to back8.jpg (hero), 1.png to 10.png (level badges),
-    beauty.png car.png child.png clothes.png food.png phone.png furniture.png other.jpg (category tiles)
-  Set CLOUD_NAME below to your Cloudinary cloud name or product photos will show placeholders.
---> <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -57,9 +49,6 @@ svg{display:block}
 header{position:sticky;top:0;z-index:20;background:#fff;padding:10px 0 8px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .logo img{height:50px;width:auto;display:block}
-.switch{display:flex;border:1.5px solid var(--green);border-radius:999px;overflow:hidden;font-size:13px}
-.switch button{padding:7px 14px;color:var(--green)}
-.switch button[aria-pressed="true"]{background:var(--green);color:#fff}
 .hright{display:flex;align-items:center;gap:10px}
 .acctbtn{display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;background:var(--orange);color:#fff;font-weight:700;font-size:13.5px;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acctbtn.in{background:var(--soft-green);color:var(--green)}
@@ -241,10 +230,6 @@ body.det .detail{transform:none;visibility:visible}
         <img src="/earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
       </div>
       <div class="hright">
-        <div class="switch" id="switch" role="group" aria-label="Preview as">
-          <button id="bBuyer" aria-pressed="true">B</button>
-          <button id="bRef" aria-pressed="false">R</button>
-        </div>
         <a class="acctbtn" id="acctBtn" href="/account.html">Signin</a>
       </div>
     </div>
@@ -1089,13 +1074,9 @@ function setRole(r) {
   S.role = r;
   document.body.classList.toggle("referee", r === "referee");
   document.body.classList.toggle("seller", r === "seller");
-  $("bBuyer").setAttribute("aria-pressed", r === "buyer");
-  $("bRef").setAttribute("aria-pressed", r === "referee");
   updateHeroBtn();
   renderAll();
 }
-$("bBuyer").onclick = () => setRole("buyer");
-$("bRef").onclick = () => setRole("referee");
 
 function updateAcctBtn() {
   const b = $("acctBtn");
@@ -1115,7 +1096,6 @@ async function loadMe() {
   const r = await api(CFG.API, "/me", { strict: true });
   if (r.ok && r.data.user) {
     S.acct = r.data.user;
-    $("switch").hidden = true;
     const t = S.acct.account_type;
     if (t === "referee") await loadHeld();
     else S.held = new Set();
@@ -1127,7 +1107,7 @@ async function loadMe() {
   S.held = new Set();
   if (r.status === 404 && r.data.error === "not_registered") { goAccount(); return false; }
   if (r.status === 403 && r.data.error === "account_blocked") toast("This account has been blocked.");
-  $("switch").hidden = false; setRole("buyer"); updateAcctBtn();
+  setRole("buyer"); updateAcctBtn();
   return true;
 }
 function linkVisitor() {
@@ -1153,7 +1133,7 @@ async function initAuth() {
         linkVisitor();
         startFeed();
       } else if (!u && was) {
-        S.acct = null; S.held = new Set(); $("switch").hidden = false; setRole("buyer"); updateAcctBtn(); startFeed();
+        S.acct = null; S.held = new Set(); setRole("buyer"); updateAcctBtn(); startFeed();
       }
     });
   } catch { /* the site keeps working signed out */ }
