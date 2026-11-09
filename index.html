@@ -195,11 +195,11 @@ body.det .detail{transform:none;visibility:visible}
 .earnrow{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--orange-soft);color:var(--orange);
   font-weight:700;border-radius:999px;padding:7px 14px;font-size:14px}
 .offer{font-size:13px;color:var(--muted);margin-top:8px}
-.seller{display:flex;align-items:center;gap:12px;margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);width:100%;text-align:left}
-.seller .nm{font-weight:700}
-.seller .lv{font-size:13px;color:var(--muted)}
-.seller img.lg{width:46px;height:46px;border-radius:12px;object-fit:cover}
-.seller img.bd{width:46px;margin-left:auto;object-fit:contain}
+.seller-card{display:flex;align-items:center;gap:12px;margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);width:100%;text-align:left}
+.seller-card .nm{font-weight:700}
+.seller-card .lv{font-size:13px;color:var(--muted)}
+.seller-card img.lg{width:46px;height:46px;border-radius:12px;object-fit:cover}
+.seller-card img.bd{width:46px;margin-left:auto;object-fit:contain}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .fact{background:var(--mist);border-radius:14px;padding:12px}
 .fact small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
@@ -230,7 +230,7 @@ body.det .detail{transform:none;visibility:visible}
         <img src="/earnity.png" alt="Earnity" onerror="this.outerHTML='<div style=\'font-size:30px;font-family:Georgia,serif;color:var(--green)\'>Earni<span style=\'color:var(--orange)\'>ty</span></div>'">
       </div>
       <div class="hright">
-        <a class="acctbtn" id="acctBtn" href="/account.html">Signin</a>
+        <a class="acctbtn" id="acctBtn" href="/account.html">Sign in</a>
       </div>
     </div>
   </div>
@@ -313,7 +313,7 @@ const CFG = {
   CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
   REFERRALS: "https://earnity-referrals.anubisdigital114-9df.workers.dev",
   API: "https://earnity-api.anubisdigital114-9df.workers.dev",
-  CLOUD_NAME: "ybj9ai56",   /* <- your Cloudinary cloud name */
+  CLOUD_NAME: "ybj9ai56",
   FIREBASE: {
     apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
     authDomain: "earnityug.firebaseapp.com",
@@ -382,7 +382,6 @@ function vid() {
 async function req(base, path, opt, tok) {
   const h = {};
   if (opt.body !== undefined) h["Content-Type"] = "application/json";
-  /* catalog does not allow the X-Visitor-Id header in CORS, so only send it to feed and referrals */
   if (base === CFG.FEED || base === CFG.REFERRALS) { const v = vid(); if (v) h["X-Visitor-Id"] = v; }
   if (tok) h.Authorization = "Bearer " + tok;
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
@@ -402,7 +401,7 @@ async function api(base, path, opt = {}) {
   if (opt.auth !== false && S.user) { try { tok = await S.user.getIdToken(); } catch {} }
   let r = await req(base, path, opt, tok);
   if (tok && !opt.strict && !r.ok && (r.status === 401 || (r.status === 404 && r.data.error === "not_registered"))) {
-    r = await req(base, path, opt, null);   /* fall back to anonymous */
+    r = await req(base, path, opt, null);
   }
   return r;
 }
@@ -460,9 +459,7 @@ async function handleRefer(el) {
   if (btn && orig !== null) { btn.disabled = false; btn.innerHTML = orig; }
   const err = (r.data && r.data.error) || "";
   switch (err) {
-    case "slots_full":
-      toast("All referee slots on this product are taken.");
-      break;
+    case "slots_full": toast("All referee slots on this product are taken."); break;
     case "slot_already_claimed":
       S.held.add(id);
       renderAll();
@@ -470,18 +467,10 @@ async function handleRefer(el) {
       refreshDetailRefer(id);
       openLinkSheet(id, S.acct.username || "");
       break;
-    case "own_product":
-      toast("You can't refer your own product.");
-      break;
-    case "referee_username_required":
-      goAccount();
-      break;
-    case "product_not_found":
-      toast("This product is no longer available.");
-      break;
-    case "wrong_account_type":
-      toast("Only referee accounts can refer products.");
-      break;
+    case "own_product": toast("You can't refer your own product."); break;
+    case "referee_username_required": goAccount(); break;
+    case "product_not_found": toast("This product is no longer available."); break;
+    case "wrong_account_type": toast("Only referee accounts can refer products."); break;
     default:
       if (r.status === 401 || err === "not_registered") goAccount();
       else toast("Couldn't claim the slot. Try again.");
@@ -922,11 +911,9 @@ async function openDetail(id) {
   const d = r.data, b = d.business || {}, l = lvl(b), ref = S.role === "referee", sel = S.role === "seller";
   const eff = Number(d.effective_price_ugx), bps = Number(d.commission_bps);
 
-  /* keep the address bar in sync with the product path, preserving ?ref= if present */
   const keepRef = new URLSearchParams(location.search).get("ref");
   try { history.replaceState(null, "", productPath(id, d.name) + (keepRef ? "?ref=" + encodeURIComponent(keepRef) : "")); } catch {}
 
-  /* store minimal item so the link-ready sheet can show name + earn for products opened via URL */
   if (!S.items.has(id)) {
     S.items.set(id, {
       id, name: d.name, image: null, price: Number(d.price_ugx), eff,
@@ -953,7 +940,7 @@ async function openDetail(id) {
     ${ref ? `<div class="earnrow"><i class="fa-solid fa-coins"></i>Earn UGX ${fmt(earnOf(eff, bps))} per sale (${pct(bps)}%)</div>`
           : sel ? "" : `<div class="earnrow"><i class="fa-solid fa-tag"></i>Up to ${pct(bps)}% off</div>`}
     ${offerEnd ? `<div class="offer">Offer ends ${esc(offerEnd)}</div>` : ""}
-    <button class="seller" data-store="${esc(b.subdomain)}">${lg ? `<img class="lg" src="${esc(lg)}" alt="">` : ""}
+    <button class="seller-card" data-store="${esc(b.subdomain)}">${lg ? `<img class="lg" src="${esc(lg)}" alt="">` : ""}
       <div><div class="nm">${esc(b.name)}</div><div class="lv">${esc(lvlName(l))} · tap to view store</div></div>${lvlBadge(l)}</button>
     <div class="grid">
       ${fact("fa-truck", "Delivery", d.delivery_text || "Arranged with seller")}
@@ -1057,7 +1044,6 @@ $("nSearch").addEventListener("click", () => { scrollTo({ top: 0, behavior: "smo
 $("nProfile").addEventListener("click", () => { if (S.user) location.href = "/account.html"; else goAccount(); });
 
 /* ================= ROLE + ACCOUNT ================= */
-/* All sign-in and sign-up happens on account.html. This page only reads the login state. */
 function nextHref() { return "/account.html?next=" + encodeURIComponent(location.pathname + location.search); }
 function goAccount(keepNext) { location.href = keepNext === false ? "/account.html" : nextHref(); }
 function needAccount(needPhone) {
@@ -1091,7 +1077,6 @@ function updateAcctBtn() {
 }
 $("acctBtn").addEventListener("click", e => { if (!S.acct) { e.preventDefault(); goAccount(); } });
 
-/* returns false only when the user was sent to account.html */
 async function loadMe() {
   const r = await api(CFG.API, "/me", { strict: true });
   if (r.ok && r.data.user) {
@@ -1111,7 +1096,6 @@ async function loadMe() {
   return true;
 }
 function linkVisitor() {
-  /* ties this browser's anonymous browsing to the account once per session, so the feed can personalise */
   try {
     if (!vid() || sessionStorage.getItem("eu_linked")) return;
     sessionStorage.setItem("eu_linked", "1");
@@ -1136,7 +1120,7 @@ async function initAuth() {
         S.acct = null; S.held = new Set(); setRole("buyer"); updateAcctBtn(); startFeed();
       }
     });
-  } catch { /* the site keeps working signed out */ }
+  } catch {}
 }
 
 /* ================= START ================= */
@@ -1148,7 +1132,6 @@ async function initAuth() {
     : (pathId || params.get("product"));
   const refName = params.get("ref");
   if (pid && refName) {
-    /* referral link: record the visit (the worker ignores it when Do-Not-Track is on) */
     api(CFG.REFERRALS, "/links/resolve", { method: "POST", body: { product_id: pid, ref: refName } });
   }
   skeletons();
