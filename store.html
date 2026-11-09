@@ -6,14 +6,19 @@
 <meta name="description" content="Shop on Earnity.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://earnityug.com/og-image.jpg">
-<meta name="twitter:image" content="https://earnityug.com/og-image.jpg">.
-<meta property="og:site_name " content="Earnity">
+<meta name="twitter:image" content="https://earnityug.com/og-image.jpg">
+<meta property="og:site_name" content="Earnity">
 <meta property="og:title" content="Store · Earnity">
 <meta property="og:description" content="Shop on Earnity.">
 <meta property="og:url" content="">
 <meta name="twitter:card" content="summary_large_image">
 <title>Store · Earnity</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <script>
 try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
 </script>
@@ -214,7 +219,7 @@ body.open .sheet{transform:none;visibility:visible}
   <div class="wrap">
     <div class="top">
       <a class="logo" id="logoLink" href="https://earnityug.com" aria-label="Earnity home">
-        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
+        <img src="/earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
       </a>
       <div class="hright">
         <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
@@ -249,11 +254,11 @@ body.open .sheet{transform:none;visibility:visible}
     <footer>
       <p>Sold through <a id="footMain" href="https://earnityug.com">Earnity</a> · Refer, Earn, Save</p>
       <p>
-        <a id="footTerms" href="https://earnityug.com/terms.html">Terms</a>
+        <a id="footTerms" href="https://earnityug.com/terms">Terms</a>
         <span class="dot">·</span>
-        <a id="footPrivacy" href="https://earnityug.com/privacy.html">Privacy</a>
+        <a id="footPrivacy" href="https://earnityug.com/privacy">Privacy</a>
         <span class="dot">·</span>
-        <a id="footContact" href="https://earnityug.com/contact.html">Contact</a>
+        <a id="footContact" href="https://earnityug.com/contact">Contact</a>
       </p>
     </footer>
   </div>
@@ -268,16 +273,16 @@ body.open .sheet{transform:none;visibility:visible}
 const CFG = {
   CATALOG: "https://earnity-catalog.anubisdigital114-9df.workers.dev",
   MAIN: "https://earnityug.com",
-  CLOUD_NAME: ""   /* <- your Cloudinary cloud name */
+  CLOUD_NAME: "ybj9ai56"
 };
 
 /* point all CFG.MAIN links at the configured host, once */
 document.getElementById("logoLink").href = CFG.MAIN;
 document.getElementById("signinLink").href = CFG.MAIN + "/account.html";
 document.getElementById("footMain").href = CFG.MAIN;
-document.getElementById("footTerms").href = CFG.MAIN + "/terms.html";
-document.getElementById("footPrivacy").href = CFG.MAIN + "/privacy.html";
-document.getElementById("footContact").href = CFG.MAIN + "/contact.html";
+document.getElementById("footTerms").href = CFG.MAIN + "/terms";
+document.getElementById("footPrivacy").href = CFG.MAIN + "/privacy";
+document.getElementById("footContact").href = CFG.MAIN + "/contact";
 
 /* ================= HELPERS ================= */
 const $ = id => document.getElementById(id);
@@ -294,10 +299,27 @@ function fmtDate(ts) {
   catch { return ""; }
 }
 
+function slugify(name){
+  if (typeof name !== "string") return "item";
+  let s = name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  if (s.length > 60) s = s.slice(0,60).replace(/-+$/g,"");
+  return s || "item";
+}
+function productPath(id, name){ return "/p/" + id + "-" + slugify(name); }
+
 function isValidSubdomain(s) {
   return /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/.test(s);
 }
 function getSubdomain() {
+  if (typeof window.__EARNITY_STORE__ === "string" && window.__EARNITY_STORE__) {
+    const s = window.__EARNITY_STORE__.toLowerCase();
+    if (isValidSubdomain(s)) return s;
+  }
+  const m = location.pathname.match(/^\/s\/([a-z0-9-]+)/i);
+  if (m) {
+    const s = m[1].toLowerCase();
+    if (isValidSubdomain(s)) return s;
+  }
   const host = location.hostname;
   const suffix = ".earnityug.com";
   if (host.endsWith(suffix)) {
@@ -544,7 +566,7 @@ function openSheet(p) {
     </div>`;
 
   $("buyBtn").href = CFG.MAIN + "/checkout.html?product=" + encodeURIComponent(p.id);
-  $("moreOptBtn").href = CFG.MAIN + "/?product=" + encodeURIComponent(p.id);
+  $("moreOptBtn").href = CFG.MAIN + productPath(p.id, p.name);
   $("shareBtn").addEventListener("click", () => shareProduct(p));
 
   if (imgs.length > 1) {
@@ -571,7 +593,7 @@ function closeSheet() {
 }
 
 async function shareProduct(p) {
-  const url = CFG.MAIN + "/?product=" + encodeURIComponent(p.id);
+  const url = CFG.MAIN + productPath(p.id, p.name);
   try {
     if (navigator.share) {
       await navigator.share({ title: p.name || "Earnity", text: p.name || "", url });
@@ -601,6 +623,7 @@ document.addEventListener("keydown", e => {
 
 /* ================= META ================= */
 function updateMeta(b) {
+  if (typeof window.__EARNITY_STORE__ === "string" && window.__EARNITY_STORE__) return;
   const name = b && b.name ? String(b.name) : "Store";
   const desc = b && b.description ? String(b.description) : "";
   const title = `${name} · Earnity`;
