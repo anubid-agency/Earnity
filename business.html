@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -296,7 +296,15 @@ const ERR = {
   product_not_found: "This product no longer exists.",
   business_suspended: "Your business is suspended. Contact Earnity support.",
   server_misconfigured: "Uploads aren't set up correctly right now. Please contact Earnity support.",
-  cloudinary: "Cloudinary upload failed."
+  cloudinary: "Cloudinary upload failed.",
+  /* product / business validation */
+  invalid_description: "Description is too long or invalid.",
+  invalid_delivery_text: "Delivery info is too long or invalid.",
+  invalid_name: "Name must be between 2 and 120 characters.",
+  invalid_commission_bps: "Commission must be between 1% and 48%.",
+  invalid_referee_max: "Referee slots must be between 1 and 50.",
+  invalid_images: "There is a problem with the photos. Please try again.",
+  invalid_url: "That link isn't valid. It must start with http:// or https://."
 };
 function errMsg(r) {
   if (!r) return "Something went wrong.";
@@ -1148,9 +1156,9 @@ async function openProductDetail(pid) {
     if (!Number.isFinite(ref) || ref < 1 || ref > 50) { er.textContent = "Referee slots must be 1–50."; er.hidden = false; return; }
     if (!Number.isFinite(days) || days < 1 || days > 14) { er.textContent = ERR.invalid_delivery_days; er.hidden = false; return; }
     const body = {
-      name, description: desc || null, price_ugx: pr, category_id: cat,
+      name, description: desc || "", price_ugx: pr, category_id: cat,
       commission_bps: Math.round(comm * 100), referee_max: ref,
-      delivery_text: dtext || null, delivery_days: days
+      delivery_text: dtext || "", delivery_days: days
     };
     const btn = $("peGo"); btn.disabled = true; btn.textContent = "Saving…";
     const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body });
@@ -1699,4 +1707,4 @@ boot().catch(err => {
 });
 </script>
 </body>
-</html>
+ </html>
