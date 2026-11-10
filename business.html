@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -286,19 +286,30 @@ const ERR = {
   max_attempts_exceeded: "Too many wrong codes. Your request will be released shortly, then you can start again.",
   email_not_confirmed: "First open the confirmation link in your email, then enter the code here.",
   sms_failed: "We couldn't send the SMS. Please try again.", email_failed: "We couldn't send the email. Please try again.",
-  upstream_unavailable: "A service is busy. Please try again in a moment."
+  upstream_unavailable: "A service is busy. Please try again in a moment.",
+  /* uploads */
+  file_too_large: "Photo too large (max 5 MB).",
+  invalid_file_type: "That file isn't an image. Please pick a photo.",
+  no_slots: "Photo limit reached (6 photos max).",
+  upload_failed: "The photo couldn't be uploaded. Please try again.",
+  product_image_limit: "This product already has the maximum number of photos.",
+  product_not_found: "This product no longer exists.",
+  business_suspended: "Your business is suspended. Contact Earnity support.",
+  server_misconfigured: "Uploads aren't set up correctly right now. Please contact Earnity support.",
+  cloudinary: "Cloudinary upload failed."
 };
 function errMsg(r) {
   if (!r) return "Something went wrong.";
-  if (r.status === 0) return ERR.network;
+  if (r.status === 0 && r.data && r.data.error === "cloudinary") return "Cloudinary: " + (r.data.message || "upload failed.");
+  if (r.status === 0 && (!r.data || r.data.error === "network")) return ERR.network;
   const e = r.data && r.data.error;
   if (e === "payout_hold_active" && r.data.payout_hold_until) return "Withdrawals are on hold until " + dt(r.data.payout_hold_until) + " after a phone change.";
+  if (e === "cloudinary") return "Cloudinary: " + (r.data.message || "upload failed.");
   if (e && ERR[e]) return ERR[e];
   if (r.status === 401) return ERR.unauthorized;
   if (r.status === 429) return ERR.rate_limit_exceeded;
   return "Something went wrong. Please try again.";
 }
-
 /* ================= TOAST ================= */
 let toastT = null;
 function toast(msg) {
@@ -799,17 +810,23 @@ function openRaiseReferrer() {
 }
 
 /* ================= MEDIA upload ================= */
+
 async function uploadMedia(file, purpose, productId) {
-  if (!file) return { ok: false, error: { status: 0, data: { error: "no_file" } } };
-  if (!/^image\//.test(file.type)) return { ok: false, error: { status: 0, data: { error: "invalid_file_type" } } };
-  if (file.size > 5 * 1024 * 1024) return { ok: false, error: { status: 0, data: { error: "file_too_large" } } };
+  if (!file) return { ok: false, error: { status: 0, step: "validate", data: { error: "no_file" } } };
+  if (!/^image\//.test(file.type)) return { ok: false, error: { status: 0, step: "validate", data: { error: "invalid_file_type" } } };
+  if (file.size > 5 * 1024 * 1024) return { ok: false, error: { status: 0, step: "validate", data: { error: "file_too_large" } } };
   const signBody = { purpose };
   if (productId) signBody.product_id = productId;
   const sign = await api(CFG.MEDIA, "/uploads/sign", { method: "POST", body: signBody });
-  if (!sign.ok) return { ok: false, error: sign };
+  if (!sign.ok) {
+    const step = sign.status === 0 ? "network" : "sign";
+    return { ok: false, error: { status: sign.status, step, data: sign.data || {} } };
+  }
   const d = sign.data;
   if (d.cloud_name) S.cloudName = d.cloud_name;
-  if (typeof d.remaining_slots === "number" && d.remaining_slots <= 0) return { ok: false, error: { status: 400, data: { error: "no_slots" } } };
+  if (typeof d.remaining_slots === "number" && d.remaining_slots <= 0) {
+    return { ok: false, error: { status: 400, step: "sign", data: { error: "no_slots" } } };
+  }
   const fd = new FormData();
   fd.append("file", file);
   fd.append("api_key", d.api_key);
@@ -817,22 +834,25 @@ async function uploadMedia(file, purpose, productId) {
   fd.append("signature", d.signature);
   fd.append("public_id", d.public_id);
   fd.append("upload_preset", d.upload_preset);
-  let up, upData = null;
+  let up, upData = null, netFail = false;
   try {
     up = await fetch(d.upload_url, { method: "POST", body: fd });
     try { upData = await up.json(); } catch {}
-  } catch {}
-  if (!up || !up.ok || !upData || !upData.public_id) {
+  } catch { netFail = true; }
+  if (netFail || !up) {
     try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: d.public_id } }); } catch {}
-    return { ok: false, error: { status: up ? up.status : 0, data: (upData && upData.error) || { error: "upload_failed" } } };
+    return { ok: false, error: { status: 0, step: "network", data: { error: "network" } } };
+  }
+  if (!up.ok || !upData || !upData.public_id) {
+    try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: d.public_id } }); } catch {}
+    const msg = (upData && upData.error && (upData.error.message || upData.error)) || "upload failed";
+    return {
+      ok: false,
+      error: { status: up.status, step: "cloudinary", data: { error: "cloudinary", message: typeof msg === "string" ? msg : "upload failed" } }
+    };
   }
   return { ok: true, public_id: upData.public_id };
 }
-function cloudImg(publicId, w = 200) {
-  if (!S.cloudName || !publicId) return "";
-  return `https://res.cloudinary.com/${encodeURIComponent(S.cloudName)}/image/upload/f_auto,q_auto,w_${w}/${publicId}`;
-}
-
 /* ================= PRODUCTS ================= */
 async function loadProducts(force) {
   if (S.products.loading) return;
@@ -1086,25 +1106,31 @@ async function openProductDetail(pid) {
   }
   drawPhotos();
   $("photoInput").onchange = async e => {
-    const files = Array.from(e.target.files || []).slice(0, 6 - currentImages.length);
-    if (!files.length) return;
-    const uploaded = [];
-    for (const f of files) {
-      const up = await uploadMedia(f, "product_image", pid);
-      if (up.ok) uploaded.push(up.public_id);
-      else toast("One photo failed to upload");
-    }
-    if (!uploaded.length) { e.target.value = ""; return; }
-    const next = currentImages.concat(uploaded);
-    const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body: { image_ids: next } });
-    if (r.ok) { currentImages = next; drawPhotos(); toast("Photos saved"); }
-    else {
-      for (const u of uploaded) { try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: u } }); } catch {} }
-      toast(errMsg(r));
-    }
-    e.target.value = "";
-  };
-
+  const files = Array.from(e.target.files || []).slice(0, 6 - currentImages.length);
+  if (!files.length) return;
+  const uploaded = [];
+  for (const f of files) {
+    const up = await uploadMedia(f, "product_image", pid);
+    if (up.ok) { uploaded.push(up.public_id); continue; }
+    const err = up.error || {};
+    console.error("Photo upload failed", {
+      file: f.name,
+      step: err.step,
+      status: err.status,
+      error: err.data
+    });
+    toast(`${f.name}: ${errMsg(err)}`);
+  }
+  if (!uploaded.length) { e.target.value = ""; return; }
+  const next = currentImages.concat(uploaded);
+  const r = await api(CFG.CATALOG, "/products/" + encodeURIComponent(pid), { method: "PATCH", body: { image_ids: next } });
+  if (r.ok) { currentImages = next; drawPhotos(); toast("Photos saved"); }
+  else {
+    for (const u of uploaded) { try { await api(CFG.MEDIA, "/uploads/cancel", { method: "POST", body: { public_id: u } }); } catch {} }
+    toast(errMsg(r));
+  }
+  e.target.value = "";
+};
   /* edit */
   $("pEdit").addEventListener("submit", async e => {
     e.preventDefault();
