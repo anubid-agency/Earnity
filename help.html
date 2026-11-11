@@ -1,580 +1,290 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Contact Earnity or find answers to common questions.">
+<meta name="theme-color" content="#FBF7EC">
 <title>Contact &amp; Help · Earnity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script>
-try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
-</script>
+<script>try{if(localStorage.getItem('eu_theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}</script>
 <style>
 :root{
-  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
-  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7;
-  --radius:18px;
-  --bg:#ffffff; --card:#ffffff;
-  --red:#b3261e; --red-soft:#fdecea;
-  --wa:#25d366; --wa-soft:#dcf8c6;
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --yellow:#f6b93b; --blue:#3fa7d6;
+  --ink:#23211d; --muted:#5d6a62; --bg:#FBF7EC; --card:#FBF7EC; --mist:#f1ead6;
+  --red:#b3261e; --red-soft:#fdecea; --wa:#25a85a;
+  --hand:'Gochi Hand','Comic Sans MS','Chalkboard SE',cursive;
+  --marker:'Permanent Marker','Comic Sans MS','Chalkboard SE',cursive;
+  --sketch:255px 18px 225px 18px / 18px 225px 18px 255px;
 }
 html.dark{
-  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
-  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f;
-  --bg:#0a100c; --card:#101713;
-  --red:#ffb2a6; --red-soft:#3a1814;
-  --wa:#4bd47d; --wa-soft:#123a1e;
+  --green:#8fe3ae; --green-deep:#c8f3d6; --orange:#ff9a5c; --ink:#eaf1ec; --muted:#a4b3a9;
+  --bg:#0a100c; --card:#101713; --mist:#16201a; --red:#ffb2a6; --red-soft:#3a1814; --wa:#4bd47d;
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
-  line-height:1.6;min-height:100vh;padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
+  line-height:1.55;min-height:100vh;padding-top:env(safe-area-inset-top,0px)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-a{color:var(--green);text-decoration:none}
-a:hover{text-decoration:underline}
-:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+a{color:var(--green)}
+:focus-visible{outline:3px dashed var(--green);outline-offset:4px}
 [hidden]{display:none!important}
 img{max-width:100%;display:block}
-
-.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
 
 /* header */
-header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
-.logo{display:flex;align-items:center;text-decoration:none;flex:none}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px dashed var(--ink)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
 .logo img{height:36px;width:auto;max-width:120px}
-.wordmark{font-family:Georgia,serif;font-size:25px;font-weight:600;color:var(--green);line-height:1}
+.wordmark{font-family:var(--marker);font-size:24px;color:var(--green);line-height:1}
 .wordmark span{color:var(--orange)}
-.hright{display:flex;align-items:center;gap:2px}
+.hright{display:flex;gap:2px}
 .iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:18px}
 .iconbtn:hover{background:var(--mist)}
 
-/* main */
-main{padding:32px 0 56px}
-h1{font-size:clamp(24px,5vw,34px);font-weight:800;color:var(--green);line-height:1.15;letter-spacing:-.3px}
-h2{font-size:18px;color:var(--green-deep);font-weight:700;margin-top:28px}
-p{color:var(--ink);font-size:15px;margin-top:10px}
-.sub{color:var(--muted);font-size:14px;margin-top:6px}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;
-  background:var(--mist);padding:1px 6px;border-radius:5px}
+/* hero */
+.hero{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+  width:min(100%,560px);aspect-ratio:1;margin:12px auto 0;padding:5% 4% 3%;text-align:center}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:url(contact-hero.jpg) center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 8%,#000 92%,transparent 100%);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 8%,#000 92%,transparent 100%);mask-composite:intersect}
+html.dark .hero::before{-webkit-mask-image:none;mask-image:none;border-radius:24px}
+html.dark .thumb img{mix-blend-mode:normal;border-radius:20px}
+h1{font-family:var(--marker);font-weight:400;font-size:clamp(30px,8.6vw,52px);line-height:1;white-space:nowrap;color:#0b4a1a;
+  transform:rotate(-2deg);text-shadow:3px 4px 0 rgba(35,33,29,.14),0 0 14px #FBF7EC}
+h1 b{font-weight:400;color:#f26b21;display:inline-block;transform:rotate(6deg)}
+.lead{font-family:var(--hand);font-size:clamp(20px,5.2vw,28px);line-height:1.2;color:#23211d;transform:rotate(-1deg);
+  text-shadow:0 0 10px #FBF7EC,0 0 10px #FBF7EC,0 0 10px #FBF7EC}
 
-/* contact cards */
-.contact-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-a.contact-card,
-.email-card{
-  display:flex; align-items:center; gap:14px;
-  min-height:56px; padding:12px 16px;
-  background:var(--card); border:1px solid var(--line); border-radius:14px;
-  text-decoration:none; color:var(--ink);
-  transition:background .12s, border-color .12s;
-}
-a.contact-card:hover{ background:var(--mist); }
-a.contact-card:active{ background:var(--line); }
+/* section headings */
+h2{font-family:var(--hand);font-weight:400;font-size:30px;color:var(--green);margin-top:34px;transform:rotate(-1deg)}
+.cat{font-family:var(--hand);font-weight:400;font-size:21px;color:var(--orange);margin:20px 0 8px}
 
-.cc-icon{
-  width:40px; height:40px; border-radius:50%;
-  display:grid; place-items:center;
-  font-size:18px; flex:none;
-  background:var(--soft-green); color:var(--green);
-}
-.cc-wa{ background:var(--wa-soft); color:var(--wa); }
-.cc-call{ background:var(--soft-green); color:var(--green); }
-.cc-mail{ background:var(--soft-green); color:var(--green); }
+/* sketchy cards */
+.list{display:grid;gap:16px;margin-top:16px}
+.card{position:relative;display:flex;align-items:stretch;background:var(--card);color:var(--ink);
+  border:3px solid var(--ink);border-radius:var(--sketch);box-shadow:4px 5px 0 var(--ink)}
+.card::before{content:"";position:absolute;inset:-6px -5px -5px -7px;pointer-events:none;border:2px solid var(--ink);opacity:.45;
+  border-radius:20px 240px 18px 230px / 230px 18px 240px 20px;transform:rotate(-.8deg)}
+.card:nth-child(even){transform:rotate(.5deg)}
+.cc{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:10px 16px 10px 10px;min-height:76px;color:inherit;text-decoration:none;border-radius:inherit}
+a.cc:hover,.cc:hover{background:var(--mist)}
+.thumb{width:76px;height:76px;flex:none;border-radius:16px;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply}
+.ico{width:56px;height:56px;margin:0 4px 0 6px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:22px;
+  background:var(--mist);color:var(--green);border:2px solid var(--ink)}
+.t{display:block;font-family:var(--hand);font-size:21px;line-height:1.15}
+.s{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;word-break:break-word}
+.go{margin-left:auto;color:var(--muted);font-size:14px}
+.copy{flex:none;min-width:68px;padding:0 14px;border-left:2px dashed var(--ink);font-family:var(--hand);font-size:19px;color:var(--green);border-radius:0 18px 18px 0}
+.copy:hover{background:var(--mist)}
+.card.report{border-color:var(--red)}
+.card.report .ico{background:var(--red-soft);color:var(--red);border-color:var(--red)}
+.card.report .t{color:var(--red)}
+.hint{font-family:var(--hand);font-size:20px;text-align:center;color:var(--muted);margin-top:16px}
 
-.cc-body{ display:flex; flex-direction:column; min-width:0; flex:1; }
-.cc-title{ font-weight:700; font-size:14.5px; color:var(--ink); line-height:1.3; }
-.cc-sub{ font-size:13px; color:var(--muted); margin-top:2px; line-height:1.3; word-break:break-word; }
-a.contact-card .cc-go{ color:var(--muted); font-size:13px; flex:none; margin-left:auto; }
+/* note */
+.note{margin-top:14px;padding:14px 16px;font-size:14.5px;border:2.5px dashed var(--ink);border-radius:var(--sketch);background:var(--mist)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:var(--card);padding:1px 6px;border-radius:5px}
 
-/* email cards: link fills the left, copy button on the right */
-.email-card{ padding:0; gap:0; }
-.email-card .cc-link{
-  display:flex; align-items:center; gap:14px; flex:1;
-  min-height:56px; padding:12px 16px;
-  text-decoration:none; color:var(--ink);
-  border-radius:14px 0 0 14px;
-}
-.email-card .cc-link:hover{ background:var(--mist); }
-.email-card .copy-btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  min-width:60px; min-height:56px; padding:0 14px;
-  border-left:1px solid var(--line);
-  background:transparent; color:var(--green);
-  font-size:13px; font-weight:700; cursor:pointer;
-  border-radius:0 14px 14px 0;
-  transition:background .12s;
-}
-.email-card .copy-btn:hover{ background:var(--mist); }
-.email-card .copy-btn:active{ background:var(--line); }
+/* FAQ */
+.faq{background:var(--card);border:2.5px solid var(--ink);border-radius:14px 22px 14px 22px;margin-bottom:10px;overflow:hidden}
+.q{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:54px;padding:10px 16px;text-align:left;
+  font-family:var(--hand);font-size:20px;line-height:1.2}
+.q:hover{background:var(--mist)}
+.q i{color:var(--muted);font-size:13px;transition:transform .2s}
+.q[aria-expanded=true] i{transform:rotate(180deg)}
+.a{padding:0 16px 14px;font-size:14.5px}
 
-/* report card accent */
-.email-card.report-card{ border-color:var(--red-soft); }
-.email-card.report-card .cc-icon{ background:var(--red-soft); color:var(--red); }
-.email-card.report-card .cc-title{ color:var(--red); }
+/* skyline footer */
+.sky{margin-top:44px;background:#FBF7EC;border-radius:28px 28px 0 0;color:#23211d}
+.sky img{width:100%;height:auto;mix-blend-mode:multiply;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,transparent 0,#000 30%),linear-gradient(to right,transparent 0,#000 4%,#000 96%,transparent 100%);mask-composite:intersect}
+.links{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:6px 16px calc(24px + env(safe-area-inset-bottom,0px));font-family:var(--hand);font-size:20px}
+.links a{color:#0b4a1a}
 
-/* neutral line under cards */
-.contact-hint{ text-align:center; color:var(--muted); font-size:13.5px; margin-top:12px; }
-
-/* notice box */
-.notice-box{
-  margin-top:14px; padding:14px 16px; border-radius:14px;
-  background:var(--mist); border:1px solid var(--line);
-  font-size:14.5px; line-height:1.55; color:var(--ink);
-}
-.notice-box p{ margin:0; }
-.notice-box code{ background:var(--card); }
-
-/* FAQ accordion */
-.faq-group{ margin-top:20px; }
-.faq-cat{
-  font-size:12.5px; font-weight:700; color:var(--muted);
-  text-transform:uppercase; letter-spacing:.08em;
-  margin:18px 0 10px;
-}
-.faq{
-  background:var(--card); border:1px solid var(--line); border-radius:12px;
-  margin-bottom:8px; overflow:hidden;
-}
-.faq-q{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  width:100%; min-height:52px; padding:12px 16px;
-  text-align:left; font:inherit; font-size:15px; font-weight:600;
-  color:var(--ink); background:none; border:0; cursor:pointer;
-  line-height:1.4;
-}
-.faq-q:hover{ background:var(--mist); }
-.faq-q .chev{
-  color:var(--muted); font-size:13px; flex:none;
-  transition:transform .2s ease;
-}
-.faq-q[aria-expanded="true"] .chev{ transform:rotate(180deg); }
-.faq-a{
-  padding:0 16px 14px; color:var(--ink);
-  font-size:14.5px; line-height:1.55;
-}
-.faq-a p{ margin:0; }
-.faq-a a{ color:var(--green); text-decoration:underline; }
-.faq-a strong{ color:var(--ink); }
-
-/* footer links */
-.footer-links{
-  margin-top:36px; padding-top:18px; border-top:1px solid var(--line);
-  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
-  font-size:14px; color:var(--muted);
-}
-.footer-links a{ color:var(--green); text-decoration:underline; font-weight:600; }
-.footer-links a:hover{ color:var(--green-deep); }
-.footer-links .sep{ color:var(--muted); }
-
-/* toast */
-.toast{
-  position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom,0px));
-  transform:translate(-50%,20px);
-  z-index:80; background:var(--ink); color:var(--bg);
-  padding:12px 18px; border-radius:14px; font-size:14px;
-  max-width:88vw; text-align:center;
-  opacity:0; pointer-events:none;
-  transition:opacity .2s, transform .2s;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-}
-.toast.on{ opacity:1; transform:translate(-50%,0); }
-
-/* drawer */
+/* toast + drawer */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:80;
+  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:var(--sketch);font-family:var(--hand);font-size:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 .scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
-.drawer{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(78vw,320px);z-index:50;
-  background:var(--card);border-left:1px solid var(--line);
-  transform:translateX(105%);transition:transform .25s ease;visibility:hidden;
-  display:flex;flex-direction:column;padding:18px 0 calc(18px + env(safe-area-inset-bottom,0px))}
+.drawer{position:fixed;top:0;right:0;height:100dvh;width:min(78vw,320px);z-index:50;background:var(--bg);border-left:3px solid var(--ink);
+  transform:translateX(105%);transition:transform .25s;visibility:hidden;padding:18px 0}
 body.open .scrim{opacity:1;pointer-events:auto}
 body.open .drawer{transform:none;visibility:visible}
-.drawer .close{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;
-  display:grid;place-items:center;color:var(--green);font-size:18px}
-.drawer .close:hover{background:var(--mist)}
-.drawer h2{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
-  padding:0 20px;margin-top:6px}
-.drawer nav{display:flex;flex-direction:column;margin-top:14px}
-.drawer nav a{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 20px;font-size:16px;font-weight:600;
-  color:var(--ink);border-top:1px solid var(--line);text-decoration:none}
-.drawer nav a:last-child{border-bottom:1px solid var(--line)}
-.drawer nav a i{width:20px;text-align:center;color:var(--green)}
+.drawer .close{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:18px}
+.drawer h3{font-family:var(--hand);font-weight:400;font-size:24px;color:var(--green);padding:6px 20px}
+.drawer nav a{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 20px;font-family:var(--hand);font-size:22px;color:var(--ink);text-decoration:none;border-top:2px dashed var(--ink)}
 .drawer nav a:hover{background:var(--mist)}
-
-@media(prefers-reduced-motion:reduce){
-  .drawer,.scrim,.toast,.faq-q .chev{transition:none}
-}
+@media(prefers-reduced-motion:reduce){.drawer,.scrim,.toast,.q i{transition:none}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="wrap">
-    <div class="top">
-      <a class="logo" href="index.html" aria-label="Earnity home">
-        <img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'">
-      </a>
-      <div class="hright">
-        <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false">
-          <i class="fa-solid fa-moon" aria-hidden="true"></i>
-        </button>
-        <button class="iconbtn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
-          <i class="fa-solid fa-bars" aria-hidden="true"></i>
-        </button>
-      </div>
+  <div class="wrap top">
+    <a class="logo" href="index.html" aria-label="Earnity home"><img src="earnity.png" alt="Earnity" onerror="this.outerHTML='<span class=\'wordmark\'>Earni<span>ty</span></span>'"></a>
+    <div class="hright">
+      <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to dark theme" aria-pressed="false"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+      <button class="iconbtn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </div>
 </header>
 
 <main class="wrap">
-  <h1>Contact &amp; Help</h1>
-  <p class="sub">Contact Earnity or find answers to common questions.</p>
-
-  <section aria-labelledby="help-heading">
-    <h2 id="help-heading">How can we help?</h2>
-
-    <div class="contact-list">
-      <a class="contact-card" href="https://wa.me/256743677758" target="_blank" rel="noopener">
-        <span class="cc-icon cc-wa" aria-hidden="true"><i class="fa-brands fa-whatsapp"></i></span>
-        <span class="cc-body">
-          <span class="cc-title">WhatsApp us</span>
-          <span class="cc-sub">0743 677758</span>
-        </span>
-        <i class="fa-solid fa-arrow-up-right-from-square cc-go" aria-hidden="true"></i>
-      </a>
-
-      <a class="contact-card" href="tel:+256743677758">
-        <span class="cc-icon cc-call" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
-        <span class="cc-body">
-          <span class="cc-title">Call us</span>
-          <span class="cc-sub">0743 677758</span>
-        </span>
-        <i class="fa-solid fa-phone cc-go" aria-hidden="true"></i>
-      </a>
-
-      <div class="email-card">
-        <a class="cc-link" href="mailto:support@earnityug.com">
-          <span class="cc-icon cc-mail" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
-          <span class="cc-body">
-            <span class="cc-title">Help with an order, account or payment</span>
-            <span class="cc-sub">support@earnityug.com</span>
-          </span>
-        </a>
-        <button class="copy-btn" type="button" data-copy="support@earnityug.com"
-                aria-label="Copy support@earnityug.com to clipboard">Copy</button>
-      </div>
-
-      <div class="email-card">
-        <a class="cc-link" href="mailto:inquiry@earnityug.com">
-          <span class="cc-icon cc-mail" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
-          <span class="cc-body">
-            <span class="cc-title">Business, partnership or general inquiry</span>
-            <span class="cc-sub">inquiry@earnityug.com</span>
-          </span>
-        </a>
-        <button class="copy-btn" type="button" data-copy="inquiry@earnityug.com"
-                aria-label="Copy inquiry@earnityug.com to clipboard">Copy</button>
-      </div>
-
-      <div class="email-card report-card">
-        <a class="cc-link" href="mailto:report@earnityug.com">
-          <span class="cc-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
-          <span class="cc-body">
-            <span class="cc-title">Report a scam, fraud, abuse or a problem seller/buyer</span>
-            <span class="cc-sub">report@earnityug.com</span>
-          </span>
-        </a>
-        <button class="copy-btn" type="button" data-copy="report@earnityug.com"
-                aria-label="Copy report@earnityug.com to clipboard">Copy</button>
-      </div>
-    </div>
-
-    <p class="contact-hint">We reply as soon as we can.</p>
+  <section class="hero">
+    <h1>Hello, Earnit<b>y</b>?</h1>
+    <p class="lead">Got a question? We promise we're friendly.</p>
   </section>
 
-  <section aria-labelledby="before-heading">
-    <h2 id="before-heading">Before you write to us</h2>
-    <div class="notice-box">
-      <p>Include your order number (it looks like <code>EU-20261107-00012</code>) and the email you signed up with. Never send us your delivery code, SMS codes or passwords: Earnity will never ask for them.</p>
+  <section aria-labelledby="help">
+    <h2 id="help">How can we help?</h2>
+    <div class="list">
+      <div class="card">
+        <a class="cc" href="https://wa.me/256743677758" target="_blank" rel="noopener">
+          <span class="thumb"><img src="contact-whatsapp.jpg" width="76" height="76" alt=""></span>
+          <span><span class="t">WhatsApp us</span><span class="s">0743 677758</span></span>
+          <i class="fa-solid fa-arrow-up-right-from-square go" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="card">
+        <a class="cc" href="tel:+256743677758">
+          <span class="thumb"><img src="contact-call.jpg" width="76" height="76" alt=""></span>
+          <span><span class="t">Call us</span><span class="s">0743 677758</span></span>
+          <i class="fa-solid fa-phone go" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="card">
+        <a class="cc" href="mailto:support@earnityug.com">
+          <span class="thumb"><img src="contact-email.jpg" width="76" height="76" alt=""></span>
+          <span><span class="t">Help with an order, account or payment</span><span class="s">support@earnityug.com</span></span>
+        </a>
+        <button class="copy" type="button" data-copy="support@earnityug.com" aria-label="Copy support@earnityug.com to clipboard">Copy</button>
+      </div>
+      <div class="card">
+        <a class="cc" href="mailto:inquiry@earnityug.com">
+          <span class="ico" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+          <span><span class="t">Business, partnership or general inquiry</span><span class="s">inquiry@earnityug.com</span></span>
+        </a>
+        <button class="copy" type="button" data-copy="inquiry@earnityug.com" aria-label="Copy inquiry@earnityug.com to clipboard">Copy</button>
+      </div>
+      <div class="card report">
+        <a class="cc" href="mailto:report@earnityug.com">
+          <span class="ico" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <span><span class="t">Report a scam, fraud, abuse or a problem seller/buyer</span><span class="s">report@earnityug.com</span></span>
+        </a>
+        <button class="copy" type="button" data-copy="report@earnityug.com" aria-label="Copy report@earnityug.com to clipboard">Copy</button>
+      </div>
     </div>
+    <p class="hint">We reply as soon as we can.</p>
   </section>
 
-  <section aria-labelledby="faq-heading">
-    <h2 id="faq-heading">Common questions</h2>
-
-    <div class="faq-group">
-      <h3 class="faq-cat">Buying</h3>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q1" aria-expanded="false" aria-controls="a1">
-          <span>How do I buy something?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a1" role="region" aria-labelledby="q1" hidden>
-          <p>Open a product, tap <strong>Buy now</strong> and sign in. You pay a deposit through Pesapal (mobile money or card). You pay the rest directly to the seller when you receive your item.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q2" aria-expanded="false" aria-controls="a2">
-          <span>What is the delivery code?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a2" role="region" aria-labelledby="q2" hidden>
-          <p>After your deposit is confirmed you get a one-time code on your order page. Give it to the seller only when you have received your item. The seller enters it to complete the order. You can get a new code up to 3 times.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q3" aria-expanded="false" aria-controls="a3">
-          <span>I paid but my order still says awaiting payment.</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a3" role="region" aria-labelledby="q3" hidden>
-          <p>Confirmation can take a few minutes. Keep the order page open or check again later. Don't pay twice. If it doesn't update, contact <a href="mailto:support@earnityug.com">support@earnityug.com</a> with your order number.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q4" aria-expanded="false" aria-controls="a4">
-          <span>What if the seller doesn't deliver?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a4" role="region" aria-labelledby="q4" hidden>
-          <p>Open your order and tap <strong>Report a problem</strong>. If the seller doesn't deliver, your deposit is refunded.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q5" aria-expanded="false" aria-controls="a5">
-          <span>Can I cancel an order?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a5" role="region" aria-labelledby="q5" hidden>
-          <p>Yes, while it is still waiting for payment. Open your order and tap <strong>Cancel order</strong>. Unpaid orders also expire after 30 minutes.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="faq-group">
-      <h3 class="faq-cat">Referees</h3>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q6" aria-expanded="false" aria-controls="a6">
-          <span>How do I earn as a referee?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a6" role="region" aria-labelledby="q6" hidden>
-          <p>Choose products to refer and get your link. When someone buys through your link and the order is delivered, you earn the commission. You can also grant buyers a discount out of your own commission.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q7" aria-expanded="false" aria-controls="a7">
-          <span>When can I withdraw my money?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a7" role="region" aria-labelledby="q7" hidden>
-          <p>Commission becomes available after delivery. Go to your earnings page, tap <strong>Withdraw</strong>, confirm by email and SMS code, and the money is sent to your verified phone number.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="faq-group">
-      <h3 class="faq-cat">Sellers</h3>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q8" aria-expanded="false" aria-controls="a8">
-          <span>How do I start selling?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a8" role="region" aria-labelledby="q8" hidden>
-          <p>Create a seller account, set up your business and products. Earnity reviews each business before it becomes visible to buyers.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q9" aria-expanded="false" aria-controls="a9">
-          <span>When do I get my share?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a9" role="region" aria-labelledby="q9" hidden>
-          <p>Your share of the deposit is pending until you enter the buyer's delivery code at delivery.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="faq-group">
-      <h3 class="faq-cat">Account and safety</h3>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q10" aria-expanded="false" aria-controls="a10">
-          <span>Why do I need to verify my phone number?</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a10" role="region" aria-labelledby="q10" hidden>
-          <p>It protects your account and your payouts. You can save up to two numbers. After a number change, withdrawals pause for 24 hours.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q11" aria-expanded="false" aria-controls="a11">
-          <span>I can't sign in or sign up.</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a11" role="region" aria-labelledby="q11" hidden>
-          <p>Use the same Google account each time. If the security check doesn't load, try another browser, turn off VPN or battery saver, and try again. Still stuck? Message us on WhatsApp.</p>
-        </div>
-      </div>
-
-      <div class="faq">
-        <button class="faq-q" type="button" id="q12" aria-expanded="false" aria-controls="a12">
-          <span>Someone asked me to pay outside Earnity.</span>
-          <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
-        </button>
-        <div class="faq-a" id="a12" role="region" aria-labelledby="q12" hidden>
-          <p>Don't. Payments outside Earnity are not protected. Report it to <a href="mailto:report@earnityug.com">report@earnityug.com</a>.</p>
-        </div>
-      </div>
-    </div>
+  <section aria-labelledby="before">
+    <h2 id="before">Before you write to us</h2>
+    <div class="note">Include your order number (it looks like <code>EU-20261107-00012</code>) and the email you signed up with. Never send us your delivery code, SMS codes or passwords: Earnity will never ask for them.</div>
   </section>
 
-  <footer class="footer-links">
-    <a href="terms.html">Terms</a>
-    <span class="sep" aria-hidden="true">·</span>
-    <a href="privacy.html">Privacy</a>
-    <span class="sep" aria-hidden="true">·</span>
-    <a href="seller-terms.html">Seller Terms</a>
-  </footer>
+  <section aria-labelledby="faqh">
+    <h2 id="faqh">Common questions</h2>
+    <div id="faqs"></div>
+  </section>
 </main>
 
-<div class="scrim" id="scrim"></div>
+<footer class="sky">
+  <img src="contact-skyline.jpg" width="1584" height="672" alt="" loading="lazy">
+  <nav class="links" aria-label="Legal"><a href="terms.html">Terms</a><span aria-hidden="true">·</span><a href="privacy.html">Privacy</a><span aria-hidden="true">·</span><a href="seller-terms.html">Seller Terms</a></nav>
+</footer>
 
+<div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
-  <button class="close" id="closeBtn" type="button" aria-label="Close menu">
-    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-  </button>
-  <h2>Menu</h2>
+  <button class="close" id="closeBtn" type="button" aria-label="Close menu"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  <h3>Menu</h3>
   <nav>
     <a href="index.html"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
     <a href="account.html"><i class="fa-regular fa-user" aria-hidden="true"></i> Account</a>
     <a href="contact.html"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Contact</a>
   </nav>
 </aside>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ---------- theme ---------- */
-function setTheme(dark) {
-  document.documentElement.classList.toggle('dark', dark);
-  const b = document.getElementById('themeBtn');
-  b.innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}" aria-hidden="true"></i>`;
-  b.setAttribute('aria-pressed', dark ? 'true' : 'false');
-  b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-  try { localStorage.setItem('eu_theme', dark ? 'dark' : 'light'); } catch {}
+/* theme */
+function setTheme(d){
+  document.documentElement.classList.toggle('dark',d);
+  const b=document.getElementById('themeBtn');
+  b.innerHTML='<i class="fa-solid '+(d?'fa-sun':'fa-moon')+'" aria-hidden="true"></i>';
+  b.setAttribute('aria-pressed',d);
+  b.setAttribute('aria-label',d?'Switch to light theme':'Switch to dark theme');
+  try{localStorage.setItem('eu_theme',d?'dark':'light');}catch{}
 }
 setTheme(document.documentElement.classList.contains('dark'));
-document.getElementById('themeBtn').addEventListener('click', () => {
-  setTheme(!document.documentElement.classList.contains('dark'));
-});
+document.getElementById('themeBtn').addEventListener('click',()=>setTheme(!document.documentElement.classList.contains('dark')));
 
-/* ---------- drawer ---------- */
-const body = document.body;
-const drawer = document.getElementById('drawer');
-const scrim = document.getElementById('scrim');
-const menuBtn = document.getElementById('menuBtn');
-const closeBtn = document.getElementById('closeBtn');
-
-function openDrawer() {
-  body.classList.add('open');
-  drawer.setAttribute('aria-hidden', 'false');
-  menuBtn.setAttribute('aria-expanded', 'true');
-  setTimeout(() => { try { closeBtn.focus(); } catch {} }, 80);
-}
-function closeDrawer() {
-  body.classList.remove('open');
-  drawer.setAttribute('aria-hidden', 'true');
-  menuBtn.setAttribute('aria-expanded', 'false');
-  try { menuBtn.focus(); } catch {}
-}
-menuBtn.addEventListener('click', openDrawer);
-closeBtn.addEventListener('click', closeDrawer);
-scrim.addEventListener('click', closeDrawer);
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && body.classList.contains('open')) { closeDrawer(); return; }
-  if (e.key === 'Tab' && body.classList.contains('open')) {
-    const f = Array.from(drawer.querySelectorAll('a,button')).filter(el => el.offsetParent !== null);
-    if (!f.length) return;
-    const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+/* drawer */
+const body=document.body,drawer=document.getElementById('drawer'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('closeBtn');
+function openDrawer(){body.classList.add('open');drawer.setAttribute('aria-hidden','false');menuBtn.setAttribute('aria-expanded','true');setTimeout(()=>{try{closeBtn.focus()}catch{}},80)}
+function closeDrawer(){body.classList.remove('open');drawer.setAttribute('aria-hidden','true');menuBtn.setAttribute('aria-expanded','false');try{menuBtn.focus()}catch{}}
+menuBtn.addEventListener('click',openDrawer);closeBtn.addEventListener('click',closeDrawer);document.getElementById('scrim').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{
+  if(!body.classList.contains('open'))return;
+  if(e.key==='Escape'){closeDrawer();return}
+  if(e.key==='Tab'){
+    const f=[...drawer.querySelectorAll('a,button')],a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}
+    else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
   }
 });
 
-/* ---------- toast ---------- */
-let toastT = null;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('on');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('on'), 2400);
+/* toast + copy */
+let tt;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2400)}
+async function copyText(s){
+  try{await navigator.clipboard.writeText(s);return true}catch{}
+  try{const ta=document.createElement('textarea');ta.value=s;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:-1000px;opacity:0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok}catch{return false}
 }
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async e=>{
+  e.preventDefault();e.stopPropagation();
+  toast(await copyText(b.dataset.copy)?'Copied':"Couldn't copy. Long-press to select.");
+}));
 
-/* ---------- copy buttons ---------- */
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {}
-  try {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.position = 'fixed';
-    ta.style.top = '-1000px';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand('copy');
-    ta.remove();
-    return ok;
-  } catch { return false; }
-}
-document.querySelectorAll('.copy-btn').forEach(btn => {
-  btn.addEventListener('click', async e => {
-    e.preventDefault();
-    e.stopPropagation();
-    const text = btn.dataset.copy || '';
-    if (!text) return;
-    const ok = await copyText(text);
-    showToast(ok ? 'Copied' : "Couldn't copy. Long-press to select.");
-  });
+/* FAQ (one open at a time) */
+const FAQ=[
+['Buying',[
+['How do I buy something?','Open a product, tap <strong>Buy now</strong> and sign in. You pay a deposit through Pesapal (mobile money or card). You pay the rest directly to the seller when you receive your item.'],
+['What is the delivery code?','After your deposit is confirmed you get a one-time code on your order page. Give it to the seller only when you have received your item. The seller enters it to complete the order. You can get a new code up to 3 times.'],
+['I paid but my order still says awaiting payment.','Confirmation can take a few minutes. Keep the order page open or check again later. Don\'t pay twice. If it doesn\'t update, contact <a href="mailto:support@earnityug.com">support@earnityug.com</a> with your order number.'],
+['What if the seller doesn\'t deliver?','Open your order and tap <strong>Report a problem</strong>. If the seller doesn\'t deliver, your deposit is refunded.'],
+['Can I cancel an order?','Yes, while it is still waiting for payment. Open your order and tap <strong>Cancel order</strong>. Unpaid orders also expire after 30 minutes.']]],
+['Referees',[
+['How do I earn as a referee?','Choose products to refer and get your link. When someone buys through your link and the order is delivered, you earn the commission. You can also grant buyers a discount out of your own commission.'],
+['When can I withdraw my money?','Commission becomes available after delivery. Go to your earnings page, tap <strong>Withdraw</strong>, confirm by email and SMS code, and the money is sent to your verified phone number.']]],
+['Sellers',[
+['How do I start selling?','Create a seller account, set up your business and products. Earnity reviews each business before it becomes visible to buyers.'],
+['When do I get my share?','Your share of the deposit is pending until you enter the buyer\'s delivery code at delivery.']]],
+['Account and safety',[
+['Why do I need to verify my phone number?','It protects your account and your payouts. You can save up to two numbers. After a number change, withdrawals pause for 24 hours.'],
+['I can\'t sign in or sign up.','Use the same Google account each time. If the security check doesn\'t load, try another browser, turn off VPN or battery saver, and try again. Still stuck? Message us on WhatsApp.'],
+['Someone asked me to pay outside Earnity.','Don\'t. Payments outside Earnity are not protected. Report it to <a href="mailto:report@earnityug.com">report@earnityug.com</a>.']]]
+];
+let n=0,html='';
+FAQ.forEach(([cat,items])=>{
+  html+='<h3 class="cat">'+cat+'</h3>';
+  items.forEach(([q,a])=>{n++;html+='<div class="faq"><button class="q" type="button" id="q'+n+'" aria-expanded="false" aria-controls="a'+n+'"><span>'+q+'</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><div class="a" id="a'+n+'" role="region" aria-labelledby="q'+n+'" hidden><p>'+a+'</p></div></div>'});
 });
-
-/* ---------- FAQ accordion (one open at a time) ---------- */
-const faqBtns = Array.from(document.querySelectorAll('.faq-q'));
-
-function setOpen(btn, open) {
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  const id = btn.getAttribute('aria-controls');
-  const panel = id ? document.getElementById(id) : null;
-  if (panel) panel.hidden = !open;
-}
-
-faqBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const wasOpen = btn.getAttribute('aria-expanded') === 'true';
-    faqBtns.forEach(b => { if (b !== btn) setOpen(b, false); });
-    setOpen(btn, !wasOpen);
-  });
-  btn.addEventListener('keydown', e => {
-    const i = faqBtns.indexOf(btn);
-    if (e.key === 'ArrowDown') { e.preventDefault(); faqBtns[(i + 1) % faqBtns.length].focus(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); faqBtns[(i - 1 + faqBtns.length) % faqBtns.length].focus(); }
-    else if (e.key === 'Home') { e.preventDefault(); faqBtns[0].focus(); }
-    else if (e.key === 'End') { e.preventDefault(); faqBtns[faqBtns.length - 1].focus(); }
+document.getElementById('faqs').innerHTML=html;
+const qs=[...document.querySelectorAll('.q')];
+function setOpen(b,o){b.setAttribute('aria-expanded',o);document.getElementById(b.getAttribute('aria-controls')).hidden=!o}
+qs.forEach((b,i)=>{
+  b.addEventListener('click',()=>{const was=b.getAttribute('aria-expanded')==='true';qs.forEach(x=>x!==b&&setOpen(x,false));setOpen(b,!was)});
+  b.addEventListener('keydown',e=>{
+    const k={ArrowDown:(i+1)%qs.length,ArrowUp:(i-1+qs.length)%qs.length,Home:0,End:qs.length-1}[e.key];
+    if(k!==undefined){e.preventDefault();qs[k].focus()}
   });
 });
 </script>
