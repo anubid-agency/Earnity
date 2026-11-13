@@ -144,7 +144,7 @@ nav button[aria-current="page"]{background:var(--orange)}
   transform:translateY(105%);transition:transform .25s ease;visibility:hidden}
 body.open .scrim{opacity:1;pointer-events:auto}
 body.open .sheet{transform:none;visibility:visible}
-.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px;cursor:grab;touch-action:none}
 .biz{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 .biz .name{font-weight:700;font-size:16px}
 .biz .lvl{font-size:13px;color:var(--muted)}
@@ -219,9 +219,32 @@ body.det .detail{transform:none;visibility:visible}
   opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){.sheet,.scrim,.detail,.hero .bg i,.toast{transition:none}.skel,.sk{animation:none}}
+
+/* Cookie Banner */
+.cookie-modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:20px;backdrop-filter:blur(2px)}
+.cookie-modal.on{display:flex}
+.cookie-card{background:#fff;border-radius:24px;max-width:400px;width:100%;padding:30px 24px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:popIn .3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;transform:scale(0.9);opacity:0}
+@keyframes popIn{to{transform:scale(1);opacity:1}}
+.cookie-card img{width:100%;max-width:240px;margin:0 auto 20px;display:block}
+.cookie-card h2{font-size:20px;font-weight:800;color:var(--green-deep);margin-bottom:10px}
+.cookie-card p{font-size:14.5px;color:var(--muted);margin-bottom:24px;line-height:1.5}
+.cookie-btns{display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
+
+<!-- Cookie Popup -->
+<div class="cookie-modal" id="cookieModal">
+  <div class="cookie-card">
+    <img src="cookie.png" alt="Cookies" onerror="this.style.display='none'">
+    <h2>We value your privacy</h2>
+    <p>We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.</p>
+    <div class="cookie-btns">
+      <button class="btn solid" id="cookieAccept" style="background:var(--orange);color:#fff;justify-content:center">Accept All</button>
+      <button class="btn line" id="cookieDecline" style="border-color:var(--line);color:var(--muted);justify-content:center">Decline</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="wrap">
@@ -356,6 +379,19 @@ function toast(msg) {
   const t = $("toast"); t.textContent = msg; t.classList.add("on");
   clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2800);
 }
+
+/* ================= COOKIE LOGIC ================= */
+if (!localStorage.getItem("eu_cookie_consent")) {
+  setTimeout(() => $("cookieModal").classList.add("on"), 1000);
+}
+$("cookieAccept").onclick = () => {
+  localStorage.setItem("eu_cookie_consent", "accepted");
+  $("cookieModal").classList.remove("on");
+};
+$("cookieDecline").onclick = () => {
+  localStorage.setItem("eu_cookie_consent", "declined");
+  $("cookieModal").classList.remove("on");
+};
 
 /* ================= STATE ================= */
 const S = {
@@ -845,6 +881,38 @@ function openProductSheet(id) {
   openSheet(`<div class="grab"></div>
     <div class="biz"><div><div class="name">${esc(x.biz ? x.biz.name : "")}</div><div class="lvl">${esc(lvlName(l))}</div></div>${lvlBadge(l)}</div>
     <h2>${esc(x.name)}</h2><div class="sp">UGX ${fmt(x.eff)}</div>${first}${rows}`);
+  
+  // --- Drag to close logic ---
+  const grab = sheet.querySelector('.grab');
+  let startY = 0;
+  let currentY = 0;
+  let isDragging = false;
+
+  grab.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+
+  grab.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    currentY = e.touches[0].clientY - startY;
+    if (currentY > 0) {
+      sheet.style.transform = `translateY(${currentY}px)`;
+    }
+  }, { passive: true });
+
+  grab.addEventListener('touchend', () => {
+    isDragging = false;
+    sheet.style.transition = 'transform .25s ease';
+    if (currentY > 100) {
+      closeSheet();
+      sheet.style.transform = ''; // reset
+    } else {
+      sheet.style.transform = ''; // reset
+    }
+    currentY = 0;
+  });
 }
 function soon() {
   closeSheet(); toast("This action is connected in the next step.");
@@ -979,7 +1047,19 @@ function doAct(act, el) {
   const id = S.cur;
   switch (act) {
     case "see": closeSheet(); openDetail(id); break;
-    case "buy": if (!needAccount(true)) return; location.href = "/checkout.html?product=" + encodeURIComponent(id); break;
+    case "buy": 
+      if (!needAccount(true)) return; 
+      closeSheet();
+      toast("Creating order...");
+      api(CFG.API, "/orders/create", { method: "POST", body: { product_id: id } })
+        .then(r => {
+          if (r.ok && r.data.order_id) {
+            location.href = "/checkout.html?order=" + r.data.order_id;
+          } else {
+            toast(r.data.error || "Could not create order. Try again.");
+          }
+        });
+      break;
     case "refer": handleRefer(el); break;
     case "request": if (!needAccount(false)) return; openDiscountSheet(id); break;
     case "report": if (!needAccount(false)) return; soon(); break;
@@ -1110,6 +1190,10 @@ async function initAuth() {
     S.fbMod = authMod;
     const app = appMod.initializeApp(CFG.FIREBASE);
     S.auth = authMod.getAuth(app);
+    
+    // Force local persistence so user stays logged in across tabs
+    authMod.setPersistence(S.auth, authMod.browserLocalPersistence).catch(() => {});
+
     authMod.onAuthStateChanged(S.auth, async u => {
       const was = !!S.user; S.user = u || null;
       if (u && !was) {
