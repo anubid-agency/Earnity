@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Earnity</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+try{ if(localStorage.getItem('eu_theme')==='dark') document.documentElement.classList.add('dark'); }catch(e){}
+</script>
+<style>
+:root{
+  --green:#0b4a1a; --green-deep:#05301a; --orange:#f26b21; --orange-soft:#fff1e8;
+  --mist:#f3f5f4; --line:#dfe5e1; --ink:#16201a; --muted:#5d6a62; --soft-green:#e3f1e7; --red:#b3261e;
+  --radius:18px; --bg:#ffffff; --card:#ffffff;
+  --btn:#b8480c; --btn-ink:#ffffff;
+  --ok-bg:#e3f1e7; --ok-fg:#0b4a1a;
+  --bad-bg:#fdecea; --bad-fg:#99231b;
+  --warn-bg:#fff0dd; --warn-fg:#7a4204;
+}
+html.dark{
+  --green:#8fe3ae; --green-deep:#04150c; --orange:#ff9a5c; --orange-soft:#3a2013;
+  --mist:#151d18; --line:#2a352e; --ink:#eaf1ec; --muted:#a4b3a9; --soft-green:#16301f; --red:#ffb2a6;
+  --bg:#0a100c; --card:#101713;
+  --btn:#ff9a5c; --btn-ink:#1d1108;
+  --ok-bg:#12301e; --ok-fg:#a7ecc0;
+  --bad-bg:#3a1814; --bad-fg:#ffb2a6;
+  --warn-bg:#3a2810; --warn-fg:#ffd08f;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.4;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:var(--green);text-decoration:none}
+[hidden]{display:none!important}
+
+/* Header & Nav */
+header{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:Georgia,serif;font-size:24px;color:var(--green);font-weight:600}
+.logo span{color:var(--orange)}
+.hright{display:flex;align-items:center;gap:12px}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--green);font-size:18px}
+.iconbtn:hover{background:var(--mist)}
+
+/* Layout */
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.dash-header h1{font-size:22px;color:var(--green-deep);font-weight:800}
+.nav-select{padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:15px;color:var(--green);outline:none;cursor:pointer}
+
+/* Cards & Tables */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:left}
+th{font-size:13px;color:var(--muted);font-weight:600;padding:12px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:14px 8px;border-bottom:1px solid var(--line);font-size:14.5px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+
+/* Stats Grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:center}
+.stat h3{font-size:13px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.stat p{font-size:28px;font-weight:800;color:var(--green)}
+.stat.warn p{color:var(--orange)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;border-radius:10px;font-weight:700;font-size:13.5px;border:0;cursor:pointer;transition:opacity .2s}
+.btn.solid{background:var(--green);color:#fff}
+.btn.orange{background:var(--orange);color:#fff}
+.btn.red{background:var(--red);color:#fff}
+.btn.line{border:1.5px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.5}
+.btn-sm{padding:6px 12px;font-size:12.5px}
+
+/* Badges */
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.badge.pending{background:var(--warn-bg);color:var(--warn-fg)}
+.badge.approved{background:var(--ok-bg);color:var(--ok-fg)}
+.badge.suspended,.badge.blocked{background:var(--bad-bg);color:var(--bad-fg)}
+.badge.awaiting_approval,.badge.ready_to_pay{background:var(--orange-soft);color:var(--orange)}
+
+/* Utility */
+.center{text-align:center;padding:60px 20px;color:var(--muted)}
+.loader{font-size:24px;margin-bottom:16px;color:var(--green)}
+.mono{font-family:ui-monospace,monospace;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Earni<span>ty</span> Admin</div>
+  <div class="hright">
+    <button class="iconbtn" id="themeBtn" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+    <button class="iconbtn" id="logoutBtn" aria-label="Log out" hidden><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Auth Loading -->
+  <div id="authState" class="center">
+    <div class="loader"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+    <p>Authenticating with Google...</p>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="app" hidden>
+    <div class="dash-header">
+      <h1 id="pageTitle">Dashboard</h1>
+      <select id="sectionSelect" class="nav-select">
+        <option value="dashboard">📊 Dashboard</option>
+        <option value="businesses">🏢 Businesses</option>
+        <option value="payouts">💸 Payouts</option>
+        <option value="orders">📦 Orders</option>
+        <option value="users">👥 Users</option>
+      </select>
+    </div>
+
+    <div id="content"></div>
+  </div>
+</main>
+
+<script type="module">
+/* ================= CONFIG ================= */
+const CFG = {
+  ADMIN_API: "https://earnity-admin.anubisdigital114-9df.workers.dev",
+  FIREBASE: {
+    apiKey: "AIzaSyBImxDs7TBylV_FAFwYzzU7d9SFBV5BJtI",
+    authDomain: "earnityug.firebaseapp.com",
+    projectId: "earnityug",
+    storageBucket: "earnityug.firebasestorage.app",
+    messagingSenderId: "17057068015",
+    appId: "1:17057068015:web:dc4d835783015b4247bc1a"
+  }
+};
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-US");
+const ugx = v => "UGX " + fmt(v);
+
+let S = { user: null, token: null };
+
+/* ================= THEME ================= */
+function setTheme(dark) {
+  document.documentElement.classList.toggle("dark", dark);
+  $("themeBtn").innerHTML = `<i class="fa-solid ${dark ? "fa-sun" : "fa-moon"}"></i>`;
+  try { localStorage.setItem("eu_theme", dark ? "dark" : "light"); } catch {}
+}
+$("themeBtn").onclick = () => setTheme(!document.documentElement.classList.contains("dark"));
+setTheme(document.documentElement.classList.contains("dark"));
+
+/* ================= API ================= */
+async function api(path, opt = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (S.token) headers.Authorization = "Bearer " + S.token;
+  
+  try {
+    const res = await fetch(CFG.ADMIN_API + path, {
+      method: opt.method || "GET",
+      headers,
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
+  } catch (err) {
+    if (err.message === 'admin_only' || err.message === 'not_registered') {
+      $("content").innerHTML = `<div class="center" style="color:var(--red)"><h2>Access Denied</h2><p>You do not have admin permissions.</p></div>`;
+    } else {
+      alert("Error: " + err.message);
+    }
+    throw err;
+  }
+}
+
+/* ================= AUTH & ROUTING ================= */
+async function init() {
+  try {
+    const V = "10.14.1";
+    const appMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const authMod = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = appMod.initializeApp(CFG.FIREBASE);
+    const auth = authMod.getAuth(app);
+
+    authMod.onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        S.user = user;
+        S.token = await user.getIdToken();
+        $("authState").hidden = true;
+        $("app").hidden = false;
+        $("logoutBtn").hidden = false;
+        loadSection("dashboard");
+      } else {
+        // Require Google Login immediately
+        const provider = new authMod.GoogleAuthProvider();
+        try {
+          await authMod.signInWithPopup(auth, provider);
+        } catch (e) {
+          $("authState").innerHTML = `<p style="color:var(--red)">Login failed. Please refresh.</p>`;
+        }
+      }
+    });
+  } catch (e) {
+    $("authState").innerHTML = `<p style="color:var(--red)">Failed to load authentication.</p>`;
+  }
+}
+
+$("logoutBtn").onclick = async () => {
+  const authMod = await import(`https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js`);
+  await authMod.signOut(S.user.auth);
+  location.reload();
+};
+
+/* ================= UI RENDERERS ================= */
+$("sectionSelect").onchange = (e) => loadSection(e.target.value);
+
+async function loadSection(section) {
+  $("sectionSelect").value = section;
+  $("pageTitle").textContent = section.charAt(0).toUpperCase() + section.slice(1);
+  $("content").innerHTML = `<div class="center"><i class="fa-solid fa-circle-notch fa-spin loader"></i></div>`;
+
+  try {
+    if (section === "dashboard") await renderDashboard();
+    else if (section === "businesses") await renderBusinesses();
+    else if (section === "payouts") await renderPayouts();
+    else if (section === "orders") await renderOrders();
+    else if (section === "users") await renderUsers();
+  } catch (err) {
+    // Errors handled by api()
+  }
+}
+
+async function renderDashboard() {
+  const { stats } = await api("/stats");
+  $("content").innerHTML = `
+    <div class="stats">
+      <div class="stat"><h3>Total Users</h3><p>${fmt(stats.total_users)}</p></div>
+      <div class="stat"><h3>Sellers</h3><p>${fmt(stats.total_sellers)}</p></div>
+      <div class="stat"><h3>Referees</h3><p>${fmt(stats.total_referees)}</p></div>
+      <div class="stat"><h3>Active Businesses</h3><p>${fmt(stats.active_businesses)}</p></div>
+      <div class="stat warn"><h3>Pending Businesses</h3><p>${fmt(stats.pending_businesses)}</p></div>
+      <div class="stat"><h3>Total Orders</h3><p>${fmt(stats.total_orders)}</p></div>
+      <div class="stat warn"><h3>Awaiting Payment</h3><p>${fmt(stats.pending_orders)}</p></div>
+      <div class="stat warn"><h3>Pending Payouts</h3><p>${fmt(stats.pending_payouts)}</p></div>
+    </div>
+  `;
+}
+
+async function renderBusinesses() {
+  const { businesses } = await api("/businesses?status=pending");
+  if (!businesses.length) {
+    $("content").innerHTML = `<div class="center">No pending businesses.</div>`;
+    return;
+  }
+
+  let html = `<div class="card"><table>
+    <thead><tr><th>Business</th><th>Owner</th><th>Category</th><th>Date</th><th>Action</th></tr></thead>
+    <tbody>
+      ${businesses.map(b => `
+        <tr>
+          <td><b>${esc(b.name)}</b><br><span class="mono">${esc(b.subdomain)}</span></td>
+          <td>${esc(b.owner_name)}<br><span class="mono">${esc(b.owner_email)}</span></td>
+          <td>${esc(b.category_id)}</td>
+          <td>${new Date(b.created_at * 1000).toLocaleDateString()}</td>
+          <td>
+            <button class="btn solid btn-sm" onclick="approveBiz('${b.id}', 'approved')">Approve</button>
+            <button class="btn red btn-sm" onclick="approveBiz('${b.id}', 'suspended')">Reject</button>
+          </td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table></div>`;
+  $("content").innerHTML = html;
+}
+
+window.approveBiz = async (id, action) => {
+  if (!confirm(`Are you sure you want to mark this business as ${action}?`)) return;
+  await api("/businesses/action", { method: "POST", body: { business_id: id, action } });
+  loadSection("businesses");
+};
+
+async function renderPayouts() {
+  const { payouts } = await api("/payouts?status=awaiting_approval");
+  if (!payouts.length) {
+    $("content").innerHTML = `<div class="center">No pending payouts.</div>`;
+    return;
+  }
+
+  let html = `<div class="card"><table>
+    <thead><tr><th>User</th><th>Amount</th><th>Fee</th><th>Net</th><th>Action</th></tr></thead>
+    <tbody>
+      ${payouts.map(p => `
+        <tr>
+          <td><b>${esc(p.display_name)}</b><br><span class="mono">${esc(p.email)}</span></td>
+          <td>${ugx(p.amount_ugx)}</td>
+          <td>${ugx(p.fee_ugx)}</td>
+          <td><b>${ugx(p.net_ugx)}</b></td>
+          <td>
+            <button class="btn orange btn-sm" onclick="approvePayout('${p.id}', 'ready_to_pay')">Approve</button>
+            <button class="btn red btn-sm" onclick="approvePayout('${p.id}', 'rejected')">Reject</button>
+          </td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table></div>`;
+  $("content").innerHTML = html;
+}
+
+window.approvePayout = async (id, action) => {
+  if (!confirm(`Mark this payout as ${action}?`)) return;
+  await api("/payouts/action", { method: "POST", body: { payout_id: id, action } });
+  loadSection("payouts");
+};
+
+async function renderOrders() {
+  const { orders } = await api("/orders?status=paid");
+  if (!orders.length) {
+    $("content").innerHTML = `<div class="center">No paid orders currently active.</div>`;
+    return;
+  }
+
+  let html = `<div class="card"><table>
+    <thead><tr><th>Order</th><th>Product</th><th>Buyer</th><th>Seller</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>
+      ${orders.map(o => `
+        <tr>
+          <td class="mono">${esc(o.order_number)}</td>
+          <td>${esc(o.product_name)}</td>
+          <td>${esc(o.buyer_name)}</td>
+          <td>${esc(o.seller_name)}</td>
+          <td>${ugx(o.total_charged_ugx)}</td>
+          <td><span class="badge ${esc(o.status)}">${esc(o.status)}</span></td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table></div>`;
+  $("content").innerHTML = html;
+}
+
+async function renderUsers() {
+  // For users, we don't have a full list endpoint in the admin worker yet, 
+  // so we'll just render a placeholder that allows blocking by ID (if you extend it later)
+  $("content").innerHTML = `<div class="center">User management requires a search feature. Coming soon.</div>`;
+}
+
+/* ================= START ================= */
+init();
+</script>
+</body>
+</html>
